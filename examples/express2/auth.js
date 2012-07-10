@@ -4,6 +4,7 @@
 var passport = require('passport')
   , LocalStrategy = require('passport-local').Strategy
   , ClientPasswordStrategy = require('passport-oauth2-client-password').Strategy
+  , BearerStrategy = require('passport-http-bearer').Strategy
   , db = require('./db')
 
 
@@ -44,6 +45,23 @@ passport.use(new ClientPasswordStrategy(
       if (!client) { return done(null, false); }
       if (client.clientSecret != clientSecret) { return done(null, false); }
       return done(null, client);
+    });
+  }
+));
+
+passport.use(new BearerStrategy(
+  function(accessToken, done) {
+    db.accessTokens.find(accessToken, function(err, token) {
+      if (err) { return done(err); }
+      if (!token) { return done(null, false); }
+      
+      db.users.find(token.userID, function(err, user) {
+        if (err) { return done(err); }
+        if (!user) { return done(null, false); }
+        // to keep this example simple, restricted scopes are not implemented
+        var info = { scope: '*' }
+        done(null, user, info);
+      });
     });
   }
 ));

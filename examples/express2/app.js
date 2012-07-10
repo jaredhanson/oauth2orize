@@ -5,7 +5,7 @@ var express = require('express')
   , passport = require('passport')
   , site = require('./site')
   , oauth2 = require('./oauth2')
-  //, user = require('./user')
+  , user = require('./user')
   , util = require('util')
   
   
@@ -43,5 +43,7 @@ app.get('/account', site.account);
 app.get('/dialog/authorize', oauth2.authorization);
 app.post('/dialog/authorize/decision', oauth2.decision);
 app.post('/oauth/token', oauth2.token);
+
+app.get('/api/userinfo', user.info);
 
 app.listen(3000);
