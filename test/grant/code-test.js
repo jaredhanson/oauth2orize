@@ -528,6 +528,54 @@ vows.describe('code').addBatch({
     },
   },
   
+  'response handling function that does not issue a code': {
+    topic: function() {
+      return code(function(client, redirectURI, user, done) {
+        return done(null, false);
+      });
+    },
+    
+    'when handling a request': {
+      topic: function(code) {
+        var self = this;
+        var req = new MockRequest();
+        var res = new MockResponse();
+        res.done = function() {
+          self.callback(new Error('should not be called'));
+        }
+        
+        var txn = {};
+        txn.client = { id: 'c123', name: 'Example' };
+        txn.redirectURI = 'http://example.com/auth/callback';
+        txn.req = {
+          redirectURI: 'http://example.com/auth/other/callback'
+        }
+        txn.user = { id: 'u123', name: 'Bob' };
+        txn.res = { allow: true }
+        
+        function next(err) {
+          self.callback(null, req, res, err);
+        }
+        process.nextTick(function () {
+          code.response(txn, res, next)
+        });
+      },
+
+      'should not respond' : function(err, req, res, e) {
+        assert.isNull(err);
+      },
+      'should next with error' : function(err, req, res, e) {
+        assert.instanceOf(e, Error);
+        assert.equal(e.constructor.name, 'AuthorizationError')
+        assert.equal(e.code, 'access_denied')
+        assert.equal(e.message, 'authorization server denied request')
+      },
+      'should not parse request' : function(err, req, res, e) {
+        assert.isUndefined(res._redirect);
+      },
+    },
+  },
+  
   'response handling function that errors while processing a decision': {
     topic: function() {
       return code(function(client, redirectURI, user, done) {
