@@ -476,6 +476,45 @@ vows.describe('password').addBatch({
     },
   },
   
+  'middleware that does not issue an access token': {
+    topic: function() {
+      return password(function(client, username, passwd, done) {
+        done(null, false)
+      });
+    },
+
+    'when handling a request': {
+      topic: function(authorizationCode) {
+        var self = this;
+        var req = new MockRequest();
+        req.otheruser = { id: 'c123', name: 'Example' };
+        req.body = { username: 'bob', password: 'shh' };
+        
+        var res = new MockResponse();
+        res.done = function() {
+          self.callback(new Error('should not be called'));
+        }
+
+        function next(err) {
+          self.callback(null, req, res, err);
+        }
+        process.nextTick(function () {
+          authorizationCode(req, res, next)
+        });
+      },
+
+      'should not respond to request' : function(err, req, res) {
+        assert.isNull(err);
+      },
+      'should next with error' : function(err, req, res, e) {
+        assert.instanceOf(e, Error);
+        assert.equal(e.constructor.name, 'AuthorizationError')
+        assert.equal(e.code, 'invalid_grant')
+        assert.equal(e.message, 'invalid resource owner credentials')
+      },
+    },
+  },
+  
   'middleware that errors while issuing an access token': {
     topic: function() {
       return password(function(client, username, passwd, done) {
