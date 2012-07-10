@@ -476,6 +476,45 @@ vows.describe('refreshToken').addBatch({
     },
   },
   
+  'middleware that does not issue an access token': {
+    topic: function() {
+      return refreshToken(function(client, refreshToken, done) {
+        return done(null, false);
+      });
+    },
+
+    'when handling a request': {
+      topic: function(refreshToken) {
+        var self = this;
+        var req = new MockRequest();
+        req.user = { id: 'c123', name: 'Example' };
+        req.body = { refresh_token: 'refreshing' };
+        
+        var res = new MockResponse();
+        res.done = function() {
+          self.callback(new Error('should not be called'));
+        }
+
+        function next(err) {
+          self.callback(null, req, res, err);
+        }
+        process.nextTick(function () {
+          refreshToken(req, res, next)
+        });
+      },
+
+      'should not respond to request' : function(err, req, res) {
+        assert.isNull(err);
+      },
+      'should next with error' : function(err, req, res, e) {
+        assert.instanceOf(e, Error);
+        assert.equal(e.constructor.name, 'AuthorizationError')
+        assert.equal(e.code, 'invalid_grant')
+        assert.equal(e.message, 'invalid refresh token')
+      },
+    },
+  },
+  
   'middleware that errors while issuing an access token': {
     topic: function() {
       return refreshToken(function(client, refreshToken, done) {
