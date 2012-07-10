@@ -3,6 +3,7 @@
  */
 var passport = require('passport')
   , LocalStrategy = require('passport-local').Strategy
+  , ClientPasswordStrategy = require('passport-oauth2-client-password').Strategy
   , db = require('./db')
 
 
@@ -33,3 +34,16 @@ passport.deserializeUser(function(id, done) {
     done(err, user);
   });
 });
+
+
+
+passport.use(new ClientPasswordStrategy(
+  function(clientId, clientSecret, done) {
+    db.clients.findByClientId(clientId, function(err, client) {
+      if (err) { return done(err); }
+      if (!client) { return done(null, false); }
+      if (client.clientSecret != clientSecret) { return done(null, false); }
+      return done(null, client);
+    });
+  }
+));

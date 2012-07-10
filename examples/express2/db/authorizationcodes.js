@@ -3,7 +3,7 @@ var codes = {};
 
 exports.find = function(key, done) {
   var code = codes[key];
-  return done(null, codes);
+  return done(null, code);
 };
 
 exports.save = function(code, clientID, redirectURI, userID, done) {

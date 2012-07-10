@@ -43,6 +43,20 @@ server.grant(oauth2orize.grant.code(function(client, redirectURI, user, ares, do
   });
 }));
 
+server.exchange(oauth2orize.exchange.authorizationCode(function(client, code, redirectURI, done) {
+  db.authorizationCodes.find(code, function(err, authCode) {
+    if (err) { return done(err); }
+    if (client.id !== authCode.clientID) { return done(null, false); }
+    if (redirectURI !== authCode.redirectURI) { return done(null, false); }
+    
+    var token = utils.uid(256)
+    db.accessTokens.save(token, authCode.userID, authCode.clientID, function(err) {
+      if (err) { return done(err); }
+      done(null, token);
+    });
+  });
+}));
+
 
 
 
@@ -67,3 +81,19 @@ exports.decision = [
   login.ensureLoggedIn(),
   server.decision()
 ]
+
+// TODO: Authenticate using HTTP Basic, in addition to client password
+exports.token = [
+  /*
+  function(req, res, next) {
+    console.log('!!!! TOKEN EXCHANGE !!!!');
+    console.dir(req.headers)
+    console.dir(req.body)
+    next();
+  },
+  */
+  passport.authenticate('oauth2-client-password', { session: false }),
+  server.token(),
+  server.errorHandler()
+]
+
