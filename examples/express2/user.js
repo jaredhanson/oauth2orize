@@ -13,9 +13,7 @@ exports.info = [
   */
   passport.authenticate('bearer', { session: false }),
   function(req, res) {
-    // TODO: Set scope in response, for demonstration purposes
-    console.log('AUTH INFO');
-    console.dir(req.authInfo)
-    res.json({ user_id: req.user.id, name: req.user.name })
+    // TODO: Make note of authInfo
+    res.json({ user_id: req.user.id, name: req.user.name, scope: req.authInfo.scope })
   }
 ]

@@ -92,7 +92,7 @@ exports.token = [
     next();
   },
   */
-  passport.authenticate('oauth2-client-password', { session: false }),
+  passport.authenticate(['basic', 'oauth2-client-password'], { session: false }),
   server.token(),
   server.errorHandler()
 ]

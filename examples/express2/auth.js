@@ -3,6 +3,7 @@
  */
 var passport = require('passport')
   , LocalStrategy = require('passport-local').Strategy
+  , BasicStrategy = require('passport-http').BasicStrategy
   , ClientPasswordStrategy = require('passport-oauth2-client-password').Strategy
   , BearerStrategy = require('passport-http-bearer').Strategy
   , db = require('./db')
@@ -37,6 +38,16 @@ passport.deserializeUser(function(id, done) {
 });
 
 
+passport.use(new BasicStrategy(
+  function(username, password, done) {
+    db.clients.findByClientId(username, function(err, client) {
+      if (err) { return done(err); }
+      if (!client) { return done(null, false); }
+      if (client.clientSecret != clientSecret) { return done(null, false); }
+      return done(null, client);
+    });
+  }
+));
 
 passport.use(new ClientPasswordStrategy(
   function(clientId, clientSecret, done) {
