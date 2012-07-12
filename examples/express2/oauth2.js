@@ -34,6 +34,20 @@ server.deserializeClient(function(id, done) {
   });
 });
 
+// Register supported grant types.
+//
+// OAuth 2.0 specifies a framework that allows users to grant client
+// applications limited access to their protected resources.  It does this
+// through a process of the user granting access, and the client exchanging
+// the grant for an access token.
+
+// Grant authorization codes.  The callback takes the `client` requesting
+// authorization, the `redirectURI` (which is used as a verifier in the
+// subsequent exchange), the authenticated `user` granting access, and
+// their response, which contains approved scope, duration, etc. as parsed by
+// the application.  The application issues a code, which is bound to these
+// values, and will be exchanged for an access token.
+
 server.grant(oauth2orize.grant.code(function(client, redirectURI, user, ares, done) {
   var code = utils.uid(16)
   
@@ -43,7 +57,13 @@ server.grant(oauth2orize.grant.code(function(client, redirectURI, user, ares, do
   });
 }));
 
-server.exchange(oauth2orize.exchange.authorizationCode(function(client, code, redirectURI, done) {
+// Exchange authorization codes for access tokens.  The callback accepts the
+// `client`, which is exchanging `code` and any `redirectURI` from the
+// authorization request for verification.  If these values are validated, the
+// application issues an access token on behalf of the user who authorized the
+// code.
+
+server.exchange(oauth2orize.exchange.code(function(client, code, redirectURI, done) {
   db.authorizationCodes.find(code, function(err, authCode) {
     if (err) { return done(err); }
     if (client.id !== authCode.clientID) { return done(null, false); }
