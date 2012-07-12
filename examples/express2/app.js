@@ -17,6 +17,7 @@ app.use(express.logger());
 app.use(express.cookieParser());
 app.use(express.bodyParser());
 app.use(express.session({ secret: 'keyboard cat' }));
+/*
 app.use(function(req, res, next) {
   console.log('-- session --');
   console.dir(req.session);
@@ -24,6 +25,7 @@ app.use(function(req, res, next) {
   console.log('-------------');
   next()
 });
+*/
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(app.router);
