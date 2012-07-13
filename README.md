@@ -99,7 +99,26 @@ using `decision` middleware.
        
 Based on the grant type requested by the client, the appropriate grant
 middleware registered above will be invoked to issue an authorization code.
-       
+
+#### Session Serialization
+
+Obtaining the user's authorization involves multiple request/response pairs.
+During this time, an OAuth 2.0 transaction will be serialized to the session.
+Client serialization functions are registered to customize this process, which
+will typically be as simple as serializing the client ID, and finding the client
+by ID when deserializing.
+
+    server.serializeClient(function(client, done) {
+      return done(null, client.id);
+    });
+
+    server.deserializeClient(function(id, done) {
+      Clients.findOne(id, function(err, client) {
+        if (err) { return done(err); }
+        return done(null, client);
+      });
+    });
+
 #### Implement Token Endpoint
 
 Once a user has approved access, the authorization grant can be exchanged by the
