@@ -67,6 +67,160 @@ vows.describe('Server').addBatch({
     },
   },
   
+  'registering a grant module': {
+    topic: function() {
+      var self = this;
+      var server = new Server();
+      var mod = {};
+      mod.name = 'foo';
+      mod.request = function(req) {};
+      mod.response = function(txn, res, next) {};
+      server.grant(mod);
+      
+      return server;
+    },
+    
+    'should have one request parsers': function (s) {
+      assert.lengthOf(s._reqParsers, 1);
+      assert.equal(s._reqParsers[0].type, 'foo');
+      assert.isFunction(s._reqParsers[0].handle);
+      assert.lengthOf(s._reqParsers[0].handle, 1);
+    },
+    'should have one response handlers': function (s) {
+      assert.lengthOf(s._resHandlers, 1);
+      assert.equal(s._resHandlers[0].type, 'foo');
+      assert.isFunction(s._resHandlers[0].handle);
+      assert.lengthOf(s._resHandlers[0].handle, 3);
+    },
+  },
+  
+  'registering a grant module by type': {
+    topic: function() {
+      var self = this;
+      var server = new Server();
+      var mod = {};
+      mod.name = 'foo';
+      mod.request = function(req) {};
+      mod.response = function(txn, res, next) {};
+      server.grant('bar', mod);
+      
+      return server;
+    },
+    
+    'should have one request parsers': function (s) {
+      assert.lengthOf(s._reqParsers, 1);
+      assert.equal(s._reqParsers[0].type, 'bar');
+      assert.isFunction(s._reqParsers[0].handle);
+      assert.lengthOf(s._reqParsers[0].handle, 1);
+    },
+    'should have one response handlers': function (s) {
+      assert.lengthOf(s._resHandlers, 1);
+      assert.equal(s._resHandlers[0].type, 'bar');
+      assert.isFunction(s._resHandlers[0].handle);
+      assert.lengthOf(s._resHandlers[0].handle, 3);
+    },
+  },
+  
+  'registering a grant parsing function by type': {
+    topic: function() {
+      var self = this;
+      var server = new Server();
+      server.grant('foo', function(req) {});
+      
+      return server;
+    },
+    
+    'should have one request parsers': function (s) {
+      assert.lengthOf(s._reqParsers, 1);
+      assert.equal(s._reqParsers[0].type, 'foo');
+      assert.isFunction(s._reqParsers[0].handle);
+      assert.lengthOf(s._reqParsers[0].handle, 1);
+    },
+    'should have no response handlers': function (s) {
+      assert.lengthOf(s._resHandlers, 0);
+    },
+  },
+  
+  'registering a grant parsing function by star': {
+    topic: function() {
+      var self = this;
+      var server = new Server();
+      server.grant('*', function(req) {});
+      
+      return server;
+    },
+    
+    'should have one request parsers': function (s) {
+      assert.lengthOf(s._reqParsers, 1);
+      assert.isNull(s._reqParsers[0].type);
+      assert.isFunction(s._reqParsers[0].handle);
+      assert.lengthOf(s._reqParsers[0].handle, 1);
+    },
+    'should have no response handlers': function (s) {
+      assert.lengthOf(s._resHandlers, 0);
+    },
+  },
+  
+  'registering a grant parsing function by type and phase': {
+    topic: function() {
+      var self = this;
+      var server = new Server();
+      server.grant('foo', 'request', function(req) {});
+      
+      return server;
+    },
+    
+    'should have one request parsers': function (s) {
+      assert.lengthOf(s._reqParsers, 1);
+      assert.equal(s._reqParsers[0].type, 'foo');
+      assert.isFunction(s._reqParsers[0].handle);
+      assert.lengthOf(s._reqParsers[0].handle, 1);
+    },
+    'should have no response handlers': function (s) {
+      assert.lengthOf(s._resHandlers, 0);
+    },
+  },
+  
+  'registering a grant responder function by type': {
+    topic: function() {
+      var self = this;
+      var server = new Server();
+      server.grant('foo', 'response', function(txn, res, next) {});
+      
+      return server;
+    },
+    
+    'should have no request parsers': function (s) {
+      assert.lengthOf(s._reqParsers, 0);
+    },
+    'should have one response handlers': function (s) {
+      assert.lengthOf(s._resHandlers, 1);
+      assert.equal(s._resHandlers[0].type, 'foo');
+      assert.isFunction(s._resHandlers[0].handle);
+      assert.lengthOf(s._resHandlers[0].handle, 3);
+    },
+  },
+  
+  'registering a grant responder function by star': {
+    topic: function() {
+      var self = this;
+      var server = new Server();
+      server.grant('*', 'response', function(txn, res, next) {});
+      
+      return server;
+    },
+    
+    'should have no request parsers': function (s) {
+      assert.lengthOf(s._reqParsers, 0);
+    },
+    'should have one response handlers': function (s) {
+      assert.lengthOf(s._resHandlers, 1);
+      assert.isNull(s._resHandlers[0].type);
+      assert.isFunction(s._resHandlers[0].handle);
+      assert.lengthOf(s._resHandlers[0].handle, 3);
+    },
+  },
+  
   'server with no request parsers': {
     topic: function() {
       var self = this;
