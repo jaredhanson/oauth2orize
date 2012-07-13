@@ -266,6 +266,209 @@ vows.describe('Server').addBatch({
     },
   },
   
+  'server with one request parsers handling a matching type': {
+    topic: function() {
+      var self = this;
+      var server = new Server();
+      server.grant('code', function(req) {
+        return { foo: '1' }
+      })
+      
+      var req = {};
+      
+      function parsed(err, areq) {
+        self.callback(err, areq, req);
+      }
+      process.nextTick(function () {
+        server._parse('code', req, parsed);
+      });
+    },
+    
+    'should not next with error': function (err, areq, req) {
+      assert.isNull(err);
+    },
+    'should parse object': function (err, areq, req) {
+      assert.lengthOf(Object.keys(areq), 2);
+      assert.equal(areq.type, 'code');
+      assert.equal(areq.foo, '1');
+    },
+  },
+  
+  'server with one request parsers handling a non-matching type': {
+    topic: function() {
+      var self = this;
+      var server = new Server();
+      server.grant('code', function(req) {
+        return { foo: '1' }
+      })
+      
+      var req = {};
+      
+      function parsed(err, areq) {
+        self.callback(err, areq, req);
+      }
+      process.nextTick(function () {
+        server._parse('unknown', req, parsed);
+      });
+    },
+    
+    'should not next with error': function (err, areq, req) {
+      assert.isNull(err);
+    },
+    'should parse only type into object': function (err, areq, req) {
+      assert.lengthOf(Object.keys(areq), 1);
+      assert.equal(areq.type, 'unknown');
+    },
+  },
+  
+  'server with one request parsers handling a null type': {
+    topic: function() {
+      var self = this;
+      var server = new Server();
+      server.grant('code', function(req) {
+        return { foo: '1' }
+      })
+      
+      var req = {};
+      
+      function parsed(err, areq) {
+        self.callback(err, areq, req);
+      }
+      process.nextTick(function () {
+        server._parse(null, req, parsed);
+      });
+    },
+    
+    'should not next with error': function (err, areq, req) {
+      assert.isNull(err);
+    },
+    'should parse empty object': function (err, areq, req) {
+      assert.lengthOf(Object.keys(areq), 0);
+    },
+  },
+  
+  'server with one star request parsers handling a type': {
+    topic: function() {
+      var self = this;
+      var server = new Server();
+      server.grant('*', function(req) {
+        return { foo: '1' }
+      })
+      
+      var req = {};
+      
+      function parsed(err, areq) {
+        self.callback(err, areq, req);
+      }
+      process.nextTick(function () {
+        server._parse('code', req, parsed);
+      });
+    },
+    
+    'should not next with error': function (err, areq, req) {
+      assert.isNull(err);
+    },
+    'should parse object': function (err, areq, req) {
+      assert.lengthOf(Object.keys(areq), 2);
+      assert.equal(areq.type, 'code');
+      assert.equal(areq.foo, '1');
+    },
+  },
+  
+  'server with multiple request parsers handling a type': {
+    topic: function() {
+      var self = this;
+      var server = new Server();
+      server.grant('*', function(req) {
+        return { foo: '1' }
+      })
+      server.grant('code', function(req) {
+        return { bar: '2' }
+      })
+      
+      var req = {};
+      
+      function parsed(err, areq) {
+        self.callback(err, areq, req);
+      }
+      process.nextTick(function () {
+        server._parse('code', req, parsed);
+      });
+    },
+    
+    'should not next with error': function (err, areq, req) {
+      assert.isNull(err);
+    },
+    'should parse object': function (err, areq, req) {
+      assert.lengthOf(Object.keys(areq), 3);
+      assert.equal(areq.type, 'code');
+      assert.equal(areq.foo, '1');
+      assert.equal(areq.bar, '2');
+    },
+  },
+  
+  'server with multiple request parsers, one being async, handling a type': {
+    topic: function() {
+      var self = this;
+      var server = new Server();
+      server.grant('*', function(req, done) {
+        return done(null, { async: 'yay' });
+      })
+      server.grant('code', function(req) {
+        return { bar: '2' }
+      })
+      
+      var req = {};
+      
+      function parsed(err, areq) {
+        self.callback(err, areq, req);
+      }
+      process.nextTick(function () {
+        server._parse('code', req, parsed);
+      });
+    },
+    
+    'should not next with error': function (err, areq, req) {
+      assert.isNull(err);
+    },
+    'should parse object': function (err, areq, req) {
+      assert.lengthOf(Object.keys(areq), 3);
+      assert.equal(areq.type, 'code');
+      assert.equal(areq.async, 'yay');
+      assert.equal(areq.bar, '2');
+    },
+  },
+  
+  'server with multiple request parsers, one being async that errors, handling a type': {
+    topic: function() {
+      var self = this;
+      var server = new Server();
+      server.grant('*', function(req, done) {
+        return done(new Error('something went wrong'));
+      })
+      server.grant('code', function(req) {
+        return { bar: '2' }
+      })
+      
+      var req = {};
+      
+      function parsed(err, areq) {
+        self.callback(err, areq, req);
+      }
+      process.nextTick(function () {
+        server._parse('code', req, parsed);
+      });
+    },
+    
+    'should next with error': function (err, areq, req) {
+      assert.instanceOf(err, Error);
+      assert.equal(err.message, 'something went wrong')
+    },
+    'should not parse object': function (err, areq, req) {
+      assert.isUndefined(areq);
+    },
+  },
+  
   'server with no exchangers': {
     topic: function() {
       var self = this;
