@@ -139,6 +139,25 @@ Based on the grant type issue to the client, the appropriate exchange middleware
 registered above will be invoked to issue an access token.  If an error occurs,
 `errorHandler` middleware will format an error response.
 
+#### Implement API Endpoints
+
+Once an access token has been issued, a client will use it to make API requests
+on behalf of the user.
+
+    app.get('/api/userinfo', 
+      passport.authenticate('bearer', { session: false }),
+      function(req, res) {
+        res.json(req.user);
+      });
+
+In this example, bearer tokens are issued, which are then authenticated using
+an HTTP Bearer authentication header (as provided by [passport-http-bearer](https://github.com/jaredhanson/passport-http-bearer))
+
+## Examples
+
+This [example](https://github.com/jaredhanson/oauth2orize/tree/master/examples/express2) demonstrates
+how to implement an OAuth service provider, complete with protected API access.
+
 ## Tests
 
     $ npm install --dev
