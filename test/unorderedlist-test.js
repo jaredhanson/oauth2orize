@@ -12,7 +12,7 @@ vows.describe('UnorderedList').addBatch({
     },
     
     'should initialize items correctly': function (list) {
-      assert.lengthOf(list, 1);
+      assert.equal(list.length, 1);
       assert.equal(list._items[0], 'a');
     },
     'should return string representation': function (list) {
@@ -26,7 +26,7 @@ vows.describe('UnorderedList').addBatch({
     },
     
     'should initialize items correctly': function (list) {
-      assert.lengthOf(list, 2);
+      assert.equal(list.length, 2);
       assert.equal(list._items[0], 'a');
       assert.equal(list._items[1], 'b');
     },
@@ -41,7 +41,7 @@ vows.describe('UnorderedList').addBatch({
     },
     
     'should initialize items correctly': function (list) {
-      assert.lengthOf(list, 1);
+      assert.equal(list.length, 1);
       assert.equal(list._items[0], 'foobar');
     },
   },
@@ -52,7 +52,7 @@ vows.describe('UnorderedList').addBatch({
     },
     
     'should initialize items correctly': function (list) {
-      assert.lengthOf(list, 2);
+      assert.equal(list.length, 2);
       assert.equal(list._items[0], 'foo');
       assert.equal(list._items[1], 'bar');
     },
