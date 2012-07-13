@@ -41,6 +41,9 @@ vows.describe('Server').addBatch({
     'should have no response handlers': function (s) {
       assert.lengthOf(s._resHandlers, 0);
     },
+    'should have no exchangers': function (s) {
+      assert.lengthOf(s._exchangers, 0);
+    },
     'should have no client serializers or deserializers': function (s) {
       assert.lengthOf(s._serializers, 0);
       assert.lengthOf(s._deserializers, 0);
@@ -61,6 +64,177 @@ vows.describe('Server').addBatch({
     'should not have implicit transactionLoader if option disabled': function (decision) {
       var mw = decision({ loadTransaction: false });
       assert.isFunction(mw);
+    },
+  },
+  
+  'server with no exchangers': {
+    topic: function() {
+      var self = this;
+      var server = new Server();
+      var req = {};
+      var res = {};
+      
+      function exchanged(err) {
+        self.callback(err, req, res);
+      }
+      process.nextTick(function () {
+        server._exchange(null, req, res, exchanged);
+      });
+    },
+    
+    'should not next with error': function (err, req, res) {
+      assert.isNull(err);
+    },
+  },
+  
+  'server with one exchanger registered with a named function with matching type': {
+    topic: function() {
+      var self = this;
+      
+      function code(req, res, next) {
+        res.end('abc');
+      }
+      
+      var server = new Server();
+      server.exchange(code);
+      var req = {};
+      var res = {};
+      res.end = function(data) {
+        this._data = data;
+        self.callback(null, req, res);
+      }
+      
+      function exchanged(err) {
+        self.callback(new Error('should not be called'));
+      }
+      process.nextTick(function () {
+        server._exchange('code', req, res, exchanged);
+      });
+    },
+    
+    'should not next with error': function (err, req, res) {
+      assert.isNull(err);
+    },
+    'should send response': function (err, req, res) {
+      assert.equal(res._data, 'abc');
+    },
+  },
+  
+  'server with one exchanger registered with a named function with non-matching type': {
+    topic: function() {
+      var self = this;
+      
+      function code(req, res, next) {
+        res.end('abc');
+      }
+      
+      var server = new Server();
+      server.exchange(code);
+      var req = {};
+      var res = {};
+      res.end = function(data) {
+        self.callback(new Error('should not be called'));
+      }
+      
+      function exchanged(err) {
+        self.callback(err, req, res);
+      }
+      process.nextTick(function () {
+        server._exchange('password', req, res, exchanged);
+      });
+    },
+    
+    'should not next with error': function (err, req, res) {
+      assert.isNull(err);
+    },
+  },
+  
+  'server with one exchanger registered with a named function with null type': {
+    topic: function() {
+      var self = this;
+      
+      function code(req, res, next) {
+        res.end('abc');
+      }
+      
+      var server = new Server();
+      server.exchange(code);
+      var req = {};
+      var res = {};
+      res.end = function(data) {
+        self.callback(new Error('should not be called'));
+      }
+      
+      function exchanged(err) {
+        self.callback(err, req, res);
+      }
+      process.nextTick(function () {
+        server._exchange(null, req, res, exchanged);
+      });
+    },
+    
+    'should not next with error': function (err, req, res) {
+      assert.isNull(err);
+    },
+  },
+  
+  'server with one exchanger that encounters an error': {
+    topic: function() {
+      var self = this;
+      
+      function code(req, res, next) {
+        next(new Error('something went wrong'));
+      }
+      
+      var server = new Server();
+      server.exchange(code);
+      var req = {};
+      var res = {};
+      res.end = function(data) {
+        self.callback(new Error('should not be called'));
+      }
+      
+      function exchanged(err) {
+        self.callback(err, req, res);
+      }
+      process.nextTick(function () {
+        server._exchange('code', req, res, exchanged);
+      });
+    },
+    
+    'should next with error': function (err, req, res) {
+      assert.instanceOf(err, Error);
+      assert.equal(err.message, 'something went wrong');
+    },
+  },
+  
+  'server with one exchanger that throws an exception': {
+    topic: function() {
+      var self = this;
+      
+      function code(req, res, next) {
+        throw new Error('exception thrown');
+      }
+      
+      var server = new Server();
+      server.exchange(code);
+      var req = {};
+      var res = {};
+      res.end = function(data) {
+        self.callback(new Error('should not be called'));
+      }
+      
+      function exchanged(err) {
+        self.callback(err, req, res);
+      }
+      process.nextTick(function () {
+        server._exchange('code', req, res, exchanged);
+      });
+    },
+    
+    'should next with error': function (err, req, res) {
+      assert.instanceOf(err, Error);
+      assert.equal(err.message, 'exception thrown');
     },
   },
   
