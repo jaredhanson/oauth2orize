@@ -64,4 +64,93 @@ vows.describe('Server').addBatch({
     },
   },
   
+  'server with no serializers': {
+    topic: function() {
+      var self = this;
+      var server = new Server();
+      function serialized(err, obj) {
+        self.callback(err, obj);
+      }
+      process.nextTick(function () {
+        server.serializeClient({ id: '1', name: 'Foo' }, serialized);
+      });
+    },
+    
+    'should fail to serialize client': function (err, obj) {
+      assert.instanceOf(err, Error);
+      assert.equal(err.message, 'Failed to serialize client.  Register serialization function using serializeClient().');
+      assert.isUndefined(obj);
+    },
+  },
+  
+  'server with one serializer': {
+    topic: function() {
+      var self = this;
+      var server = new Server();
+      server.serializeClient(function(client, done) {
+        done(null, client.id);
+      });
+      function serialized(err, obj) {
+        self.callback(err, obj);
+      }
+      process.nextTick(function () {
+        server.serializeClient({ id: '1', name: 'Foo' }, serialized);
+      });
+    },
+    
+    'should serialize client': function (err, obj) {
+      assert.isNull(err);
+      assert.equal(obj, '1');
+    },
+  },
+  
+  'server with multiple serializers': {
+    topic: function() {
+      var self = this;
+      var server = new Server();
+      server.serializeClient(function(client, done) {
+        done('pass');
+      });
+      server.serializeClient(function(client, done) {
+        done(null, 'second-serializer');
+      });
+      server.serializeClient(function(client, done) {
+        done(null, 'should-not-execute');
+      });
+      function serialized(err, obj) {
+        self.callback(err, obj);
+      }
+      process.nextTick(function () {
+        server.serializeClient({ id: '1', name: 'Foo' }, serialized);
+      });
+    },
+    
+    'should serialize client': function (err, obj) {
+      assert.isNull(err);
+      assert.equal(obj, 'second-serializer');
+    },
+  },
+  
+  'server with a serializer that throws an error': {
+    topic: function() {
+      var self = this;
+      var server = new Server();
+      server.serializeClient(function(client, done) {
+        // throws ReferenceError: wtf is not defined
+        wtf
+      });
+      function serialized(err, obj) {
+        self.callback(err, obj);
+      }
+      process.nextTick(function () {
+        server.serializeClient({ id: '1', name: 'Foo' }, serialized);
+      });
+    },
+    
+    'should fail to serialize client': function (err, obj) {
+      assert.instanceOf(err, Error);
+      assert.isUndefined(obj);
+    },
+  },
+  
 }).export(module);
