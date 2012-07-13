@@ -178,6 +178,168 @@ vows.describe('Server').addBatch({
     },
   },
   
+  'server with one exchanger registered with null type processing parsed type': {
+    topic: function() {
+      var self = this;
+      
+      var server = new Server();
+      server.exchange(null, function(req, res, next) {
+        res.end('abc')
+      });
+      var req = {};
+      var res = {};
+      res.end = function(data) {
+        this._data = data;
+        self.callback(null, req, res);
+      }
+      
+      function exchanged(err) {
+        self.callback(new Error('should not be called'));
+      }
+      process.nextTick(function () {
+        server._exchange('code', req, res, exchanged);
+      });
+    },
+    
+    'should not next with error': function (err, req, res) {
+      assert.isNull(err);
+    },
+    'should send response': function (err, req, res) {
+      assert.equal(res._data, 'abc');
+    },
+  },
+  
+  'server with one exchanger registered with null type processing null type': {
+    topic: function() {
+      var self = this;
+      
+      var server = new Server();
+      server.exchange(null, function(req, res, next) {
+        res.end('abc')
+      });
+      var req = {};
+      var res = {};
+      res.end = function(data) {
+        this._data = data;
+        self.callback(null, req, res);
+      }
+      
+      function exchanged(err) {
+        self.callback(new Error('should not be called'));
+      }
+      process.nextTick(function () {
+        server._exchange(null, req, res, exchanged);
+      });
+    },
+    
+    'should not next with error': function (err, req, res) {
+      assert.isNull(err);
+    },
+    'should send response': function (err, req, res) {
+      assert.equal(res._data, 'abc');
+    },
+  },
+  
+  'server with one exchanger registered with star type processing parsed type': {
+    topic: function() {
+      var self = this;
+      
+      var server = new Server();
+      server.exchange('*', function(req, res, next) {
+        res.end('abc')
+      });
+      var req = {};
+      var res = {};
+      res.end = function(data) {
+        this._data = data;
+        self.callback(null, req, res);
+      }
+      
+      function exchanged(err) {
+        self.callback(new Error('should not be called'));
+      }
+      process.nextTick(function () {
+        server._exchange('code', req, res, exchanged);
+      });
+    },
+    
+    'should not next with error': function (err, req, res) {
+      assert.isNull(err);
+    },
+    'should send response': function (err, req, res) {
+      assert.equal(res._data, 'abc');
+    },
+  },
+  
+  'server with one exchanger registered with star type processing null type': {
+    topic: function() {
+      var self = this;
+      
+      var server = new Server();
+      server.exchange('*', function(req, res, next) {
+        res.end('abc')
+      });
+      var req = {};
+      var res = {};
+      res.end = function(data) {
+        this._data = data;
+        self.callback(null, req, res);
+      }
+      
+      function exchanged(err) {
+        self.callback(new Error('should not be called'));
+      }
+      process.nextTick(function () {
+        server._exchange(null, req, res, exchanged);
+      });
+    },
+    
+    'should not next with error': function (err, req, res) {
+      assert.isNull(err);
+    },
+    'should send response': function (err, req, res) {
+      assert.equal(res._data, 'abc');
+    },
+  },
+  
+  'server with multiple exchangers processing parsed type': {
+    topic: function() {
+      var self = this;
+      
+      var server = new Server();
+      server.exchange('*', function(req, res, next) {
+        req._starred = true;
+        next();
+      });
+      server.exchange('code', function(req, res, next) {
+        res.end('abc')
+      });
+      var req = {};
+      var res = {};
+      res.end = function(data) {
+        this._data = data;
+        self.callback(null, req, res);
+      }
+      
+      function exchanged(err) {
+        self.callback(new Error('should not be called'));
+      }
+      process.nextTick(function () {
+        server._exchange('code', req, res, exchanged);
+      });
+    },
+    
+    'should not next with error': function (err, req, res) {
+      assert.isNull(err);
+    },
+    'should process through multiple middleware': function (err, req, res) {
+      assert.isTrue(req._starred);
+    },
+    'should send response': function (err, req, res) {
+      assert.equal(res._data, 'abc');
+    },
+  },
+  
   'server with one exchanger that encounters an error': {
     topic: function() {
       var self = this;
