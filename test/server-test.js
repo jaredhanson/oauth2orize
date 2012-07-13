@@ -581,6 +581,100 @@ vows.describe('Server').addBatch({
     },
   },
   
+  'server with one multiple response handlers handling a transaction with matching type': {
+    topic: function() {
+      var self = this;
+      var server = new Server();
+      server.grant('*', 'response', function(txn, res, next) {
+        txn._starred = true;
+        next();
+      });
+      server.grant('code', 'response', function(txn, res, next) {
+        res.end('abc');
+      });
+      
+      var txn = { req: { type: 'code' } };
+      var res = {};
+      res.end = function(data) {
+        res._data = data;
+        self.callback(null, txn, res);
+      }
+      
+      function responded(err) {
+        self.callback(new Error('should not be called'));
+      }
+      process.nextTick(function () {
+        server._respond(txn, res, responded);
+      });
+    },
+    
+    'should not next with error': function (err, txn, res) {
+      assert.isNull(err);
+    },
+    'should process through multiple middleware': function (err, txn, res) {
+      assert.isTrue(txn._starred);
+    },
+    'should send response': function (err, txn, res) {
+      assert.equal(res._data, 'abc');
+    },
+  },
+  
+  'server with one response handler that encounters an error': {
+    topic: function() {
+      var self = this;
+      var server = new Server();
+      server.grant('code', 'response', function(txn, res, next) {
+        next(new Error('something went wrong'))
+      });
+      
+      var txn = { req: { type: 'code' } };
+      var res = {};
+      res.end = function(data) {
+        self.callback(new Error('should not be called'));
+      }
+      
+      function responded(err) {
+        self.callback(err);
+      }
+      process.nextTick(function () {
+        server._respond(txn, res, responded);
+      });
+    },
+    
+    'should next with error': function (err, req, res) {
+      assert.instanceOf(err, Error);
+      assert.equal(err.message, 'something went wrong');
+    },
+  },
+  
+  'server with one response handler that throws an exception': {
+    topic: function() {
+      var self = this;
+      var server = new Server();
+      server.grant('code', 'response', function(txn, res, next) {
+        throw new Error('exception thrown');
+      });
+      
+      var txn = { req: { type: 'code' } };
+      var res = {};
+      res.end = function(data) {
+        self.callback(new Error('should not be called'));
+      }
+      
+      function responded(err) {
+        self.callback(err);
+      }
+      process.nextTick(function () {
+        server._respond(txn, res, responded);
+      });
+    },
+    
+    'should next with error': function (err, req, res) {
+      assert.instanceOf(err, Error);
+      assert.equal(err.message, 'exception thrown');
+    },
+  },
+  
   'server with no exchangers': {
     topic: function() {
       var self = this;
