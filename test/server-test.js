@@ -469,6 +469,118 @@ vows.describe('Server').addBatch({
     },
   },
   
+  'server with no response handlers handling a transaction': {
+    topic: function() {
+      var self = this;
+      var server = new Server();
+      var txn = { req: { type: 'code' } };
+      var res = {};
+      res.end = function(data) {
+        self.callback(new Error('should not be called'));
+      }
+      
+      function responded(err) {
+        self.callback(err);
+      }
+      process.nextTick(function () {
+        server._respond(txn, res, responded);
+      });
+    },
+    
+    'should not next with error': function (err) {
+      assert.isUndefined(err);
+    },
+  },
+  
+  'server with one response handler handling a transaction with matching type': {
+    topic: function() {
+      var self = this;
+      var server = new Server();
+      server.grant('code', 'response', function(txn, res, next) {
+        res.end('abc');
+      });
+      
+      var txn = { req: { type: 'code' } };
+      var res = {};
+      res.end = function(data) {
+        res._data = data;
+        self.callback(null, txn, res);
+      }
+      
+      function responded(err) {
+        self.callback(new Error('should not be called'));
+      }
+      process.nextTick(function () {
+        server._respond(txn, res, responded);
+      });
+    },
+    
+    'should not next with error': function (err, req, res) {
+      assert.isNull(err);
+    },
+    'should send response': function (err, req, res) {
+      assert.equal(res._data, 'abc');
+    },
+  },
+  
+  'server with one response handler handling a transaction with non-matching type': {
+    topic: function() {
+      var self = this;
+      var server = new Server();
+      server.grant('code', 'response', function(txn, res, next) {
+        res.end('abc');
+      });
+      
+      var txn = { req: { type: 'unknown' } };
+      var res = {};
+      res.end = function(data) {
+        self.callback(new Error('should not be called'));
+      }
+      
+      function responded(err) {
+        self.callback(err);
+      }
+      process.nextTick(function () {
+        server._respond(txn, res, responded);
+      });
+    },
+    
+    'should not next with error': function (err, req, res) {
+      assert.isNull(err);
+    },
+  },
+  
+  'server with one star response handler handling a transaction with matching type': {
+    topic: function() {
+      var self = this;
+      var server = new Server();
+      server.grant('*', 'response', function(txn, res, next) {
+        res.end('abc');
+      });
+      
+      var txn = { req: { type: 'code' } };
+      var res = {};
+      res.end = function(data) {
+        res._data = data;
+        self.callback(null, txn, res);
+      }
+      
+      function responded(err) {
+        self.callback(new Error('should not be called'));
+      }
+      process.nextTick(function () {
+        server._respond(txn, res, responded);
+      });
+    },
+    
+    'should not next with error': function (err, req, res) {
+      assert.isNull(err);
+    },
+    'should send response': function (err, req, res) {
+      assert.equal(res._data, 'abc');
+    },
+  },
+  
   'server with no exchangers': {
     topic: function() {
       var self = this;
