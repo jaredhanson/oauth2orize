@@ -19,6 +19,9 @@ vows.describe('oauth2orize').addBatch({
     assert.isObject(oauth2orize.grant);
     assert.isFunction(oauth2orize.grant.code);
     assert.isFunction(oauth2orize.grant.token);
+    
+    assert.strictEqual(oauth2orize.grant.authorizationCode, oauth2orize.grant.code);
+    assert.strictEqual(oauth2orize.grant.implicit, oauth2orize.grant.token);
   },
   
   'should export exchange middleware': function () {
@@ -27,6 +30,8 @@ vows.describe('oauth2orize').addBatch({
     assert.isFunction(oauth2orize.exchange.clientCredentials);
     assert.isFunction(oauth2orize.exchange.password);
     assert.isFunction(oauth2orize.exchange.refreshToken);
+    
+    assert.strictEqual(oauth2orize.exchange.code, oauth2orize.exchange.authorizationCode);
   },
   
   'createServer': {
