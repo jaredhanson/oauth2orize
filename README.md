@@ -1,6 +1,10 @@
 # OAuth2orize
 
-More info coming soon...
+OAuth2orize is an authorization server toolkit for Node.js.  It provides a suite
+of middleware that, combined with [Passport](http://passportjs.org/)
+authentication middleware and application-specific route handlers, can be used
+to assemble a server that implements the [OAuth 2.0](http://tools.ietf.org/html/draft-ietf-oauth-v2-28)
+protocol.
 
 ## Tests
 
