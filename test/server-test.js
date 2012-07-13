@@ -67,6 +67,51 @@ vows.describe('Server').addBatch({
     },
   },
   
+  'server with no request parsers': {
+    topic: function() {
+      var self = this;
+      var server = new Server();
+      var req = {};
+      
+      function parsed(err, areq) {
+        self.callback(err, areq, req);
+      }
+      process.nextTick(function () {
+        server._parse(null, req, parsed);
+      });
+    },
+    
+    'should not next with error': function (err, areq, req) {
+      assert.isNull(err);
+    },
+    'should parse an empty object': function (err, areq, req) {
+      assert.lengthOf(Object.keys(areq), 0);
+    },
+  },
+  
+  'server with no request parsers parsing a type': {
+    topic: function() {
+      var self = this;
+      var server = new Server();
+      var req = {};
+      
+      function parsed(err, areq) {
+        self.callback(err, areq, req);
+      }
+      process.nextTick(function () {
+        server._parse('code', req, parsed);
+      });
+    },
+    
+    'should not next with error': function (err, areq, req) {
+      assert.isNull(err);
+    },
+    'should parse only type into object': function (err, areq, req) {
+      assert.lengthOf(Object.keys(areq), 1);
+      assert.equal(areq.type, 'code');
+    },
+  },
+  
   'server with no exchangers': {
     topic: function() {
       var self = this;
