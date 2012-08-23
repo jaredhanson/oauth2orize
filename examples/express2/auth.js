@@ -54,7 +54,7 @@ passport.use(new BasicStrategy(
     db.clients.findByClientId(username, function(err, client) {
       if (err) { return done(err); }
       if (!client) { return done(null, false); }
-      if (client.clientSecret != clientSecret) { return done(null, false); }
+      if (client.clientSecret != password) { return done(null, false); }
       return done(null, client);
     });
   }
