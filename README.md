@@ -69,7 +69,7 @@ renewed.
 #### Implement Authorization Endpoint
 
 When a client requests authorization, it will redirect the user to an
-authorization endpoint.  The server must authenticate the user and and obtain
+authorization endpoint.  The server must authenticate the user and obtain
 their permission.
 
     app.get('/dialog/authorize',
