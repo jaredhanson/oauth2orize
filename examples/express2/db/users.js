@@ -1,6 +1,6 @@
 var users = [
-    { id: '1', username: 'bob', password: 'secret', name: 'Bob Smith' },
-    { id: '2', username: 'joe', password: 'password', name: 'Joe Davis' }
+    { id: '1', username: 'bob', password: 'secret', name: 'Bob Smith', email: 'bsmith42@foo.com' },
+    { id: '2', username: 'joe', password: 'password', name: 'Joe Davis', email: 'jddog3@bar.com' }
 ];
 
 
