@@ -74,7 +74,7 @@ vows.describe('authorizationCode').addBatch({
         assert.equal(res._headers['Pragma'], 'no-cache');
       },
       'should send response' : function(err, req, res) {
-        assert.equal(res._data, '{"access_token":"s3cr1t","token_type":"bearer"}');
+        assert.equal(res._data, '{"access_token":"s3cr1t","token_type":"Bearer"}');
       },
     },
   },
@@ -119,7 +119,7 @@ vows.describe('authorizationCode').addBatch({
         assert.equal(res._headers['Pragma'], 'no-cache');
       },
       'should send response' : function(err, req, res) {
-        assert.equal(res._data, '{"access_token":"s3cr1t","refresh_token":"getANotehr","token_type":"bearer"}');
+        assert.equal(res._data, '{"access_token":"s3cr1t","refresh_token":"getANotehr","token_type":"Bearer"}');
       },
     },
   },
@@ -164,7 +164,7 @@ vows.describe('authorizationCode').addBatch({
         assert.equal(res._headers['Pragma'], 'no-cache');
       },
       'should send response' : function(err, req, res) {
-        assert.equal(res._data, '{"access_token":"s3cr1t","expires_in":3600,"token_type":"bearer"}');
+        assert.equal(res._data, '{"access_token":"s3cr1t","expires_in":3600,"token_type":"Bearer"}');
       },
     },
   },
@@ -254,7 +254,7 @@ vows.describe('authorizationCode').addBatch({
         assert.equal(res._headers['Pragma'], 'no-cache');
       },
       'should send response' : function(err, req, res) {
-        assert.equal(res._data, '{"access_token":"s3cr1t","token_type":"bearer"}');
+        assert.equal(res._data, '{"access_token":"s3cr1t","token_type":"Bearer"}');
       },
     },
   },
