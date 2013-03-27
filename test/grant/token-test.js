@@ -345,7 +345,7 @@ vows.describe('code').addBatch({
         assert.isNull(err);
       },
       'should parse request' : function(err, req, res) {
-        assert.equal(res._redirect, 'http://example.com/auth/callback#access_token=xyz&token_type=bearer');
+        assert.equal(res._redirect, 'http://example.com/auth/callback#access_token=xyz&token_type=Bearer');
       },
     },
   },
@@ -392,7 +392,7 @@ vows.describe('code').addBatch({
         assert.isNull(err);
       },
       'should parse request' : function(err, req, res) {
-        assert.equal(res._redirect, 'http://example.com/auth/callback#access_token=xyz&token_type=bearer&state=f1o1o1');
+        assert.equal(res._redirect, 'http://example.com/auth/callback#access_token=xyz&token_type=Bearer&state=f1o1o1');
       },
     },
   },
@@ -438,7 +438,7 @@ vows.describe('code').addBatch({
         assert.isNull(err);
       },
       'should parse request' : function(err, req, res) {
-        assert.equal(res._redirect, 'http://example.com/auth/callback#access_token=xyz&token_type=bearer');
+        assert.equal(res._redirect, 'http://example.com/auth/callback#access_token=xyz&token_type=Bearer');
       },
     },
   },
@@ -480,7 +480,7 @@ vows.describe('code').addBatch({
         assert.isNull(err);
       },
       'should parse request' : function(err, req, res) {
-        assert.equal(res._redirect, 'http://example.com/auth/callback#access_token=xyz&expires_in=3600&token_type=bearer');
+        assert.equal(res._redirect, 'http://example.com/auth/callback#access_token=xyz&expires_in=3600&token_type=Bearer');
       },
     },
   },

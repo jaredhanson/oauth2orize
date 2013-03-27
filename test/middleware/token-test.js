@@ -31,7 +31,7 @@ vows.describe('token').addBatch({
       var server = new Server();
       server.exchange('authorization_code', function(req, res, next) {
         if (req.body.code == 'abc123') {
-          var json = JSON.stringify({ token_type: 'bearer', access_token: 'aaa-111-ccc' });
+          var json = JSON.stringify({ token_type: 'Bearer', access_token: 'aaa-111-ccc' });
           res.end(json);
         } else {
           return done(new Error('something is wrong'));
@@ -64,7 +64,7 @@ vows.describe('token').addBatch({
         assert.isNull(err);
       },
       'should send response' : function(err, req, res) {
-        assert.equal(res._data, '{"token_type":"bearer","access_token":"aaa-111-ccc"}');
+        assert.equal(res._data, '{"token_type":"Bearer","access_token":"aaa-111-ccc"}');
       },
     },
   },
@@ -73,7 +73,7 @@ vows.describe('token').addBatch({
     topic: function() {
       var server = new Server();
       server.exchange('authorization_code', function(req, res, next) {
-        var json = JSON.stringify({ token_type: 'bearer', access_token: 'aaa-111-ccc' });
+        var json = JSON.stringify({ token_type: 'Bearer', access_token: 'aaa-111-ccc' });
         res.end(json);
       });
       
