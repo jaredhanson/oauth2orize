@@ -21,7 +21,7 @@ exports.uid = function(len) {
 };
 
 /**
- * Retrun a random int, used by `utils.uid()`
+ * Return a random int, used by `utils.uid()`
  *
  * @param {Number} min
  * @param {Number} max
