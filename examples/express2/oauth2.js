@@ -113,6 +113,30 @@ server.exchange(oauth2orize.exchange.password(function(client, username, passwor
     });
 }));
 
+// Exchange the client id and password/secret for an access token.  The callback accepts the
+// `client`, which is exchanging the client's id and password/secret from the
+// authorization request for verification. If these values are validated, the
+// application issues an access token on behalf of the client who authorized the code.
+
+server.exchange(oauth2orize.exchange.clientCredentials(function(client, scope, done) {
+
+    //Validate the client
+    db.clients.findByClientId(client.clientId, function(err, localClient) {
+        if (err) { return done(err); }
+        if(localClient === null) {
+            return done(new AuthorizationError('invalid client id', 'invalid_client'));
+        }
+        if(localClient.clientSecret !== client.clientSecret) {
+            return done(new AuthorizationError('invalid client secret/password', 'invalid_client'));
+        }
+        var token = utils.uid(256);
+        //Pass in a null for user id since there is no user with this grant type
+        db.accessTokens.save(token, null, client.clientId, function(err) {
+            if (err) { return done(err); }
+            done(null, token);
+        });
+    });
+}));
 
 // user authorization endpoint
 //
