@@ -80,7 +80,7 @@ server.exchange(oauth2orize.exchange.code(function(client, code, redirectURI, do
 
 // Exchange user id and password for access tokens.  The callback accepts the
 // `client`, which is exchanging the user's name and password from the
-// authorization request for verification.. If these values are validated, the
+// authorization request for verification. If these values are validated, the
 // application issues an access token on behalf of the user who authorized the code.
 
 server.exchange(oauth2orize.exchange.password(function(client, username, password, scope, done) {
