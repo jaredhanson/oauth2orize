@@ -58,6 +58,21 @@ server.grant(oauth2orize.grant.code(function(client, redirectURI, user, ares, do
   });
 }));
 
+// Grant implicit authorization.  The callback takes the `client` requesting
+// authorization, the authenticated `user` granting access, and
+// their response, which contains approved scope, duration, etc. as parsed by
+// the application.  The application issues a token, which is bound to these
+// values.
+
+server.grant(oauth2orize.grant.token(function(client, user, ares, done) {
+    var token = utils.uid(256);
+
+    db.accessTokens.save(token, user.id, client.clientId, function(err) {
+        if (err) { return done(err); }
+        done(null, token);
+    });
+}));
+
 // Exchange authorization codes for access tokens.  The callback accepts the
 // `client`, which is exchanging `code` and any `redirectURI` from the
 // authorization request for verification.  If these values are validated, the
