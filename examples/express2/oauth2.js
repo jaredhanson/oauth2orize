@@ -5,8 +5,7 @@ var oauth2orize = require('oauth2orize')
   , passport = require('passport')
   , login = require('connect-ensure-login')
   , db = require('./db')
-  , utils = require('./utils')
-  , AuthorizationError = require('oauth2orize/lib/errors/authorizationerror');
+  , utils = require('./utils');
 
 // create OAuth 2.0 server
 var server = oauth2orize.createServer();
@@ -104,10 +103,10 @@ server.exchange(oauth2orize.exchange.password(function(client, username, passwor
     db.clients.findByClientId(client.clientId, function(err, localClient) {
         if (err) { return done(err); }
         if(localClient === null) {
-            return done(new AuthorizationError('invalid client id', 'invalid_client'));
+            return done(null, false);
         }
         if(localClient.clientSecret !== client.clientSecret) {
-            return done(new AuthorizationError('invalid client secret/password', 'invalid_client'));
+            return done(null, false);
         }
         //Validate the user
         db.users.findByUsername(username, function(err, user) {
@@ -139,10 +138,10 @@ server.exchange(oauth2orize.exchange.clientCredentials(function(client, scope, d
     db.clients.findByClientId(client.clientId, function(err, localClient) {
         if (err) { return done(err); }
         if(localClient === null) {
-            return done(new AuthorizationError('invalid client id', 'invalid_client'));
+            return done(null, false);
         }
         if(localClient.clientSecret !== client.clientSecret) {
-            return done(new AuthorizationError('invalid client secret/password', 'invalid_client'));
+            return done(null, false);
         }
         var token = utils.uid(256);
         //Pass in a null for user id since there is no user with this grant type
