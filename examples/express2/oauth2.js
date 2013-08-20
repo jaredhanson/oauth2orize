@@ -98,6 +98,7 @@ server.exchange(oauth2orize.exchange.code(function(client, code, redirectURI, do
 exports.authorization = [
   login.ensureLoggedIn(),
   server.authorization(function(clientID, redirectURI, done) {
+		console.log("ClientId: " + clientID);
     db.clients.findByClientId(clientID, function(err, client) {
       if (err) { return done(err); }
       // WARNING: For security purposes, it is highly advisable to check that
