@@ -15,6 +15,10 @@ vows.describe('oauth2orize').addBatch({
     assert.isFunction(oauth2orize.createServer);
   },
   
+  'should export middleware': function () {
+    assert.isFunction(oauth2orize.errorHandler);
+  },
+  
   'should export grant middleware': function () {
     assert.isObject(oauth2orize.grant);
     assert.isFunction(oauth2orize.grant.code);
