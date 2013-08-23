@@ -1,7 +1,7 @@
 var vows = require('vows');
 var assert = require('assert');
 var util = require('util');
-var Server = require('server');
+var Server = require('../lib/server');
 
 
 vows.describe('Server').addBatch({

@@ -1,7 +1,7 @@
 var vows = require('vows');
 var assert = require('assert');
 var util = require('util');
-var UnorderedList = require('unorderedlist');
+var UnorderedList = require('../lib/unorderedlist');
 
 
 vows.describe('UnorderedList').addBatch({

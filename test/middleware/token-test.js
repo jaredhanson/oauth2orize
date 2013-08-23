@@ -2,8 +2,8 @@ var vows = require('vows');
 var assert = require('assert');
 var url = require('url');
 var util = require('util');
-var token = require('middleware/token');
-var Server = require('server');
+var token = require('../../lib/middleware/token');
+var Server = require('../../lib/server');
 
 
 function MockRequest() {

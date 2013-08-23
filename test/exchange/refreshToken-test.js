@@ -1,7 +1,7 @@
 var vows = require('vows');
 var assert = require('assert');
 var util = require('util');
-var refreshToken = require('exchange/refreshToken');
+var refreshToken = require('../../lib/exchange/refreshToken');
 
 
 function MockRequest() {

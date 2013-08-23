@@ -1,19 +1,50 @@
 NODE = node
-TEST = ./node_modules/.bin/vows
 TESTS ?= test/*-test.js test/**/*-test.js
 
-test:
-	@NODE_ENV=test NODE_PATH=lib $(TEST) $(TEST_FLAGS) $(TESTS)
+lint: lint-jshint
+test: test-vows
+test-cov: test-istanbul-vows
+view-cov: view-istanbul-report
 
-docs: docs/api.html
 
-docs/api.html: lib/oauth2orize/*.js
-	dox \
-		--title oauth2orize \
-		--desc "OAuth 2.0 authorization server toolkit for Node.js" \
-		$(shell find lib/oauth2orize/* -type f) > $@
+# ==============================================================================
+# Node.js
+# ==============================================================================
+include support/mk/node.mk
+include support/mk/mocha.mk
+include support/mk/vows.mk
 
-docclean:
-	rm -f docs/*.{1,html}
+# ==============================================================================
+# Browserify
+# ==============================================================================
+BROWSERIFY_MAIN = ./lib/index.js
 
-.PHONY: test docs docclean
+include support/mk/browserify.mk
+include support/mk/testling.mk
+
+# ==============================================================================
+# Code Quality
+# ==============================================================================
+include support/mk/notes.mk
+include support/mk/jshint.mk
+include support/mk/istanbul.mk
+
+# ==============================================================================
+# Continuous Integration
+# ==============================================================================
+include support/mk/coveralls.mk
+
+ci-travis: test test-cov
+submit-coverage-to-coveralls: submit-istanbul-lcov-to-coveralls
+
+# ==============================================================================
+# Clean
+# ==============================================================================
+clean:
+	rm -rf build
+	rm -rf reports
+
+clobber: clean clobber-node
+
+
+.PHONY: lint test test-cov view-cov ci-travis clean clobber

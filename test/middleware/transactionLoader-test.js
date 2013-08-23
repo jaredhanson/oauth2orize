@@ -2,8 +2,8 @@ var vows = require('vows');
 var assert = require('assert');
 var url = require('url');
 var util = require('util');
-var transactionLoader = require('middleware/transactionLoader');
-var Server = require('server');
+var transactionLoader = require('../../lib/middleware/transactionLoader');
+var Server = require('../../lib/server');
 
 
 function MockRequest() {

@@ -1,7 +1,7 @@
 var vows = require('vows');
 var assert = require('assert');
 var util = require('util');
-var token = require('grant/token');
+var token = require('../../lib/grant/token');
 
 
 function MockRequest() {

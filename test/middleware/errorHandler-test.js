@@ -2,9 +2,9 @@ var vows = require('vows');
 var assert = require('assert');
 var url = require('url');
 var util = require('util');
-var errorHandler = require('middleware/errorHandler');
-var Server = require('server');
-var AuthorizationError = require('errors/authorizationerror');
+var errorHandler = require('../../lib/middleware/errorHandler');
+var Server = require('../../lib/server');
+var AuthorizationError = require('../../lib/errors/authorizationerror');
 
 
 function MockRequest() {

@@ -1,7 +1,7 @@
 var vows = require('vows');
 var assert = require('assert');
 var util = require('util');
-var clientCredentials = require('exchange/clientCredentials');
+var clientCredentials = require('../../lib/exchange/clientCredentials');
 
 
 function MockRequest() {

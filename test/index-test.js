@@ -1,8 +1,8 @@
 var vows = require('vows');
 var assert = require('assert');
 var util = require('util');
-var oauth2orize = require('index');
-var Server = require('server');
+var oauth2orize = require('..');
+var Server = require('../lib/server');
 
 
 vows.describe('oauth2orize').addBatch({

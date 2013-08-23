@@ -1,7 +1,7 @@
 var vows = require('vows');
 var assert = require('assert');
 var util = require('util');
-var code = require('grant/code');
+var code = require('../../lib/grant/code');
 
 
 function MockRequest() {

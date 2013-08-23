@@ -1,7 +1,7 @@
 var vows = require('vows');
 var assert = require('assert');
 var util = require('util');
-var authorizationCode = require('exchange/authorizationCode');
+var authorizationCode = require('../../lib/exchange/authorizationCode');
 
 
 function MockRequest() {
