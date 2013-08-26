@@ -2,7 +2,17 @@
   "name": "oauth2orize",
   "version": "0.1.0",
   "description": "OAuth 2.0 authorization server toolkit for Node.js.",
-  "keywords": ["oauth", "oauth2", "connect", "express", "middleware", "http", "api"],
+  "keywords": [
+    "oauth",
+    "oauth2",
+    "auth",
+    "authz",
+    "authorization",
+    "connect",
+    "express",
+    "passport",
+    "middleware"
+  ],
   "repository": {
     "type": "git",
     "url": "git://github.com/jaredhanson/oauth2orize.git"
@@ -10,11 +20,17 @@
   "bugs": {
     "url": "http://github.com/jaredhanson/oauth2orize/issues"
   },
-  "author": { "name": "Jared Hanson", "email": "jaredhanson@gmail.com", "url": "http://www.jaredhanson.net/" },
-  "licenses": [ {
-    "type": "MIT",
-    "url": "http://www.opensource.org/licenses/MIT" 
-  } ],
+  "author": {
+    "name": "Jared Hanson",
+    "email": "jaredhanson@gmail.com",
+    "url": "http://www.jaredhanson.net/"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "http://www.opensource.org/licenses/MIT"
+    }
+  ],
   "main": "./lib",
   "dependencies": {
     "debug": "0.7.x"
@@ -22,8 +38,8 @@
   "devDependencies": {
     "vows": "0.7.x"
   },
+  "engines": { "node": ">= 0.4.0" },
   "scripts": {
     "test": "NODE_PATH=lib node_modules/.bin/vows test/*-test.js test/**/*-test.js"
-  },
-  "engines": { "node": ">= 0.4.0" }
+  }
 }
