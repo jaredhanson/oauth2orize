@@ -7,18 +7,22 @@ var Server = require('../lib/server');
 
 vows.describe('oauth2orize').addBatch({
   
+  // OK
   'should export module function': function () {
     assert.strictEqual(oauth2orize, oauth2orize.createServer);
   },
   
+  // OK
   'should export functions': function () {
     assert.isFunction(oauth2orize.createServer);
   },
   
+  // OK
   'should export middleware': function () {
     assert.isFunction(oauth2orize.errorHandler);
   },
   
+  // OK
   'should export grant middleware': function () {
     assert.isObject(oauth2orize.grant);
     assert.isFunction(oauth2orize.grant.code);
@@ -28,6 +32,7 @@ vows.describe('oauth2orize').addBatch({
     assert.strictEqual(oauth2orize.grant.implicit, oauth2orize.grant.token);
   },
   
+  // OK
   'should export exchange middleware': function () {
     assert.isObject(oauth2orize.exchange);
     assert.isFunction(oauth2orize.exchange.authorizationCode);
@@ -38,6 +43,7 @@ vows.describe('oauth2orize').addBatch({
     assert.strictEqual(oauth2orize.exchange.code, oauth2orize.exchange.authorizationCode);
   },
   
+  // OK
   'createServer': {
     topic: function() {
       return oauth2orize.createServer();

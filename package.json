@@ -36,7 +36,9 @@
     "debug": "0.7.x"
   },
   "devDependencies": {
-    "vows": "0.7.x"
+    "vows": "0.7.x",
+    "mocha": "1.x.x",
+    "chai": "1.x.x"
   },
   "engines": { "node": ">= 0.4.0" },
   "scripts": {

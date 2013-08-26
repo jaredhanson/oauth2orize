@@ -1,9 +1,9 @@
 NODE = node
-TESTS ?= test/*-test.js test/**/*-test.js
+TESTS ?= test/*.test.js test/**/*.test.js
 
 lint: lint-jshint
-test: test-vows
-test-cov: test-istanbul-vows
+test: test-mocha
+test-cov: test-istanbul-mocha
 view-cov: view-istanbul-report
 
 
