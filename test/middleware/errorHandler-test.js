@@ -32,6 +32,7 @@ MockResponse.prototype.end = function(data, encoding) {
 
 vows.describe('errorHandler').addBatch({
 
+  // OK
   'middleware that handles an error in direct mode': {
     topic: function() {
       return errorHandler();
@@ -69,6 +70,7 @@ vows.describe('errorHandler').addBatch({
     },
   },
   
+  // OK
   'middleware that handles an authorization error in direct mode': {
     topic: function() {
       return errorHandler();
@@ -106,6 +108,7 @@ vows.describe('errorHandler').addBatch({
     },
   },
   
+  // OK
   'middleware that handles an authorization error with uri in direct mode': {
     topic: function() {
       return errorHandler();
@@ -143,6 +146,7 @@ vows.describe('errorHandler').addBatch({
     },
   },
   
+  // OK
   'middleware that handles an error in indirect mode': {
     topic: function() {
       return errorHandler({ mode: 'indirect' });
@@ -177,6 +181,7 @@ vows.describe('errorHandler').addBatch({
     },
   },
   
+  // OK
   'middleware that handles an authorization error in indirect mode': {
     topic: function() {
       return errorHandler({ mode: 'indirect' });
@@ -211,6 +216,7 @@ vows.describe('errorHandler').addBatch({
     },
   },
   
+  // OK
   'middleware that handles an authorization error with uri in indirect mode': {
     topic: function() {
       return errorHandler({ mode: 'indirect' });
@@ -245,6 +251,7 @@ vows.describe('errorHandler').addBatch({
     },
   },
   
+  // OK
   'middleware that handles an error in indirect mode without an oauth transaction': {
     topic: function() {
       return errorHandler({ mode: 'indirect' });
@@ -279,6 +286,7 @@ vows.describe('errorHandler').addBatch({
     },
   },
   
+  // OK
   'middleware that handles an error in indirect mode without a redirect URI': {
     topic: function() {
       return errorHandler({ mode: 'indirect' });
@@ -314,6 +322,7 @@ vows.describe('errorHandler').addBatch({
     },
   },
   
+  // OK
   'middleware that handles an error in unknown mode': {
     topic: function() {
       return errorHandler({ mode: 'unknown' });
