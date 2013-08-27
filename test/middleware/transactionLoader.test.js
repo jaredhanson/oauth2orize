@@ -132,6 +132,7 @@ describe('transactionLoader', function() {
     it('should error', function() {
       expect(err).to.be.an.instanceOf(Error);
       expect(err.constructor.name).to.equal('AuthorizationError');
+      expect(err.message).to.equal('Client is no longer authorized');
       expect(err.code).to.equal('unauthorized_client');
     });
     
@@ -258,7 +259,7 @@ describe('transactionLoader', function() {
     });
   });
   
-  describe('handling a request without a transactions in session', function() {
+  describe('handling a request without transactions in session', function() {
     var request, err;
 
     before(function(done) {
