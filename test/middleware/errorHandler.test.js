@@ -168,6 +168,34 @@ describe('errorHandler', function() {
       });
     });
     
+    describe('handling an error with state', function() {
+      var res;
+  
+      before(function(done) {
+        chai.connect(errorHandler({ mode: 'indirect' }))
+          .req(function(req) {
+            req.oauth2 = { redirectURI: 'http://example.com/auth/callback' };
+            req.oauth2.req = { state: '1234' };
+          })
+          .end(function(r) {
+            res = r;
+            done();
+          })
+          .dispatch(new Error('something went wrong'));
+      });
+  
+      it('should set response headers', function() {
+        expect(res.statusCode).to.equal(302);
+        expect(res.getHeader('Location')).to.equal('http://example.com/auth/callback?error=server_error&error_description=something%20went%20wrong&state=1234');
+        expect(res.getHeader('Content-Type')).to.be.undefined;
+        expect(res.getHeader('WWW-Authenticate')).to.be.undefined;
+      });
+      
+      it('should not set response body', function() {
+        expect(res.body).to.be.undefined;
+      });
+    });
+    
     describe('handling a request error without an OAuth 2.0 transaction', function() {
       var err;
   
