@@ -31,6 +31,7 @@ MockResponse.prototype.end = function(data, encoding) {
 
 vows.describe('decision').addBatch({
   
+  // OK
   'middleware that handles a user decision to allow': {
     topic: function() {
       var server = new Server();
@@ -98,6 +99,7 @@ vows.describe('decision').addBatch({
     },
   },
   
+  // OK
   'middleware that handles a user decision to disallow': {
     topic: function() {
       var server = new Server();
