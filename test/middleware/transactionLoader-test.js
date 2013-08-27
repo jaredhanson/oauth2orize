@@ -26,6 +26,7 @@ MockResponse.prototype.end = function(data, encoding) {
 
 vows.describe('transactionLoader').addBatch({
 
+  // OK
   'middleware that loads a transaction based on ID in query': {
     topic: function() {
       var server = new Server();
@@ -83,6 +84,7 @@ vows.describe('transactionLoader').addBatch({
     },
   },
   
+  // OK
   'middleware that loads a transaction based on ID in body': {
     topic: function() {
       var server = new Server();
@@ -140,6 +142,7 @@ vows.describe('transactionLoader').addBatch({
     },
   },
   
+  // OK
   'middleware with transactionField option that loads a transaction': {
     topic: function() {
       var server = new Server();
@@ -197,6 +200,7 @@ vows.describe('transactionLoader').addBatch({
     },
   },
   
+  // OK
   'middleware with sessionKey option that loads a transaction': {
     topic: function() {
       var server = new Server();
@@ -254,6 +258,7 @@ vows.describe('transactionLoader').addBatch({
     },
   },
   
+  // OK
   'middleware that has deauthorized a client': {
     topic: function() {
       var server = new Server();
@@ -307,6 +312,7 @@ vows.describe('transactionLoader').addBatch({
     },
   },
   
+  // OK
   'middleware that errors while deserializing a client': {
     topic: function() {
       var server = new Server();
