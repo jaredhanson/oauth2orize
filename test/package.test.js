@@ -37,6 +37,11 @@ describe('oauth2orize', function() {
     expect(oauth2orize.exchange.code).to.equal(oauth2orize.exchange.authorizationCode);
   });
   
+  it('should export Error constructors', function() {
+    expect(oauth2orize.AuthorizationError).to.be.a('function');
+  });
+  
+  
   describe('.createServer', function() {
     
     it('should return a server', function() {
@@ -44,10 +49,6 @@ describe('oauth2orize', function() {
       expect(s).to.be.an.instanceOf(Server);
     });
     
-  });
-  
-  it('should export Error constructors', function() {
-    expect(oauth2orize.AuthorizationError).to.be.a('function');
   });
   
 });
