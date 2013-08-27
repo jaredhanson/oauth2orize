@@ -16,6 +16,12 @@ describe('transactionLoader', function() {
     expect(transactionLoader(server).name).to.equal('transactionLoader');
   });
   
+  it('should throw if constructed without a server argument', function() {
+    expect(function() {
+      transactionLoader();
+    }).to.throw(TypeError, 'oauth2orize.transactionLoader middleware requires a server argument');
+  });
+  
   describe('handling a request with transaction id in query', function() {
     var request, err;
 
@@ -193,6 +199,85 @@ describe('transactionLoader', function() {
     
     it('should not next with error', function() {
       expect(err).to.be.undefined;
+    });
+    
+    it('should not restore transaction', function() {
+      expect(request.oauth2).to.be.undefined;
+    });
+  });
+  
+  describe('handling a request with transaction id lacking corresponding transaction', function() {
+    var request, err;
+
+    before(function(done) {
+      chai.connect(transactionLoader(server))
+        .req(function(req) {
+          request = req;
+          req.body = { 'transaction_id': '1234' };
+          req.session = {};
+          req.session.authorize = {};
+        })
+        .next(function(e) {
+          err = e;
+          done();
+        })
+        .dispatch();
+    });
+    
+    it('should not next with error', function() {
+      expect(err).to.be.undefined;
+    });
+    
+    it('should not restore transaction', function() {
+      expect(request.oauth2).to.be.undefined;
+    });
+  });
+  
+  describe('handling a request without a session', function() {
+    var request, err;
+
+    before(function(done) {
+      chai.connect(transactionLoader(server))
+        .req(function(req) {
+          request = req;
+        })
+        .next(function(e) {
+          err = e;
+          done();
+        })
+        .dispatch();
+    });
+    
+    it('should error', function() {
+      expect(err).to.be.an.instanceOf(Error);
+      expect(err.message).to.equal('OAuth2orize requires session support. Did you forget app.use(express.session(...))?');
+    });
+    
+    it('should not restore transaction', function() {
+      expect(request.oauth2).to.be.undefined;
+    });
+  });
+  
+  describe('handling a request without a transactions in session', function() {
+    var request, err;
+
+    before(function(done) {
+      chai.connect(transactionLoader(server))
+        .req(function(req) {
+          request = req;
+          req.body = { 'transaction_id': '1234' };
+          req.session = {};
+        })
+        .next(function(e) {
+          err = e;
+          done();
+        })
+        .dispatch();
+    });
+    
+    it('should error', function() {
+      expect(err).to.be.an.instanceOf(Error);
+      expect(err.message).to.equal('Failed to load transaction from session');
     });
     
     it('should not restore transaction', function() {
