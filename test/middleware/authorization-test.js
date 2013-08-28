@@ -848,12 +848,14 @@ vows.describe('authorization').addBatch({
     },
   },
   
+  // OK
   'middleware constructed without a server instance': {
     'should throw an error': function () {
       assert.throws(function() { authorization() });
     },
   },
   
+  // OK
   'middleware constructed without a validate function': {
     'should throw an error': function () {
       assert.throws(function() { authorization({}) });
