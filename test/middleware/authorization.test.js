@@ -111,7 +111,6 @@ describe('decision', function() {
           req.session = {};
         })
         .next(function(e) {
-          console.log(e);
           err = e;
           done();
         })
@@ -143,7 +142,6 @@ describe('decision', function() {
           req.session = {};
         })
         .next(function(e) {
-          console.log(e);
           err = e;
           done();
         })
@@ -312,6 +310,32 @@ describe('decision', function() {
     });
   });
   
+  describe('handling a request for authorization without a session', function() {
+    var request, err;
+
+    before(function(done) {
+      chai.connect(authorization(server, validate))
+        .req(function(req) {
+          request = req;
+          req.query = { response_type: 'code', client_id: '1234', redirect_uri: 'http://example.com/auth/callback' };
+        })
+        .next(function(e) {
+          err = e;
+          done();
+        })
+        .dispatch();
+    });
+    
+    it('should error', function() {
+      expect(err).to.be.an.instanceOf(Error);
+      expect(err.message).to.equal('OAuth2orize requires session support. Did you forget app.use(express.session(...))?');
+    });
+  
+    it('should not start transaction', function() {
+      expect(request.oauth2).to.be.undefined;
+    });
+  });
+  
   describe('validate with scope', function() {
     function validate(clientID, redirectURI, scope, done) {
       if (clientID == '1234' && redirectURI == 'http://example.com/auth/callback' && scope == 'write') {
@@ -474,6 +498,100 @@ describe('decision', function() {
         expect(request.session['authorize'][tid].req.type).to.equal('code');
         expect(request.session['authorize'][tid].req.clientID).to.equal('1234');
         expect(request.session['authorize'][tid].req.redirectURI).to.equal('http://example.com/auth/callback');
+      });
+    });
+  });
+  
+  describe('with id length option', function() {
+    describe('handling a request for authorization', function() {
+      var request, err;
+
+      before(function(done) {
+        chai.connect(authorization(server, { idLength: 12 }, validate))
+          .req(function(req) {
+            request = req;
+            req.query = { response_type: 'code', client_id: '1234', redirect_uri: 'http://example.com/auth/callback' };
+            req.session = {};
+          })
+          .next(function(e) {
+            err = e;
+            done();
+          })
+          .dispatch();
+      });
+    
+      it('should not error', function() {
+        expect(err).to.be.undefined;
+      });
+    
+      it('should add transaction', function() {
+        expect(request.oauth2).to.be.an('object');
+        expect(request.oauth2.transactionID).to.be.a('string');
+        expect(request.oauth2.transactionID).to.have.length(12);
+        expect(request.oauth2.client.id).to.equal('1234');
+        expect(request.oauth2.client.name).to.equal('Example');
+        expect(request.oauth2.redirectURI).to.equal('http://example.com/auth/callback');
+        expect(request.oauth2.req.type).to.equal('code');
+        expect(request.oauth2.req.clientID).to.equal('1234');
+        expect(request.oauth2.req.redirectURI).to.equal('http://example.com/auth/callback');
+      });
+    
+      it('should store transaction in session', function() {
+        var tid = request.oauth2.transactionID;
+        expect(request.session['authorize'][tid]).to.be.an('object');
+        expect(request.session['authorize'][tid].protocol).to.equal('oauth2');
+        expect(request.session['authorize'][tid].client).to.equal('1234');
+        expect(request.session['authorize'][tid].redirectURI).to.equal('http://example.com/auth/callback');
+        expect(request.session['authorize'][tid].req.type).to.equal('code');
+        expect(request.session['authorize'][tid].req.clientID).to.equal('1234');
+        expect(request.session['authorize'][tid].req.redirectURI).to.equal('http://example.com/auth/callback');
+      });
+    });
+  });
+  
+  describe('with session key option', function() {
+    describe('handling a request for authorization', function() {
+      var request, err;
+
+      before(function(done) {
+        chai.connect(authorization(server, { sessionKey: 'oauth2z' }, validate))
+          .req(function(req) {
+            request = req;
+            req.query = { response_type: 'code', client_id: '1234', redirect_uri: 'http://example.com/auth/callback' };
+            req.session = {};
+          })
+          .next(function(e) {
+            err = e;
+            done();
+          })
+          .dispatch();
+      });
+    
+      it('should not error', function() {
+        expect(err).to.be.undefined;
+      });
+    
+      it('should add transaction', function() {
+        expect(request.oauth2).to.be.an('object');
+        expect(request.oauth2.transactionID).to.be.a('string');
+        expect(request.oauth2.transactionID).to.have.length(8);
+        expect(request.oauth2.client.id).to.equal('1234');
+        expect(request.oauth2.client.name).to.equal('Example');
+        expect(request.oauth2.redirectURI).to.equal('http://example.com/auth/callback');
+        expect(request.oauth2.req.type).to.equal('code');
+        expect(request.oauth2.req.clientID).to.equal('1234');
+        expect(request.oauth2.req.redirectURI).to.equal('http://example.com/auth/callback');
+      });
+    
+      it('should store transaction in session', function() {
+        var tid = request.oauth2.transactionID;
+        expect(request.session['oauth2z'][tid]).to.be.an('object');
+        expect(request.session['oauth2z'][tid].protocol).to.equal('oauth2');
+        expect(request.session['oauth2z'][tid].client).to.equal('1234');
+        expect(request.session['oauth2z'][tid].redirectURI).to.equal('http://example.com/auth/callback');
+        expect(request.session['oauth2z'][tid].req.type).to.equal('code');
+        expect(request.session['oauth2z'][tid].req.clientID).to.equal('1234');
+        expect(request.session['oauth2z'][tid].req.redirectURI).to.equal('http://example.com/auth/callback');
       });
     });
   });

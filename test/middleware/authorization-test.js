@@ -674,6 +674,7 @@ vows.describe('authorization').addBatch({
     },
   },
   
+  // OK
   'middleware that validates a request and has idLength option set': {
     topic: function() {
       var server = new Server();
@@ -743,6 +744,7 @@ vows.describe('authorization').addBatch({
     },
   },
   
+  // OK
   'middleware that validates a request and has sessionKey option set': {
     topic: function() {
       var server = new Server();
@@ -812,6 +814,7 @@ vows.describe('authorization').addBatch({
     },
   },
   
+  // OK
   'middleware that handles a request without a session': {
     topic: function() {
       var server = new Server();
