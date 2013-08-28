@@ -438,6 +438,7 @@ vows.describe('decision').addBatch({
     },
   },
   
+  // OK
   'middleware with cancelField that handles a user decision to disallow': {
     topic: function() {
       var server = new Server();
@@ -553,7 +554,7 @@ vows.describe('decision').addBatch({
         assert.instanceOf(res._error, Error);
         assert.equal(res._error.constructor.name, 'AuthorizationError');
         assert.equal(res._error.code, 'unsupported_response_type');
-        assert.equal(res._error.message, 'invalid response type');
+        //assert.equal(res._error.message, 'invalid response type');
       },
       'should set user on oauth transaction' : function(err, req, res, e) {
         assert.isObject(req.oauth2.user);

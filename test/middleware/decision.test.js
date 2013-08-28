@@ -116,6 +116,55 @@ describe('decision', function() {
     });
   });
   
+  describe('handling a user decision to allow access but unknown response type', function() {
+    var request, response, err;
+
+    before(function(done) {
+      chai.connect(decision(server))
+        .req(function(req) {
+          request = req;
+          req.query = {};
+          req.body = {};
+          req.session = {};
+          req.session['authorize'] = {};
+          req.session['authorize']['abc123'] = { protocol: 'oauth2' };
+          req.user = { id: 'u1234', username: 'bob' };
+          req.oauth2 = {};
+          req.oauth2.transactionID = 'abc123';
+          req.oauth2.client = { id: 'c5678', name: 'Example' };
+          req.oauth2.redirectURI = 'http://example.com/auth/callback';
+          req.oauth2.req = { type: 'foo', scope: 'email' };
+        })
+        .next(function(e) {
+          err = e;
+          done();
+        })
+        .dispatch();
+    });
+    
+    it('should error', function() {
+      expect(err).to.be.an.instanceOf(Error);
+      expect(err.constructor.name).to.equal('AuthorizationError');
+      expect(err.message).to.equal('Unsupported response type: foo');
+      expect(err.code).to.equal('unsupported_response_type');
+    });
+    
+    it('should set user on transaction', function() {
+      expect(request.oauth2.user).to.be.an('object')
+      expect(request.oauth2.user.id).to.equal('u1234');
+      expect(request.oauth2.user.username).to.equal('bob');
+    });
+    
+    it('should set response on transaction', function() {
+      expect(request.oauth2.res).to.be.an('object')
+      expect(request.oauth2.res.allow).to.be.true;
+    });
+    
+    it('should leave transaction in session', function() {
+      expect(request.session['authorize']['abc123']).to.be.an('object');
+    });
+  });
+  
   describe('with parsing function', function() {
     var mw = decision(server, function(req, done) {
       done(null, { scope: req.query.scope });
@@ -171,7 +220,7 @@ describe('decision', function() {
     });
   });
   
-  describe('with parsing function that parses a request to deny access', function() {
+  describe('with parsing function that denies access', function() {
     var mw = decision(server, function(req, done) {
       done(null, { allow: false });
     });
@@ -186,6 +235,57 @@ describe('decision', function() {
             req.query = {};
             req.query.scope = 'no-email';
             req.body = {};
+            req.session = {};
+            req.session['authorize'] = {};
+            req.session['authorize']['abc123'] = { protocol: 'oauth2' };
+            req.user = { id: 'u1234', username: 'bob' };
+            req.oauth2 = {};
+            req.oauth2.transactionID = 'abc123';
+            req.oauth2.client = { id: 'c5678', name: 'Example' };
+            req.oauth2.redirectURI = 'http://example.com/auth/callback';
+            req.oauth2.req = { type: 'code', scope: 'email' };
+          })
+          .end(function(res) {
+            response = res;
+            done();
+          })
+          .dispatch();
+      });
+    
+      it('should set user on transaction', function() {
+        expect(request.oauth2.user).to.be.an('object')
+        expect(request.oauth2.user.id).to.equal('u1234');
+        expect(request.oauth2.user.username).to.equal('bob');
+      });
+    
+      it('should set response on transaction', function() {
+        expect(request.oauth2.res).to.be.an('object')
+        expect(request.oauth2.res.allow).to.be.false;
+      });
+    
+      it('should respond', function() {
+        expect(response.statusCode).to.equal(302);
+        expect(response.getHeader('Location')).to.equal('http://example.com/auth/callback?error=access_denied');
+      });
+    
+      it('should remove transaction from session', function() {
+        expect(request.session['authorize']['abc123']).to.be.undefined;
+      });
+    });
+  });
+  
+  describe('with cancel field option', function() {
+    var mw = decision(server, { cancelField: 'deny' });
+    
+    describe('handling a user decision to deny access', function() {
+      var request, response;
+
+      before(function(done) {
+        chai.connect(mw)
+          .req(function(req) {
+            request = req;
+            req.query = {};
+            req.body = { deny: 'Deny' };
             req.session = {};
             req.session['authorize'] = {};
             req.session['authorize']['abc123'] = { protocol: 'oauth2' };
