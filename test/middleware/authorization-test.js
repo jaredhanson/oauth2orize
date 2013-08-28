@@ -26,6 +26,7 @@ MockResponse.prototype.end = function(data, encoding) {
 
 vows.describe('authorization').addBatch({
   
+  // OK
   'middleware that validates a request using client ID and redirect URI': {
     topic: function() {
       var server = new Server();
@@ -99,6 +100,7 @@ vows.describe('authorization').addBatch({
     },
   },
   
+  // OK
   'middleware that validates a request using client ID, redirect URI, and scope': {
     topic: function() {
       var server = new Server();
