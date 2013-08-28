@@ -23,6 +23,7 @@ MockResponse.prototype.end = function(data, encoding) {
 
 vows.describe('password').addBatch({
 
+  // OK
   'middleware': {
     topic: function() {
       return password(function() {});
@@ -34,6 +35,7 @@ vows.describe('password').addBatch({
     },
   },
   
+  // OK
   'middleware that issues an access token': {
     topic: function() {
       return password(function(client, username, passwd, done) {
@@ -79,6 +81,7 @@ vows.describe('password').addBatch({
     },
   },
   
+  // OK
   'middleware that issues an access token and refresh token': {
     topic: function() {
       return password(function(client, username, passwd, done) {
@@ -124,6 +127,7 @@ vows.describe('password').addBatch({
     },
   },
   
+  // OK
   'middleware that issues an access token, null refresh token, and params': {
     topic: function() {
       return password(function(client, username, passwd, done) {
@@ -169,6 +173,7 @@ vows.describe('password').addBatch({
     },
   },
   
+  // OK
   'middleware that issues an access token, refresh token, and params with token_type': {
     topic: function() {
       return password(function(client, username, passwd, done) {
@@ -214,6 +219,7 @@ vows.describe('password').addBatch({
     },
   },
   
+  // OK
   'middleware that issues an access token based on scope': {
     topic: function() {
       return password(function(client, username, passwd, scope, done) {
@@ -260,6 +266,7 @@ vows.describe('password').addBatch({
     },
   },
   
+  // OK
   'middleware that issues an access token based on list of scopes': {
     topic: function() {
       return password(function(client, username, passwd, scope, done) {
@@ -306,6 +313,7 @@ vows.describe('password').addBatch({
     },
   },
   
+  // OK
   'middleware using scope separator that issues an access token based on list of scopes': {
     topic: function() {
       return password({ scopeSeparator: ',' }, function(client, username, passwd, scope, done) {
@@ -352,6 +360,7 @@ vows.describe('password').addBatch({
     },
   },
   
+  // OK
   'middleware using multiple scope separators that issues an access token based on list of scopes': {
     topic: function() {
       return password({ scopeSeparator: [' ', ','] }, function(client, username, passwd, scope, done) {
@@ -431,6 +440,7 @@ vows.describe('password').addBatch({
     },
   },
   
+  // OK
   'middleware with userProperty option that issues an access token': {
     topic: function() {
       return password({ userProperty: 'otheruser' }, function(client, username, passwd, done) {
@@ -510,7 +520,7 @@ vows.describe('password').addBatch({
         assert.instanceOf(e, Error);
         assert.equal(e.constructor.name, 'AuthorizationError')
         assert.equal(e.code, 'invalid_grant')
-        assert.equal(e.message, 'invalid resource owner credentials')
+        //assert.equal(e.message, 'invalid resource owner credentials')
       },
     },
   },
