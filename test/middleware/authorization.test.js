@@ -120,7 +120,7 @@ describe('decision', function() {
     it('should error', function() {
       expect(err).to.be.an.instanceOf(Error);
       expect(err.constructor.name).to.equal('AuthorizationError');
-      expect(err.message).to.equal('not authorized');
+      expect(err.message).to.equal('Client is unauthorized');
       expect(err.code).to.equal('unauthorized_client');
     });
   
@@ -151,7 +151,7 @@ describe('decision', function() {
     it('should error', function() {
       expect(err).to.be.an.instanceOf(Error);
       expect(err.constructor.name).to.equal('AuthorizationError');
-      expect(err.message).to.equal('not authorized');
+      expect(err.message).to.equal('Client is unauthorized');
       expect(err.code).to.equal('unauthorized_client');
     });
   
