@@ -240,6 +240,7 @@ vows.describe('decision').addBatch({
     },
   },
   
+  // OK
   'middleware that parses and handles a user decision to disallow': {
     topic: function() {
       var server = new Server();
@@ -373,6 +374,7 @@ vows.describe('decision').addBatch({
     },
   },
   
+  // OK
   'middleware with sessionKey option that handles a user decision to allow': {
     topic: function() {
       var server = new Server();
