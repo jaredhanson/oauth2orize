@@ -528,6 +528,7 @@ vows.describe('authorization').addBatch({
     },
   },
   
+  // OK
   'middleware that throws when parsing a request': {
     topic: function() {
       var server = new Server();
@@ -574,6 +575,7 @@ vows.describe('authorization').addBatch({
     },
   },
   
+  // OK
   'middleware that errors when validating a request': {
     topic: function() {
       var server = new Server();
@@ -622,6 +624,7 @@ vows.describe('authorization').addBatch({
     },
   },
   
+  // OK
   'middleware that errors when serializing client': {
     topic: function() {
       var server = new Server();

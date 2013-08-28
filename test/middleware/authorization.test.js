@@ -6,9 +6,9 @@ var chai = require('chai')
 describe('decision', function() {
   
   var server = new Server();
-  
   server.serializeClient(function(client, done) {
-    return done(null, client.id);
+    if (client.id == '1234' || client.id == '2234' || client.id == '3234') { return done(null, client.id); }
+    return done(new Error('serializeClient failure'));
   });
   
   server.grant('code', function(req) {
@@ -18,10 +18,16 @@ describe('decision', function() {
       scope: req.query['scope']
     }
   });
+  server.grant('error', function(req) {
+    throw new Error('something went wrong parsing request');
+  });
   
   function validate(clientID, redirectURI, done) {
     if (clientID == '1234' && redirectURI == 'http://example.com/auth/callback') {
       return done(null, { id: '1234', name: 'Example' }, 'http://example.com/auth/callback');
+    }
+    if (clientID == '1235' && redirectURI == 'http://example.com/auth/callback') {
+      return done(null, { id: '1235', name: 'Example' }, 'http://example.com/auth/callback');
     }
     if (clientID == '2234') {
       return done(null, false);
@@ -213,6 +219,96 @@ describe('decision', function() {
   
     it('should not start transaction', function() {
       expect(request.oauth2).to.be.undefined;
+    });
+  });
+  
+  describe('encountering an error parsing request', function() {
+    var request, err;
+
+    before(function(done) {
+      chai.connect(authorization(server, validate))
+        .req(function(req) {
+          request = req;
+          req.query = { response_type: 'error', client_id: '1234', redirect_uri: 'http://example.com/auth/callback' };
+          req.session = {};
+        })
+        .next(function(e) {
+          err = e;
+          done();
+        })
+        .dispatch();
+    });
+  
+    it('should error', function() {
+      expect(err).to.be.an.instanceOf(Error);
+      expect(err.message).to.equal('something went wrong parsing request');
+    });
+  
+    it('should not start transaction', function() {
+      expect(request.oauth2).to.be.undefined;
+    });
+  });
+  
+  describe('encountering an error validating client', function() {
+    var request, err;
+
+    before(function(done) {
+      chai.connect(authorization(server, validate))
+        .req(function(req) {
+          request = req;
+          req.query = { response_type: 'code', client_id: '9234', redirect_uri: 'http://example.com/auth/callback' };
+          req.session = {};
+        })
+        .next(function(e) {
+          err = e;
+          done();
+        })
+        .dispatch();
+    });
+  
+    it('should error', function() {
+      expect(err).to.be.an.instanceOf(Error);
+      expect(err.message).to.equal('validate failure');
+    });
+  
+    it('should start transaction', function() {
+      expect(request.oauth2).to.be.an('object');
+      expect(request.oauth2.client).to.be.undefined;
+      expect(request.oauth2.redirectURI).to.be.undefined;
+    });
+  });
+  
+  describe('encountering an error serializing client', function() {
+    var request, err;
+
+    before(function(done) {
+      chai.connect(authorization(server, validate))
+        .req(function(req) {
+          request = req;
+          req.query = { response_type: 'code', client_id: '1235', redirect_uri: 'http://example.com/auth/callback' };
+          req.session = {};
+        })
+        .next(function(e) {
+          err = e;
+          done();
+        })
+        .dispatch();
+    });
+  
+    it('should error', function() {
+      expect(err).to.be.an.instanceOf(Error);
+      expect(err.message).to.equal('serializeClient failure');
+    });
+  
+    it('should start transaction', function() {
+      expect(request.oauth2).to.be.an('object');
+      expect(request.oauth2.client.id).to.equal('1235');
+      expect(request.oauth2.client.name).to.equal('Example');
+      expect(request.oauth2.redirectURI).to.equal('http://example.com/auth/callback');
+      expect(request.oauth2.req).to.be.an('object');
+      expect(request.oauth2.req.type).to.equal('code');
+      expect(request.oauth2.req.clientID).to.equal('1235');
+      expect(request.oauth2.req.redirectURI).to.equal('http://example.com/auth/callback');
     });
   });
   
