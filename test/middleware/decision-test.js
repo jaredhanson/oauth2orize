@@ -507,6 +507,7 @@ vows.describe('decision').addBatch({
     },
   },
   
+  // OK
   'middleware that handles a user decision to allow but of unkown type': {
     topic: function() {
       var server = new Server();
@@ -574,6 +575,7 @@ vows.describe('decision').addBatch({
     },
   },
   
+  // OK
   'middleware that errors while responding with grant': {
     topic: function() {
       var server = new Server();
@@ -639,6 +641,7 @@ vows.describe('decision').addBatch({
     },
   },
   
+  // OK
   'middleware that errors while parsing': {
     topic: function() {
       var server = new Server();
@@ -704,6 +707,7 @@ vows.describe('decision').addBatch({
     },
   },
   
+  // OK
   'middleware that handles a request without a session': {
     topic: function() {
       var server = new Server();

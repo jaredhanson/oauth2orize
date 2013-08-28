@@ -135,10 +135,14 @@ describe('decision', function() {
           req.oauth2.redirectURI = 'http://example.com/auth/callback';
           req.oauth2.req = { type: 'foo', scope: 'email' };
         })
+        .res(function(res) {
+          response = res;
+        })
         .next(function(e) {
           err = e;
           done();
         })
+        .end(function(){})
         .dispatch();
     });
     
@@ -162,6 +166,103 @@ describe('decision', function() {
     
     it('should leave transaction in session', function() {
       expect(request.session['authorize']['abc123']).to.be.an('object');
+    });
+    
+    it('should remove transaction from session after calling end', function() {
+      response.end();
+      expect(request.session['authorize']['abc123']).to.be.undefined;
+    });
+  });
+  
+  describe('encountering an error while responding with grant', function() {
+    var request, response, err;
+
+    before(function(done) {
+      chai.connect(decision(server))
+        .req(function(req) {
+          request = req;
+          req.query = {};
+          req.body = {};
+          req.session = {};
+          req.session['authorize'] = {};
+          req.session['authorize']['err123'] = { protocol: 'oauth2' };
+          req.user = { id: 'u1234', username: 'bob' };
+          req.oauth2 = {};
+          req.oauth2.transactionID = 'err123';
+          req.oauth2.client = { id: 'c5678', name: 'Example' };
+          req.oauth2.redirectURI = 'http://example.com/auth/callback';
+          req.oauth2.req = { type: 'code', scope: 'email' };
+        })
+        .res(function(res) {
+          response = res;
+        })
+        .next(function(e) {
+          err = e;
+          done();
+        })
+        .end(function(){})
+        .dispatch();
+    });
+    
+    it('should error', function() {
+      expect(err).to.be.an.instanceOf(Error);
+    });
+    
+    it('should set user on transaction', function() {
+      expect(request.oauth2.user).to.be.an('object')
+      expect(request.oauth2.user.id).to.equal('u1234');
+      expect(request.oauth2.user.username).to.equal('bob');
+    });
+    
+    it('should set response on transaction', function() {
+      expect(request.oauth2.res).to.be.an('object')
+      expect(request.oauth2.res.allow).to.be.true;
+    });
+    
+    it('should leave transaction in session', function() {
+      expect(request.session['authorize']['err123']).to.be.an('object');
+    });
+    
+    it('should remove transaction from session after calling end', function() {
+      response.end();
+      expect(request.session['authorize']['abc123']).to.be.undefined;
+    });
+  });
+  
+  describe('handling a request without a session', function() {
+    var request, response, err;
+
+    before(function(done) {
+      chai.connect(decision(server))
+        .req(function(req) {
+          request = req;
+          req.query = {};
+          req.body = {};
+          req.user = { id: 'u1234', username: 'bob' };
+          req.oauth2 = {};
+          req.oauth2.transactionID = 'abc123';
+          req.oauth2.client = { id: 'c5678', name: 'Example' };
+          req.oauth2.redirectURI = 'http://example.com/auth/callback';
+          req.oauth2.req = { type: 'code', scope: 'email' };
+        })
+        .next(function(e) {
+          err = e;
+          done();
+        })
+        .dispatch();
+    });
+    
+    it('should error', function() {
+      expect(err).to.be.an.instanceOf(Error);
+      expect(err.message).to.equal('OAuth2orize requires session support. Did you forget app.use(express.session(...))?');
+    });
+    
+    it('should not set user on transaction', function() {
+      expect(request.oauth2.user).to.be.undefined;
+    });
+    
+    it('should not set response on transaction', function() {
+      expect(request.oauth2.res).to.be.undefined;
     });
   });
   
@@ -270,6 +371,56 @@ describe('decision', function() {
     
       it('should remove transaction from session', function() {
         expect(request.session['authorize']['abc123']).to.be.undefined;
+      });
+    });
+  });
+  
+  describe('with parsing function that errors', function() {
+    var mw = decision(server, function(req, done) {
+      done(new Error('something went wrong'));
+    });
+    
+    describe('encountering an error while parsing', function() {
+      var request, response, err;
+
+      before(function(done) {
+        chai.connect(mw)
+          .req(function(req) {
+            request = req;
+            req.query = {};
+            req.body = {};
+            req.session = {};
+            req.session['authorize'] = {};
+            req.session['authorize']['abc123'] = { protocol: 'oauth2' };
+            req.user = { id: 'u1234', username: 'bob' };
+            req.oauth2 = {};
+            req.oauth2.transactionID = 'abc123';
+            req.oauth2.client = { id: 'c5678', name: 'Example' };
+            req.oauth2.redirectURI = 'http://example.com/auth/callback';
+            req.oauth2.req = { type: 'code', scope: 'email' };
+          })
+          .next(function(e) {
+            err = e;
+            done();
+          })
+          .dispatch();
+      });
+    
+      it('should error', function() {
+        expect(err).to.be.an.instanceOf(Error);
+        expect(err.message).to.equal('something went wrong');
+      });
+    
+      it('should not set user on transaction', function() {
+        expect(request.oauth2.user).to.be.undefined;
+      });
+    
+      it('should not set response on transaction', function() {
+        expect(request.oauth2.res).to.be.undefined;
+      });
+    
+      it('should leave transaction in session', function() {
+        expect(request.session['authorize']['abc123']).to.be.an('object');
       });
     });
   });

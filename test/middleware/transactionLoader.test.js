@@ -278,7 +278,7 @@ describe('transactionLoader', function() {
     
     it('should error', function() {
       expect(err).to.be.an.instanceOf(Error);
-      expect(err.message).to.equal('Failed to load transaction from session');
+      expect(err.message).to.equal('Unable load OAuth 2.0 transaction from session');
     });
     
     it('should not restore transaction', function() {
