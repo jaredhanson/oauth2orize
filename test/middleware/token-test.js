@@ -26,6 +26,7 @@ MockResponse.prototype.end = function(data, encoding) {
 
 vows.describe('token').addBatch({
   
+  // OK
   'middleware that issues an access token': {
     topic: function() {
       var server = new Server();
@@ -69,6 +70,7 @@ vows.describe('token').addBatch({
     },
   },
   
+  // OK
   'middleware that handles a request with an unsupported grant type': {
     topic: function() {
       var server = new Server();
@@ -110,6 +112,7 @@ vows.describe('token').addBatch({
     },
   },
   
+  // OK
   'middleware that errors while exhanging a grant': {
     topic: function() {
       var server = new Server();
@@ -148,6 +151,7 @@ vows.describe('token').addBatch({
     },
   },
   
+  // OK
   'middleware constructed without a server instance': {
     'should throw an error': function () {
       assert.throws(function() { token() });

@@ -18,7 +18,7 @@ describe('authorization', function() {
       scope: req.query['scope']
     }
   });
-  server.grant('error', function(req) {
+  server.grant('throw-error', function(req) {
     throw new Error('something went wrong parsing request');
   });
   
@@ -227,7 +227,7 @@ describe('authorization', function() {
       chai.connect(authorization(server, validate))
         .req(function(req) {
           request = req;
-          req.query = { response_type: 'error', client_id: '1234', redirect_uri: 'http://example.com/auth/callback' };
+          req.query = { response_type: 'throw-error', client_id: '1234', redirect_uri: 'http://example.com/auth/callback' };
           req.session = {};
         })
         .next(function(e) {
