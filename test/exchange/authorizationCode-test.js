@@ -23,6 +23,7 @@ MockResponse.prototype.end = function(data, encoding) {
 
 vows.describe('authorizationCode').addBatch({
   
+  // OK
   'middleware': {
     topic: function() {
       return authorizationCode(function() {});
@@ -34,6 +35,7 @@ vows.describe('authorizationCode').addBatch({
     },
   },
   
+  // OK
   'middleware that issues an access token': {
     topic: function() {
       return authorizationCode(function(client, code, redirectURI, done) {
@@ -79,6 +81,7 @@ vows.describe('authorizationCode').addBatch({
     },
   },
   
+  // OK
   'middleware that issues an access token and refresh token': {
     topic: function() {
       return authorizationCode(function(client, code, redirectURI, done) {
@@ -124,6 +127,7 @@ vows.describe('authorizationCode').addBatch({
     },
   },
   
+  // OK
   'middleware that issues an access token, null refresh token, and params': {
     topic: function() {
       return authorizationCode(function(client, code, redirectURI, done) {
@@ -169,6 +173,7 @@ vows.describe('authorizationCode').addBatch({
     },
   },
   
+  // OK
   'middleware that issues an access token, refresh token, and params with token_type': {
     topic: function() {
       return authorizationCode(function(client, code, redirectURI, done) {
@@ -214,6 +219,7 @@ vows.describe('authorizationCode').addBatch({
     },
   },
   
+  // OK
   'middleware with userProperty option that issues an access token': {
     topic: function() {
       return authorizationCode({ userProperty: 'otheruser' }, function(client, code, redirectURI, done) {
@@ -259,6 +265,7 @@ vows.describe('authorizationCode').addBatch({
     },
   },
   
+  // OK
   'middleware that does not issue an access token': {
     topic: function() {
       return authorizationCode(function(client, code, redirectURI, done) {
@@ -293,11 +300,12 @@ vows.describe('authorizationCode').addBatch({
         assert.instanceOf(e, Error);
         assert.equal(e.constructor.name, 'AuthorizationError')
         assert.equal(e.code, 'invalid_grant')
-        assert.equal(e.message, 'invalid code')
+        //assert.equal(e.message, 'invalid code')
       },
     },
   },
   
+  // OK
   'middleware that errors while issuing an access token': {
     topic: function() {
       return authorizationCode(function(client, code, redirectURI, done) {
@@ -335,6 +343,7 @@ vows.describe('authorizationCode').addBatch({
     },
   },
   
+  // OK
   'middleware that handles a request lacking an authorization code': {
     topic: function() {
       return authorizationCode(function(client, code, redirectURI, done) {
@@ -369,11 +378,12 @@ vows.describe('authorizationCode').addBatch({
         assert.instanceOf(e, Error);
         assert.equal(e.constructor.name, 'AuthorizationError');
         assert.equal(e.code, 'invalid_request');
-        assert.equal(e.message, 'missing code parameter');
+        //assert.equal(e.message, 'missing code parameter');
       },
     },
   },
   
+  // OK
   'middleware that handles a request in which body was not parsed': {
     topic: function() {
       return authorizationCode(function(client, code, redirectURI, done) {
@@ -405,11 +415,12 @@ vows.describe('authorizationCode').addBatch({
       },
       'should next with error' : function(err, req, res, e) {
         assert.instanceOf(e, Error);
-        assert.equal(e.message, 'Request body not parsed. Use bodyParser middleware.');
+        //assert.equal(e.message, 'Request body not parsed. Use bodyParser middleware.');
       },
     },
   },
   
+  // OK
   'middleware constructed without an issue function': {
     'should throw an error': function () {
       assert.throws(function() { authorizationCode() });
