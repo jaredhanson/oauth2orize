@@ -23,6 +23,12 @@ describe('decision', function() {
     if (clientID == '1234' && redirectURI == 'http://example.com/auth/callback') {
       return done(null, { id: '1234', name: 'Example' }, 'http://example.com/auth/callback');
     }
+    if (clientID == '2234') {
+      return done(null, false);
+    }
+    if (clientID == '3234') {
+      return done(null, false, 'http://example.com/auth/callback');
+    }
     return done(new Error('validate failure'));
   }
   
@@ -54,7 +60,6 @@ describe('decision', function() {
           req.session = {};
         })
         .next(function(e) {
-          console.log(e);
           err = e;
           done();
         })
@@ -89,6 +94,128 @@ describe('decision', function() {
     });
   });
   
+  describe('handling a request for authorization from unauthorized client', function() {
+    var request, err;
+
+    before(function(done) {
+      chai.connect(authorization(server, validate))
+        .req(function(req) {
+          request = req;
+          req.query = { response_type: 'code', client_id: '2234', redirect_uri: 'http://example.com/auth/callback' };
+          req.session = {};
+        })
+        .next(function(e) {
+          console.log(e);
+          err = e;
+          done();
+        })
+        .dispatch();
+    });
+    
+    it('should error', function() {
+      expect(err).to.be.an.instanceOf(Error);
+      expect(err.constructor.name).to.equal('AuthorizationError');
+      expect(err.message).to.equal('not authorized');
+      expect(err.code).to.equal('unauthorized_client');
+    });
+  
+    it('should start transaction', function() {
+      expect(request.oauth2).to.be.an('object');
+      expect(request.oauth2.client).to.be.undefined;
+      expect(request.oauth2.redirectURI).to.be.undefined;
+    });
+  });
+  
+  describe('handling a request for authorization from unauthorized client informed via redirect', function() {
+    var request, err;
+
+    before(function(done) {
+      chai.connect(authorization(server, validate))
+        .req(function(req) {
+          request = req;
+          req.query = { response_type: 'code', client_id: '3234', redirect_uri: 'http://example.com/auth/callback' };
+          req.session = {};
+        })
+        .next(function(e) {
+          console.log(e);
+          err = e;
+          done();
+        })
+        .dispatch();
+    });
+    
+    it('should error', function() {
+      expect(err).to.be.an.instanceOf(Error);
+      expect(err.constructor.name).to.equal('AuthorizationError');
+      expect(err.message).to.equal('not authorized');
+      expect(err.code).to.equal('unauthorized_client');
+    });
+  
+    it('should start transaction', function() {
+      expect(request.oauth2).to.be.an('object');
+      expect(request.oauth2.client).to.be.undefined;
+      expect(request.oauth2.redirectURI).to.equal('http://example.com/auth/callback');
+    });
+  });
+  
+  describe('handling a request for authorization with empty query', function() {
+    var request, err;
+
+    before(function(done) {
+      chai.connect(authorization(server, validate))
+        .req(function(req) {
+          request = req;
+          req.query = {};
+          req.session = {};
+        })
+        .next(function(e) {
+          err = e;
+          done();
+        })
+        .dispatch();
+    });
+  
+    it('should error', function() {
+      expect(err).to.be.an.instanceOf(Error);
+      expect(err.constructor.name).to.equal('AuthorizationError');
+      expect(err.message).to.equal('Missing required parameter: response_type');
+      expect(err.code).to.equal('invalid_request');
+    });
+  
+    it('should not start transaction', function() {
+      expect(request.oauth2).to.be.undefined;
+    });
+  });
+  
+  describe('handling a request for authorization with unsupported response type', function() {
+    var request, err;
+
+    before(function(done) {
+      chai.connect(authorization(server, validate))
+        .req(function(req) {
+          request = req;
+          req.query = { response_type: 'foo', client_id: '1234', redirect_uri: 'http://example.com/auth/callback' };
+          req.session = {};
+        })
+        .next(function(e) {
+          err = e;
+          done();
+        })
+        .dispatch();
+    });
+  
+    it('should error', function() {
+      expect(err).to.be.an.instanceOf(Error);
+      expect(err.constructor.name).to.equal('AuthorizationError');
+      expect(err.message).to.equal('Unsupported response type: foo');
+      expect(err.code).to.equal('unsupported_response_type');
+    });
+  
+    it('should not start transaction', function() {
+      expect(request.oauth2).to.be.undefined;
+    });
+  });
+  
   describe('validate with scope', function() {
     function validate(clientID, redirectURI, scope, done) {
       if (clientID == '1234' && redirectURI == 'http://example.com/auth/callback' && scope == 'write') {
@@ -108,7 +235,6 @@ describe('decision', function() {
             req.session = {};
           })
           .next(function(e) {
-            console.log(e);
             err = e;
             done();
           })
@@ -142,6 +268,159 @@ describe('decision', function() {
         expect(request.session['authorize'][tid].req.clientID).to.equal('1234');
         expect(request.session['authorize'][tid].req.redirectURI).to.equal('http://example.com/auth/callback');
         expect(request.session['authorize'][tid].req.scope).to.equal('write');
+      });
+    });
+  });
+  
+  describe('validate with scope and type', function() {
+    function validate(clientID, redirectURI, scope, type, done) {
+      if (clientID == '1234' && redirectURI == 'http://example.com/auth/callback' && scope == 'write' && type == 'code') {
+        return done(null, { id: '1234', name: 'Example' }, 'http://example.com/auth/callback');
+      }
+      return done(new Error('validate failure'));
+    }
+    
+    describe('handling a request for authorization', function() {
+      var request, err;
+
+      before(function(done) {
+        chai.connect(authorization(server, validate))
+          .req(function(req) {
+            request = req;
+            req.query = { response_type: 'code', client_id: '1234', redirect_uri: 'http://example.com/auth/callback', scope: 'write' };
+            req.session = {};
+          })
+          .next(function(e) {
+            err = e;
+            done();
+          })
+          .dispatch();
+      });
+    
+      it('should not error', function() {
+        expect(err).to.be.undefined;
+      });
+    
+      it('should add transaction', function() {
+        expect(request.oauth2).to.be.an('object');
+        expect(request.oauth2.transactionID).to.be.a('string');
+        expect(request.oauth2.transactionID).to.have.length(8);
+        expect(request.oauth2.client.id).to.equal('1234');
+        expect(request.oauth2.client.name).to.equal('Example');
+        expect(request.oauth2.redirectURI).to.equal('http://example.com/auth/callback');
+        expect(request.oauth2.req.type).to.equal('code');
+        expect(request.oauth2.req.clientID).to.equal('1234');
+        expect(request.oauth2.req.redirectURI).to.equal('http://example.com/auth/callback');
+        expect(request.oauth2.req.scope).to.equal('write');
+      });
+    
+      it('should store transaction in session', function() {
+        var tid = request.oauth2.transactionID;
+        expect(request.session['authorize'][tid]).to.be.an('object');
+        expect(request.session['authorize'][tid].protocol).to.equal('oauth2');
+        expect(request.session['authorize'][tid].client).to.equal('1234');
+        expect(request.session['authorize'][tid].redirectURI).to.equal('http://example.com/auth/callback');
+        expect(request.session['authorize'][tid].req.type).to.equal('code');
+        expect(request.session['authorize'][tid].req.clientID).to.equal('1234');
+        expect(request.session['authorize'][tid].req.redirectURI).to.equal('http://example.com/auth/callback');
+        expect(request.session['authorize'][tid].req.scope).to.equal('write');
+      });
+    });
+  });
+  
+  describe('validate with authorization request', function() {
+    function validate(areq, done) {
+      if (areq.clientID == '1234' && areq.redirectURI == 'http://example.com/auth/callback') {
+        return done(null, { id: '1234', name: 'Example' }, 'http://example.com/auth/callback');
+      }
+      return done(new Error('validate failure'));
+    }
+    
+    describe('handling a request for authorization', function() {
+      var request, err;
+
+      before(function(done) {
+        chai.connect(authorization(server, validate))
+          .req(function(req) {
+            request = req;
+            req.query = { response_type: 'code', client_id: '1234', redirect_uri: 'http://example.com/auth/callback' };
+            req.session = {};
+          })
+          .next(function(e) {
+            err = e;
+            done();
+          })
+          .dispatch();
+      });
+    
+      it('should not error', function() {
+        expect(err).to.be.undefined;
+      });
+    
+      it('should add transaction', function() {
+        expect(request.oauth2).to.be.an('object');
+        expect(request.oauth2.transactionID).to.be.a('string');
+        expect(request.oauth2.transactionID).to.have.length(8);
+        expect(request.oauth2.client.id).to.equal('1234');
+        expect(request.oauth2.client.name).to.equal('Example');
+        expect(request.oauth2.redirectURI).to.equal('http://example.com/auth/callback');
+        expect(request.oauth2.req.type).to.equal('code');
+        expect(request.oauth2.req.clientID).to.equal('1234');
+        expect(request.oauth2.req.redirectURI).to.equal('http://example.com/auth/callback');
+      });
+    
+      it('should store transaction in session', function() {
+        var tid = request.oauth2.transactionID;
+        expect(request.session['authorize'][tid]).to.be.an('object');
+        expect(request.session['authorize'][tid].protocol).to.equal('oauth2');
+        expect(request.session['authorize'][tid].client).to.equal('1234');
+        expect(request.session['authorize'][tid].redirectURI).to.equal('http://example.com/auth/callback');
+        expect(request.session['authorize'][tid].req.type).to.equal('code');
+        expect(request.session['authorize'][tid].req.clientID).to.equal('1234');
+        expect(request.session['authorize'][tid].req.redirectURI).to.equal('http://example.com/auth/callback');
+      });
+    });
+  });
+  
+  describe('server without registered grants', function() {
+    var server = new Server();
+    server.serializeClient(function(client, done) {
+      return done(null, client.id);
+    });
+  
+    function validate(clientID, redirectURI, done) {
+      if (clientID == '1234' && redirectURI == 'http://example.com/auth/callback') {
+        return done(null, { id: '1234', name: 'Example' }, 'http://example.com/auth/callback');
+      }
+      return done(new Error('validate failure'));
+    }
+    
+    describe('handling a request for authorization', function() {
+      var request, err;
+
+      before(function(done) {
+        chai.connect(authorization(server, validate))
+          .req(function(req) {
+            request = req;
+            req.query = { response_type: 'code', client_id: '1234', redirect_uri: 'http://example.com/auth/callback' };
+            req.session = {};
+          })
+          .next(function(e) {
+            err = e;
+            done();
+          })
+          .dispatch();
+      });
+    
+      it('should error', function() {
+        expect(err).to.be.an.instanceOf(Error);
+        expect(err.constructor.name).to.equal('AuthorizationError');
+        expect(err.message).to.equal('Unsupported response type: code');
+        expect(err.code).to.equal('unsupported_response_type');
+      });
+    
+      it('should not start transaction', function() {
+        expect(request.oauth2).to.be.undefined;
       });
     });
   });
