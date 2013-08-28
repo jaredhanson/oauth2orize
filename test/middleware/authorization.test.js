@@ -3,7 +3,7 @@ var chai = require('chai')
   , Server = require('../../lib/server');
 
 
-describe('decision', function() {
+describe('authorization', function() {
   
   var server = new Server();
   server.serializeClient(function(client, done) {
