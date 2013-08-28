@@ -767,6 +767,7 @@ vows.describe('decision').addBatch({
     },
   },
   
+  // OK
   'middleware that handles a request without authorization transactions in the session': {
     topic: function() {
       var server = new Server();
@@ -827,6 +828,7 @@ vows.describe('decision').addBatch({
     },
   },
   
+  // OK
   'middleware that handles a request without a body': {
     topic: function() {
       var server = new Server();
@@ -891,6 +893,7 @@ vows.describe('decision').addBatch({
     },
   },
   
+  // OK
   'middleware that handles a request without a transaction': {
     topic: function() {
       var server = new Server();
