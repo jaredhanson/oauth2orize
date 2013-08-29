@@ -402,7 +402,7 @@ describe('exchange.password', function() {
       var response, err;
 
       before(function(done) {
-        chai.connect(password({ scopeSeparator: ',' }, issue))
+        chai.connect(password({ scopeSeparator: [' ', ','] }, issue))
           .req(function(req) {
             req.user = { id: 'c123', name: 'Example' };
             req.body = { username: 'bob', password: 'shh', scope: 'read,write' };

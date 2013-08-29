@@ -13,6 +13,8 @@ describe('exchange.refreshToken', function() {
       return done(null, 's3cr1t', null, { 'expires_in': 3600 })
     } else if (client.id == 'c423' && refreshToken == 'refreshing') {
       return done(null, 's3cr1t', 'blahblag', { 'token_type': 'foo', 'expires_in': 3600 })
+    } else if (client.id == 'cUN' && refreshToken == 'refreshing') {
+      return done(null, false)
     }
     return done(new Error('something is wrong'));
   }
@@ -132,6 +134,229 @@ describe('exchange.refreshToken', function() {
     
     it('should respond with body', function() {
       expect(response.body).to.equal('{"access_token":"s3cr1t","refresh_token":"blahblag","token_type":"foo","expires_in":3600}');
+    });
+  });
+  
+  describe('issuing an access token based on scope', function() {
+    function issue(client, refreshToken, scope, done) {
+      if (client.id == 'c123' && refreshToken == 'refreshing'
+          && scope.length == 1 && scope[0] == 'read') {
+        return done(null, 's3cr1t')
+      }
+      return done(new Error('something is wrong'));
+    }
+    
+    var response, err;
+
+    before(function(done) {
+      chai.connect(refreshToken(issue))
+        .req(function(req) {
+          req.user = { id: 'c123', name: 'Example' };
+          req.body = { refresh_token: 'refreshing', scope: 'read' };
+        })
+        .end(function(res) {
+          response = res;
+          done();
+        })
+        .dispatch();
+    });
+    
+    it('should respond with headers', function() {
+      expect(response.getHeader('Content-Type')).to.equal('application/json');
+      expect(response.getHeader('Cache-Control')).to.equal('no-store');
+      expect(response.getHeader('Pragma')).to.equal('no-cache');
+    });
+    
+    it('should respond with body', function() {
+      expect(response.body).to.equal('{"access_token":"s3cr1t","token_type":"bearer"}');
+    });
+  });
+  
+  describe('issuing an access token based on array of scopes', function() {
+    function issue(client, refreshToken, scope, done) {
+      if (client.id == 'c123' && refreshToken == 'refreshing'
+          && scope.length == 2 && scope[0] == 'read' && scope[1] == 'write') {
+        return done(null, 's3cr1t')
+      }
+      return done(new Error('something is wrong'));
+    }
+    
+    var response, err;
+
+    before(function(done) {
+      chai.connect(refreshToken(issue))
+        .req(function(req) {
+          req.user = { id: 'c123', name: 'Example' };
+          req.body = { refresh_token: 'refreshing', scope: 'read write' };
+        })
+        .end(function(res) {
+          response = res;
+          done();
+        })
+        .dispatch();
+    });
+    
+    it('should respond with headers', function() {
+      expect(response.getHeader('Content-Type')).to.equal('application/json');
+      expect(response.getHeader('Cache-Control')).to.equal('no-store');
+      expect(response.getHeader('Pragma')).to.equal('no-cache');
+    });
+    
+    it('should respond with body', function() {
+      expect(response.body).to.equal('{"access_token":"s3cr1t","token_type":"bearer"}');
+    });
+  });
+  
+  describe('not issuing an access token', function() {
+    var response, err;
+
+    before(function(done) {
+      chai.connect(refreshToken(issue))
+        .req(function(req) {
+          req.user = { id: 'cUN', name: 'Example' };
+          req.body = { refresh_token: 'refreshing' };
+        })
+        .next(function(e) {
+          err = e;
+          done();
+        })
+        .dispatch();
+    });
+    
+    it('should error', function() {
+      expect(err).to.be.an.instanceOf(Error);
+      expect(err.constructor.name).to.equal('AuthorizationError');
+      expect(err.message).to.equal('Invalid refresh token');
+      expect(err.code).to.equal('invalid_grant');
+      expect(err.status).to.equal(400);
+    });
+  });
+  
+  describe('with scope separator option', function() {
+    describe('issuing an access token based on array of scopes', function() {
+      function issue(client, refreshToken, scope, done) {
+        if (client.id == 'c123' && refreshToken == 'refreshing'
+            && scope.length == 2 && scope[0] == 'read' && scope[1] == 'write') {
+          return done(null, 's3cr1t')
+        }
+        return done(new Error('something is wrong'));
+      }
+    
+      var response, err;
+
+      before(function(done) {
+        chai.connect(refreshToken({ scopeSeparator: ',' }, issue))
+          .req(function(req) {
+            req.user = { id: 'c123', name: 'Example' };
+            req.body = { refresh_token: 'refreshing', scope: 'read,write' };
+          })
+          .end(function(res) {
+            response = res;
+            done();
+          })
+          .dispatch();
+      });
+    
+      it('should respond with headers', function() {
+        expect(response.getHeader('Content-Type')).to.equal('application/json');
+        expect(response.getHeader('Cache-Control')).to.equal('no-store');
+        expect(response.getHeader('Pragma')).to.equal('no-cache');
+      });
+    
+      it('should respond with body', function() {
+        expect(response.body).to.equal('{"access_token":"s3cr1t","token_type":"bearer"}');
+      });
+    });
+  });
+  
+  describe('with multiple scope separator option', function() {
+    function issue(client, refreshToken, scope, done) {
+      if (client.id == 'c123' && refreshToken == 'refreshing'
+          && scope.length == 2 && scope[0] == 'read' && scope[1] == 'write') {
+        return done(null, 's3cr1t')
+      }
+      return done(new Error('something is wrong'));
+    }
+    
+    describe('issuing an access token based on scope separated by space', function() {
+      var response, err;
+
+      before(function(done) {
+        chai.connect(refreshToken({ scopeSeparator: [' ', ','] }, issue))
+          .req(function(req) {
+            req.user = { id: 'c123', name: 'Example' };
+            req.body = { refresh_token: 'refreshing', scope: 'read write' };
+          })
+          .end(function(res) {
+            response = res;
+            done();
+          })
+          .dispatch();
+      });
+    
+      it('should respond with headers', function() {
+        expect(response.getHeader('Content-Type')).to.equal('application/json');
+        expect(response.getHeader('Cache-Control')).to.equal('no-store');
+        expect(response.getHeader('Pragma')).to.equal('no-cache');
+      });
+    
+      it('should respond with body', function() {
+        expect(response.body).to.equal('{"access_token":"s3cr1t","token_type":"bearer"}');
+      });
+    });
+    
+    describe('issuing an access token based on scope separated by comma', function() {
+      var response, err;
+
+      before(function(done) {
+        chai.connect(refreshToken({ scopeSeparator: [' ', ','] }, issue))
+          .req(function(req) {
+            req.user = { id: 'c123', name: 'Example' };
+            req.body = { refresh_token: 'refreshing', scope: 'read,write' };
+          })
+          .end(function(res) {
+            response = res;
+            done();
+          })
+          .dispatch();
+      });
+    
+      it('should respond with headers', function() {
+        expect(response.getHeader('Content-Type')).to.equal('application/json');
+        expect(response.getHeader('Cache-Control')).to.equal('no-store');
+        expect(response.getHeader('Pragma')).to.equal('no-cache');
+      });
+    
+      it('should respond with body', function() {
+        expect(response.body).to.equal('{"access_token":"s3cr1t","token_type":"bearer"}');
+      });
+    });
+  });
+  
+  describe('with user property option issuing an access token', function() {
+    var response, err;
+
+    before(function(done) {
+      chai.connect(refreshToken({ userProperty: 'client' }, issue))
+        .req(function(req) {
+          req.client = { id: 'c123', name: 'Example' };
+          req.body = { refresh_token: 'refreshing' };
+        })
+        .end(function(res) {
+          response = res;
+          done();
+        })
+        .dispatch();
+    });
+    
+    it('should respond with headers', function() {
+      expect(response.getHeader('Content-Type')).to.equal('application/json');
+      expect(response.getHeader('Cache-Control')).to.equal('no-store');
+      expect(response.getHeader('Pragma')).to.equal('no-cache');
+    });
+    
+    it('should respond with body', function() {
+      expect(response.body).to.equal('{"access_token":"s3cr1t","token_type":"bearer"}');
     });
   });
   
