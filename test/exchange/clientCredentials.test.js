@@ -236,27 +236,6 @@ describe('exchange.clientCredentials', function() {
     before(function(done) {
       chai.connect(clientCredentials(issue))
         .req(function(req) {
-          req.user = { id: 'c123', name: 'Example' };
-        })
-        .next(function(e) {
-          err = e;
-          done();
-        })
-        .dispatch();
-    });
-    
-    it('should error', function() {
-      expect(err).to.be.an.instanceOf(Error);
-      expect(err.message).to.equal('OAuth2orize requires body parsing. Did you forget app.use(express.bodyParser())?');
-    });
-  });
-  
-  describe('handling a request without a body', function() {
-    var response, err;
-
-    before(function(done) {
-      chai.connect(clientCredentials(issue))
-        .req(function(req) {
           req.user = { id: 'cXXX', name: 'Example' };
           req.body = {};
         })
@@ -270,6 +249,27 @@ describe('exchange.clientCredentials', function() {
     it('should error', function() {
       expect(err).to.be.an.instanceOf(Error);
       expect(err.message).to.equal('something is wrong');
+    });
+  });
+  
+  describe('handling a request without a body', function() {
+    var response, err;
+
+    before(function(done) {
+      chai.connect(clientCredentials(issue))
+        .req(function(req) {
+          req.user = { id: 'c123', name: 'Example' };
+        })
+        .next(function(e) {
+          err = e;
+          done();
+        })
+        .dispatch();
+    });
+    
+    it('should error', function() {
+      expect(err).to.be.an.instanceOf(Error);
+      expect(err.message).to.equal('OAuth2orize requires body parsing. Did you forget app.use(express.bodyParser())?');
     });
   });
   

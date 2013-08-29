@@ -232,6 +232,99 @@ describe('exchange.password', function() {
     });
   });
   
+  describe('handling a request without username parameter', function() {
+    var response, err;
+
+    before(function(done) {
+      chai.connect(password(issue))
+        .req(function(req) {
+          req.user = { id: 'c123', name: 'Example' };
+          req.body = { password: 'shh' };
+        })
+        .next(function(e) {
+          err = e;
+          done();
+        })
+        .dispatch();
+    });
+    
+    it('should error', function() {
+      expect(err).to.be.an.instanceOf(Error);
+      expect(err.constructor.name).to.equal('AuthorizationError');
+      expect(err.message).to.equal('Missing required parameter: username');
+      expect(err.code).to.equal('invalid_request');
+      expect(err.status).to.equal(400);
+    });
+  });
+  
+  describe('handling a request without password parameter', function() {
+    var response, err;
+
+    before(function(done) {
+      chai.connect(password(issue))
+        .req(function(req) {
+          req.user = { id: 'c123', name: 'Example' };
+          req.body = { username: 'bob' };
+        })
+        .next(function(e) {
+          err = e;
+          done();
+        })
+        .dispatch();
+    });
+    
+    it('should error', function() {
+      expect(err).to.be.an.instanceOf(Error);
+      expect(err.constructor.name).to.equal('AuthorizationError');
+      expect(err.message).to.equal('Missing required parameter: password');
+      expect(err.code).to.equal('invalid_request');
+      expect(err.status).to.equal(400);
+    });
+  });
+  
+  describe('encountering an error while issuing an access token', function() {
+    var response, err;
+
+    before(function(done) {
+      chai.connect(password(issue))
+        .req(function(req) {
+          req.user = { id: 'cXXX', name: 'Example' };
+          req.body = { username: 'bob', password: 'shh' };
+        })
+        .next(function(e) {
+          err = e;
+          done();
+        })
+        .dispatch();
+    });
+    
+    it('should error', function() {
+      expect(err).to.be.an.instanceOf(Error);
+      expect(err.message).to.equal('something is wrong');
+    });
+  });
+  
+  describe('handling a request without a body', function() {
+    var response, err;
+
+    before(function(done) {
+      chai.connect(password(issue))
+        .req(function(req) {
+          req.user = { id: 'c123', name: 'Example' };
+        })
+        .next(function(e) {
+          err = e;
+          done();
+        })
+        .dispatch();
+    });
+    
+    it('should error', function() {
+      expect(err).to.be.an.instanceOf(Error);
+      expect(err.message).to.equal('OAuth2orize requires body parsing. Did you forget app.use(express.bodyParser())?');
+    });
+  });
+  
   describe('with scope separator option', function() {
     describe('issuing an access token based on array of scopes', function() {
       function issue(client, username, passwd, scope, done) {
