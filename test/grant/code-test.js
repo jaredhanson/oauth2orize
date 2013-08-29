@@ -29,6 +29,7 @@ MockResponse.prototype.end = function(data, encoding) {
 
 vows.describe('code').addBatch({
 
+  // OK
   'middleware': {
     topic: function() {
       return code(function() {});
@@ -666,6 +667,7 @@ vows.describe('code').addBatch({
     },
   },
   
+  // OK
   'middleware constructed without an issue function': {
     'should throw an error': function () {
       assert.throws(function() { code() });
