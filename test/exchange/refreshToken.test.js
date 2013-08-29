@@ -232,6 +232,74 @@ describe('exchange.refreshToken', function() {
     });
   });
   
+  describe('handling a request without refresh token parameter', function() {
+    var response, err;
+
+    before(function(done) {
+      chai.connect(refreshToken(issue))
+        .req(function(req) {
+          req.user = { id: 'c123', name: 'Example' };
+          req.body = {};
+        })
+        .next(function(e) {
+          err = e;
+          done();
+        })
+        .dispatch();
+    });
+    
+    it('should error', function() {
+      expect(err).to.be.an.instanceOf(Error);
+      expect(err.constructor.name).to.equal('AuthorizationError');
+      expect(err.message).to.equal('Missing required parameter: refresh_token');
+      expect(err.code).to.equal('invalid_request');
+      expect(err.status).to.equal(400);
+    });
+  });
+  
+  describe('encountering an error while issuing an access token', function() {
+    var response, err;
+
+    before(function(done) {
+      chai.connect(refreshToken(issue))
+        .req(function(req) {
+          req.user = { id: 'cXXX', name: 'Example' };
+          req.body = { refresh_token: 'refreshing' };
+        })
+        .next(function(e) {
+          err = e;
+          done();
+        })
+        .dispatch();
+    });
+    
+    it('should error', function() {
+      expect(err).to.be.an.instanceOf(Error);
+      expect(err.message).to.equal('something is wrong');
+    });
+  });
+  
+  describe('handling a request without a body', function() {
+    var response, err;
+
+    before(function(done) {
+      chai.connect(refreshToken(issue))
+        .req(function(req) {
+          req.user = { id: 'c123', name: 'Example' };
+        })
+        .next(function(e) {
+          err = e;
+          done();
+        })
+        .dispatch();
+    });
+    
+    it('should error', function() {
+      expect(err).to.be.an.instanceOf(Error);
+      expect(err.message).to.equal('OAuth2orize requires body parsing. Did you forget app.use(express.bodyParser())?');
+    });
+  });
+  
   describe('with scope separator option', function() {
     describe('issuing an access token based on array of scopes', function() {
       function issue(client, refreshToken, scope, done) {
