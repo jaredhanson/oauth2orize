@@ -23,6 +23,7 @@ MockResponse.prototype.end = function(data, encoding) {
 
 vows.describe('refreshToken').addBatch({
 
+  // OK
   'middleware': {
     topic: function() {
       return refreshToken(function() {});
@@ -34,6 +35,7 @@ vows.describe('refreshToken').addBatch({
     },
   },
   
+  // OK
   'middleware that issues an access token': {
     topic: function() {
       return refreshToken(function(client, refreshToken, done) {
@@ -79,6 +81,7 @@ vows.describe('refreshToken').addBatch({
     },
   },
   
+  // OK
   'middleware that issues an access token and refresh token': {
     topic: function() {
       return refreshToken(function(client, refreshToken, done) {
@@ -124,6 +127,7 @@ vows.describe('refreshToken').addBatch({
     },
   },
   
+  // OK
   'middleware that issues an access token, null refresh token, and params': {
     topic: function() {
       return refreshToken(function(client, refreshToken, done) {
@@ -169,6 +173,7 @@ vows.describe('refreshToken').addBatch({
     },
   },
   
+  // OK
   'middleware that issues an access token, refresh token, and params with token_type': {
     topic: function() {
       return refreshToken(function(client, refreshToken, done) {
@@ -627,6 +632,7 @@ vows.describe('refreshToken').addBatch({
     },
   },
   
+  // OK
   'middleware constructed without an issue function': {
     'should throw an error': function () {
       assert.throws(function() { refreshToken() });
