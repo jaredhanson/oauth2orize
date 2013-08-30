@@ -9,7 +9,7 @@ describe('transactionLoader', function() {
   server.deserializeClient(function(id, done) {
     if (id === '1') { return done(null, { id: id, name: 'Test' }); }
     if (id === '2') { return done(null, false); }
-    return done(new Error('deserializeClient failure'));
+    return done(new Error('something went wrong while deserializing client'));
   });
   
   it('should be named transactionLoader', function() {

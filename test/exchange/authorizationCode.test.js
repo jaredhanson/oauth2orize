@@ -16,7 +16,7 @@ describe('exchange.authorizationCode', function() {
     } else if (client.id == 'cUN' && code == 'abcUN' && redirectURI == 'http://example.com/oa/callback') {
       return done(null, false)
     }
-    return done(new Error('issue failure'));
+    return done(new Error('something is wrong'));
   }
   
   it('should be named authorization_code', function() {
@@ -205,7 +205,7 @@ describe('exchange.authorizationCode', function() {
     
     it('should error', function() {
       expect(err).to.be.an.instanceOf(Error);
-      expect(err.message).to.equal('issue failure');
+      expect(err.message).to.equal('something is wrong');
     });
   });
   

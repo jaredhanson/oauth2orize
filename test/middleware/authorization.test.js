@@ -8,7 +8,7 @@ describe('authorization', function() {
   var server = new Server();
   server.serializeClient(function(client, done) {
     if (client.id == '1234' || client.id == '2234' || client.id == '3234') { return done(null, client.id); }
-    return done(new Error('serializeClient failure'));
+    return done(new Error('something went wrong while serializing client'));
   });
   
   server.grant('code', function(req) {
@@ -19,7 +19,7 @@ describe('authorization', function() {
     }
   });
   server.grant('throw-error', function(req) {
-    throw new Error('something went wrong parsing request');
+    throw new Error('something went wrong while parsing request');
   });
   
   function validate(clientID, redirectURI, done) {
@@ -35,7 +35,7 @@ describe('authorization', function() {
     if (clientID == '3234') {
       return done(null, false, 'http://example.com/auth/callback');
     }
-    return done(new Error('validate failure'));
+    return done(new Error('something went wrong while validating client'));
   }
   
   
@@ -239,7 +239,7 @@ describe('authorization', function() {
   
     it('should error', function() {
       expect(err).to.be.an.instanceOf(Error);
-      expect(err.message).to.equal('something went wrong parsing request');
+      expect(err.message).to.equal('something went wrong while parsing request');
     });
   
     it('should not start transaction', function() {
@@ -266,7 +266,7 @@ describe('authorization', function() {
   
     it('should error', function() {
       expect(err).to.be.an.instanceOf(Error);
-      expect(err.message).to.equal('validate failure');
+      expect(err.message).to.equal('something went wrong while validating client');
     });
   
     it('should start transaction', function() {
@@ -295,7 +295,7 @@ describe('authorization', function() {
   
     it('should error', function() {
       expect(err).to.be.an.instanceOf(Error);
-      expect(err.message).to.equal('serializeClient failure');
+      expect(err.message).to.equal('something went wrong while serializing client');
     });
   
     it('should start transaction', function() {
@@ -341,7 +341,7 @@ describe('authorization', function() {
       if (clientID == '1234' && redirectURI == 'http://example.com/auth/callback' && scope == 'write') {
         return done(null, { id: '1234', name: 'Example' }, 'http://example.com/auth/callback');
       }
-      return done(new Error('validate failure'));
+      return done(new Error('something went wrong while validating client'));
     }
     
     describe('handling a request for authorization', function() {
@@ -397,7 +397,7 @@ describe('authorization', function() {
       if (clientID == '1234' && redirectURI == 'http://example.com/auth/callback' && scope == 'write' && type == 'code') {
         return done(null, { id: '1234', name: 'Example' }, 'http://example.com/auth/callback');
       }
-      return done(new Error('validate failure'));
+      return done(new Error('something went wrong while validating client'));
     }
     
     describe('handling a request for authorization', function() {
@@ -453,7 +453,7 @@ describe('authorization', function() {
       if (areq.clientID == '1234' && areq.redirectURI == 'http://example.com/auth/callback') {
         return done(null, { id: '1234', name: 'Example' }, 'http://example.com/auth/callback');
       }
-      return done(new Error('validate failure'));
+      return done(new Error('something went wrong while validating client'));
     }
     
     describe('handling a request for authorization', function() {
@@ -606,7 +606,7 @@ describe('authorization', function() {
       if (clientID == '1234' && redirectURI == 'http://example.com/auth/callback') {
         return done(null, { id: '1234', name: 'Example' }, 'http://example.com/auth/callback');
       }
-      return done(new Error('validate failure'));
+      return done(new Error('something went wrong while validating client'));
     }
     
     describe('handling a request for authorization', function() {

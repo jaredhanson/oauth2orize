@@ -11,7 +11,7 @@ describe('token', function() {
       var json = JSON.stringify({ token_type: 'bearer', access_token: 'aaa-111-ccc' });
       return res.end(json);
     }
-    return done(new Error('authorization_code exchange failure'));
+    return done(new Error('something went wrong while exchanging grant'));
   });
   server.exchange('next-error', function(req, res, next) {
     next(new Error('something went wrong'));

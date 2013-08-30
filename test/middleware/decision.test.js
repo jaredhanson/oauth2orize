@@ -9,7 +9,7 @@ describe('decision', function() {
   server.grant('code', 'response', function(txn, res, next) {
     if (txn.res.allow == false) { return res.redirect(txn.redirectURI + '?error=access_denied'); }
     if (txn.transactionID == 'abc123') { return res.redirect(txn.redirectURI + '?code=a1b1c1'); }
-    return next(new Error('grant code failure'));
+    return next(new Error('something went wrong while issuing response'));
   });
   
   it('should be named decision', function() {
