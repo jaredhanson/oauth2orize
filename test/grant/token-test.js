@@ -29,6 +29,7 @@ MockResponse.prototype.end = function(data, encoding) {
 
 vows.describe('code').addBatch({
   
+  // OK
   'middleware': {
     topic: function() {
       return token(function() {});
@@ -43,6 +44,7 @@ vows.describe('code').addBatch({
     },
   },
   
+  // OK
   'request parsing function that receives a request': {
     topic: function() {
       return token(function() {});
@@ -79,6 +81,7 @@ vows.describe('code').addBatch({
     },
   },
   
+  // OK
   'request parsing function that receives a request with scope': {
     topic: function() {
       return token(function() {});
@@ -750,6 +753,7 @@ vows.describe('code').addBatch({
     },
   },
   
+  // OK
   'middleware constructed without an issue function': {
     'should throw an error': function () {
       assert.throws(function() { token() });
