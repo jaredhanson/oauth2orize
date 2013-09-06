@@ -311,6 +311,7 @@ vows.describe('code').addBatch({
     },
   },
 
+  // OK
   'response handling function that processes a decision': {
     topic: function() {
       return token(function(client, user, done) {
@@ -357,6 +358,7 @@ vows.describe('code').addBatch({
     },
   },
   
+  // OK
   'response handling function that processes a decision with state': {
     topic: function() {
       return token(function(client, user, done) {
@@ -404,6 +406,7 @@ vows.describe('code').addBatch({
     },
   },
   
+  // OK
   'response handling function that processes a decision using user response': {
     topic: function() {
       return token(function(client, user, ares, done) {
