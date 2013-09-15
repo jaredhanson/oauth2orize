@@ -262,6 +262,10 @@ describe('grant.token', function() {
     function issue(client, user, done) {
       if (client.id == 'c123' && user.id == 'u123') {
         return done(null, 'xyz');
+      } else if (client.id == 'c223' && user.id == 'u123') {
+        return done(null, 'xyz', { 'expires_in': 3600 });
+      } else if (client.id == 'c323' && user.id == 'u123') {
+        return done(null, 'xyz', { 'token_type': 'foo', 'expires_in': 3600 });
       } else if (client.id == 'cUN') {
         return done(null, false);
       }
@@ -323,7 +327,197 @@ describe('grant.token', function() {
       });
     });
     
-    //
+    describe('transaction that adds params to response', function() {
+      var response;
+      
+      before(function(done) {
+        chai.grant(token(issue))
+          .txn(function(txn) {
+            txn.client = { id: 'c223', name: 'Example' };
+            txn.redirectURI = 'http://example.com/auth/callback';
+            txn.req = {
+              redirectURI: 'http://example.com/auth/callback'
+            }
+            txn.user = { id: 'u123', name: 'Bob' };
+            txn.res = { allow: true };
+          })
+          .end(function(res) {
+            response = res;
+            done();
+          })
+          .decide();
+      });
+      
+      it('should respond', function() {
+        expect(response.statusCode).to.equal(302);
+        expect(response.getHeader('Location')).to.equal('http://example.com/auth/callback#access_token=xyz&expires_in=3600&token_type=bearer');
+      });
+    });
+    
+    describe('transaction that adds params including token_type to response', function() {
+      var response;
+      
+      before(function(done) {
+        chai.grant(token(issue))
+          .txn(function(txn) {
+            txn.client = { id: 'c323', name: 'Example' };
+            txn.redirectURI = 'http://example.com/auth/callback';
+            txn.req = {
+              redirectURI: 'http://example.com/auth/callback'
+            }
+            txn.user = { id: 'u123', name: 'Bob' };
+            txn.res = { allow: true };
+          })
+          .end(function(res) {
+            response = res;
+            done();
+          })
+          .decide();
+      });
+      
+      it('should respond', function() {
+        expect(response.statusCode).to.equal(302);
+        expect(response.getHeader('Location')).to.equal('http://example.com/auth/callback#access_token=xyz&token_type=foo&expires_in=3600');
+      });
+    });
+    
+    describe('disallowed transaction', function() {
+      var response;
+      
+      before(function(done) {
+        chai.grant(token(issue))
+          .txn(function(txn) {
+            txn.client = { id: 'c123', name: 'Example' };
+            txn.redirectURI = 'http://example.com/auth/callback';
+            txn.req = {
+              redirectURI: 'http://example.com/auth/callback'
+            }
+            txn.user = { id: 'u123', name: 'Bob' };
+            txn.res = { allow: false };
+          })
+          .end(function(res) {
+            response = res;
+            done();
+          })
+          .decide();
+      });
+      
+      it('should respond', function() {
+        expect(response.statusCode).to.equal(302);
+        expect(response.getHeader('Location')).to.equal('http://example.com/auth/callback#error=access_denied');
+      });
+    });
+    
+    describe('disallowed transaction with request state', function() {
+      var response;
+      
+      before(function(done) {
+        chai.grant(token(issue))
+          .txn(function(txn) {
+            txn.client = { id: 'c123', name: 'Example' };
+            txn.redirectURI = 'http://example.com/auth/callback';
+            txn.req = {
+              redirectURI: 'http://example.com/auth/callback',
+              state: 'f2o2o2'
+            }
+            txn.user = { id: 'u123', name: 'Bob' };
+            txn.res = { allow: false };
+          })
+          .end(function(res) {
+            response = res;
+            done();
+          })
+          .decide();
+      });
+      
+      it('should respond', function() {
+        expect(response.statusCode).to.equal(302);
+        expect(response.getHeader('Location')).to.equal('http://example.com/auth/callback#error=access_denied&state=f2o2o2');
+      });
+    });
+    
+    describe('not issuing a token', function() {
+      var err;
+      
+      before(function(done) {
+        chai.grant(token(issue))
+          .txn(function(txn) {
+            txn.client = { id: 'cUN', name: 'Example' };
+            txn.redirectURI = 'http://example.com/auth/callback';
+            txn.req = {
+              redirectURI: 'http://example.com/auth/callback'
+            }
+            txn.user = { id: 'u123', name: 'Bob' };
+            txn.res = { allow: true };
+          })
+          .next(function(e) {
+            err = e;
+            done();
+          })
+          .decide();
+      });
+      
+      it('should error', function() {
+        expect(err).to.be.an.instanceOf(Error);
+        expect(err.constructor.name).to.equal('AuthorizationError');
+        expect(err.message).to.equal('Request denied by authorization server');
+        expect(err.code).to.equal('access_denied');
+        expect(err.status).to.equal(403);
+      });
+    });
+    
+    describe('encountering an error while issuing token', function() {
+      var err;
+      
+      before(function(done) {
+        chai.grant(token(issue))
+          .txn(function(txn) {
+            txn.client = { id: 'cERR', name: 'Example' };
+            txn.redirectURI = 'http://example.com/auth/callback';
+            txn.req = {
+              redirectURI: 'http://example.com/auth/callback'
+            }
+            txn.user = { id: 'u123', name: 'Bob' };
+            txn.res = { allow: true };
+          })
+          .next(function(e) {
+            err = e;
+            done();
+          })
+          .decide();
+      });
+      
+      it('should error', function() {
+        expect(err).to.be.an.instanceOf(Error);
+        expect(err.message).to.equal('something is wrong');
+      });
+    });
+    
+    describe('transaction without redirect URL', function() {
+      var err;
+      
+      before(function(done) {
+        chai.grant(token(issue))
+          .txn(function(txn) {
+            txn.client = { id: 'c123', name: 'Example' };
+            txn.req = {
+              redirectURI: 'http://example.com/auth/callback'
+            }
+            txn.user = { id: 'u123', name: 'Bob' };
+            txn.res = { allow: true };
+          })
+          .next(function(e) {
+            err = e;
+            done();
+          })
+          .decide();
+      });
+      
+      it('should error', function() {
+        expect(err).to.be.an.instanceOf(Error);
+        expect(err.message).to.equal('Unable to issue redirect for OAuth 2.0 transaction');
+      });
+    });
   });
   
   describe('decision handling with user response', function() {
