@@ -424,6 +424,7 @@ vows.describe('Server').addBatch({
     },
   },
   
+  // OK
   'server with multiple request parsers, one being async, handling a type': {
     topic: function() {
       var self = this;
@@ -456,6 +457,7 @@ vows.describe('Server').addBatch({
     },
   },
   
+  // OK
   'server with multiple request parsers, one being async that errors, handling a type': {
     topic: function() {
       var self = this;
