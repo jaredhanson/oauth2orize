@@ -144,7 +144,7 @@ describe('Server', function() {
   });
   
   
-  describe('parsing requests for authorization with one registered parser', function() {
+  describe('parsing requests for authorization with one supported type', function() {
     var server = new Server();
     server.grant('foo', function(req) {
       return { foo: '1' }
@@ -229,7 +229,7 @@ describe('Server', function() {
       return { star: '1' }
     });
     
-    describe('request', function() {
+    describe('request for type', function() {
       var areq, err;
     
       before(function(done) {
@@ -255,10 +255,46 @@ describe('Server', function() {
     });
   });
   
-  describe('parsing requests for authorization with no registered parsers', function() {
+  describe('parsing requests for authorization with one supported type and one wildcard parser', function() {
+    var server = new Server();
+    server.grant('*', function(req) {
+      return { star: '1' }
+    });
+    server.grant('bar', function(req) {
+      return { bar: '2' }
+    });
+    
+    describe('request for supported type', function() {
+      var areq, err;
+    
+      before(function(done) {
+        var req = {};
+        
+        server._parse('bar', req, function(e, ar) {
+          areq = ar;
+          err = e;
+          done();
+        });
+      });
+    
+      it('should not error', function() {
+        expect(err).to.be.null;
+      });
+    
+      it('should parse an empty object', function() {
+        expect(areq).to.be.an('object');
+        expect(Object.keys(areq)).to.have.length(3);
+        expect(areq.type).to.equal('bar');
+        expect(areq.star).to.equal('1');
+        expect(areq.bar).to.equal('2');
+      });
+    });
+  });
+  
+  describe('parsing requests for authorization with no supported types', function() {
     var server = new Server();
     
-    describe('request with response_type', function() {
+    describe('request for type', function() {
       var areq, err;
     
       before(function(done) {
@@ -282,7 +318,7 @@ describe('Server', function() {
       });
     });
     
-    describe('request without response_type', function() {
+    describe('request for undefined type', function() {
       var areq, err;
     
       before(function(done) {

@@ -391,6 +391,7 @@ vows.describe('Server').addBatch({
     },
   },
   
+  // OK
   'server with multiple request parsers handling a type': {
     topic: function() {
       var self = this;
