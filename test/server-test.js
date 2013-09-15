@@ -231,6 +231,7 @@ vows.describe('Server').addBatch({
     },
   },
   
+  // OK
   'server with no request parsers': {
     topic: function() {
       var self = this;
@@ -253,6 +254,7 @@ vows.describe('Server').addBatch({
     },
   },
   
+  // OK
   'server with no request parsers parsing a type': {
     topic: function() {
       var self = this;
@@ -276,6 +278,7 @@ vows.describe('Server').addBatch({
     },
   },
   
+  // OK
   'server with one request parsers handling a matching type': {
     topic: function() {
       var self = this;
@@ -304,6 +307,7 @@ vows.describe('Server').addBatch({
     },
   },
   
+  // OK
   'server with one request parsers handling a non-matching type': {
     topic: function() {
       var self = this;
@@ -331,6 +335,7 @@ vows.describe('Server').addBatch({
     },
   },
   
+  // OK
   'server with one request parsers handling a null type': {
     topic: function() {
       var self = this;
@@ -357,6 +362,7 @@ vows.describe('Server').addBatch({
     },
   },
   
+  // OK
   'server with one star request parsers handling a type': {
     topic: function() {
       var self = this;

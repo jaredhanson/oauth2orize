@@ -144,11 +144,63 @@ describe('Server', function() {
   });
   
   
-  describe('parsing requests for authorization', function() {
+  describe('parsing requests for authorization with one registered parser', function() {
+    var server = new Server();
+    server.grant('foo', function(req) {
+      return { foo: '1' }
+    });
     
-    describe('with no request parsers', function() {
-      var server = new Server()
-        , areq, err;
+    describe('request for supported type', function() {
+      var areq, err;
+    
+      before(function(done) {
+        var req = {};
+        
+        server._parse('foo', req, function(e, ar) {
+          areq = ar;
+          err = e;
+          done();
+        });
+      });
+    
+      it('should not error', function() {
+        expect(err).to.be.null;
+      });
+    
+      it('should parse an empty object', function() {
+        expect(areq).to.be.an('object');
+        expect(Object.keys(areq)).to.have.length(2);
+        expect(areq.type).to.equal('foo');
+        expect(areq.foo).to.equal('1');
+      });
+    });
+    
+    describe('request for unsupported type', function() {
+      var areq, err;
+    
+      before(function(done) {
+        var req = {};
+        
+        server._parse('bar', req, function(e, ar) {
+          areq = ar;
+          err = e;
+          done();
+        });
+      });
+    
+      it('should not error', function() {
+        expect(err).to.be.null;
+      });
+    
+      it('should parse an empty object', function() {
+        expect(areq).to.be.an('object');
+        expect(Object.keys(areq)).to.have.length(1);
+        expect(areq.type).to.equal('bar');
+      });
+    });
+    
+    describe('request for undefined type', function() {
+      var areq, err;
     
       before(function(done) {
         var req = {};
@@ -169,7 +221,89 @@ describe('Server', function() {
         expect(Object.keys(areq)).to.have.length(0);
       });
     });
+  });
+  
+  describe('parsing requests for authorization with one wildcard parser', function() {
+    var server = new Server();
+    server.grant('*', function(req) {
+      return { star: '1' }
+    });
     
+    describe('request', function() {
+      var areq, err;
+    
+      before(function(done) {
+        var req = {};
+        
+        server._parse('foo', req, function(e, ar) {
+          areq = ar;
+          err = e;
+          done();
+        });
+      });
+    
+      it('should not error', function() {
+        expect(err).to.be.null;
+      });
+    
+      it('should parse an empty object', function() {
+        expect(areq).to.be.an('object');
+        expect(Object.keys(areq)).to.have.length(2);
+        expect(areq.type).to.equal('foo');
+        expect(areq.star).to.equal('1');
+      });
+    });
+  });
+  
+  describe('parsing requests for authorization with no registered parsers', function() {
+    var server = new Server();
+    
+    describe('request with response_type', function() {
+      var areq, err;
+    
+      before(function(done) {
+        var req = {};
+        
+        server._parse('foo', req, function(e, ar) {
+          areq = ar;
+          err = e;
+          done();
+        });
+      });
+    
+      it('should not error', function() {
+        expect(err).to.be.null;
+      });
+    
+      it('should parse an empty object', function() {
+        expect(areq).to.be.an('object');
+        expect(Object.keys(areq)).to.have.length(1);
+        expect(areq.type).to.equal('foo');
+      });
+    });
+    
+    describe('request without response_type', function() {
+      var areq, err;
+    
+      before(function(done) {
+        var req = {};
+        
+        server._parse(undefined, req, function(e, ar) {
+          areq = ar;
+          err = e;
+          done();
+        });
+      });
+    
+      it('should not error', function() {
+        expect(err).to.be.null;
+      });
+    
+      it('should parse an empty object', function() {
+        expect(areq).to.be.an('object');
+        expect(Object.keys(areq)).to.have.length(0);
+      });
+    });
   });
   
 });
