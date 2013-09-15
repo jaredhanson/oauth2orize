@@ -488,6 +488,7 @@ vows.describe('Server').addBatch({
     },
   },
   
+  // OK
   'server with no response handlers handling a transaction': {
     topic: function() {
       var self = this;
@@ -511,6 +512,7 @@ vows.describe('Server').addBatch({
     },
   },
   
+  // OK
   'server with one response handler handling a transaction with matching type': {
     topic: function() {
       var self = this;
