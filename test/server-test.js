@@ -6,6 +6,7 @@ var Server = require('../lib/server');
 
 vows.describe('Server').addBatch({
   
+  // OK
   'Server': {
     topic: function() {
       return new Server();
@@ -30,6 +31,7 @@ vows.describe('Server').addBatch({
     },
   },
   
+  // OK
   'newly initialized server': {
     topic: function() {
       return new Server();
