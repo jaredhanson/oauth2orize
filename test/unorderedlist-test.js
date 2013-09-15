@@ -6,6 +6,7 @@ var UnorderedList = require('../lib/unorderedlist');
 
 vows.describe('UnorderedList').addBatch({
   
+  // OK
   'initialized with a single element array': {
     topic: function() {
       return new UnorderedList(['a']);
@@ -20,6 +21,7 @@ vows.describe('UnorderedList').addBatch({
     },
   },
   
+  // OK
   'initialized with a multiple element array': {
     topic: function() {
       return new UnorderedList(['a', 'b']);
@@ -35,6 +37,7 @@ vows.describe('UnorderedList').addBatch({
     },
   },
   
+  // OK
   'initialized with a string containing no spaces': {
     topic: function() {
       return new UnorderedList('foobar');
@@ -46,6 +49,7 @@ vows.describe('UnorderedList').addBatch({
     },
   },
   
+  // OK
   'initialized with a string containing spaces': {
     topic: function() {
       return new UnorderedList('foo bar');
@@ -58,6 +62,7 @@ vows.describe('UnorderedList').addBatch({
     },
   },
   
+  // OK
   'list with single item': {
     topic: function() {
       return new UnorderedList(['a']);
