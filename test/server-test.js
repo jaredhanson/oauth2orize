@@ -52,6 +52,7 @@ vows.describe('Server').addBatch({
     },
   },
   
+  // OK
   'decision middleware': {
     topic: function() {
       var server = new Server();
@@ -69,6 +70,7 @@ vows.describe('Server').addBatch({
     },
   },
   
+  // OK
   'registering a grant module': {
     topic: function() {
       var self = this;
@@ -96,6 +98,7 @@ vows.describe('Server').addBatch({
     },
   },
   
+  // OK
   'registering a grant module by type': {
     topic: function() {
       var self = this;
@@ -123,6 +126,7 @@ vows.describe('Server').addBatch({
     },
   },
   
+  // OK
   'registering a grant parsing function by type': {
     topic: function() {
       var self = this;
@@ -143,6 +147,7 @@ vows.describe('Server').addBatch({
     },
   },
   
+  // OK
   'registering a grant parsing function by star': {
     topic: function() {
       var self = this;
@@ -163,6 +168,7 @@ vows.describe('Server').addBatch({
     },
   },
   
+  // OK
   'registering a grant parsing function by type and phase': {
     topic: function() {
       var self = this;
@@ -183,6 +189,7 @@ vows.describe('Server').addBatch({
     },
   },
   
+  // OK
   'registering a grant responder function by type': {
     topic: function() {
       var self = this;
@@ -203,6 +210,7 @@ vows.describe('Server').addBatch({
     },
   },
   
+  // OK
   'registering a grant responder function by star': {
     topic: function() {
       var self = this;
