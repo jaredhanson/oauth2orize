@@ -700,6 +700,7 @@ vows.describe('Server').addBatch({
     },
   },
   
+  // OK
   'server with no exchangers': {
     topic: function() {
       var self = this;
