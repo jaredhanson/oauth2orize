@@ -16,13 +16,13 @@ describe('oauth2orize', function() {
   
   it('should export grants', function() {
     expect(oauth2orize.grant).to.be.an('object');
-    expect(oauth2orize.grant.authorizationCode).to.be.a('function');
-    expect(oauth2orize.grant.implicit).to.be.a('function');
+    expect(oauth2orize.grant.code).to.be.a('function');
+    expect(oauth2orize.grant.token).to.be.a('function');
   });
   
   it('should export aliased grants', function() {
-    expect(oauth2orize.grant.code).to.equal(oauth2orize.grant.authorizationCode);
-    expect(oauth2orize.grant.token).to.equal(oauth2orize.grant.implicit);
+    expect(oauth2orize.grant.authorizationCode).to.equal(oauth2orize.grant.code);
+    expect(oauth2orize.grant.implicit).to.equal(oauth2orize.grant.token);
   });
   
   it('should export exchanges', function() {
@@ -43,12 +43,10 @@ describe('oauth2orize', function() {
   
   
   describe('.createServer', function() {
-    
     it('should return a server', function() {
       var s = oauth2orize.createServer();
       expect(s).to.be.an.instanceOf(Server);
     });
-    
   });
   
 });
