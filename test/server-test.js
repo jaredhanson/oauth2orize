@@ -544,6 +544,7 @@ vows.describe('Server').addBatch({
     },
   },
   
+  // OK
   'server with one response handler handling a transaction with non-matching type': {
     topic: function() {
       var self = this;
@@ -571,6 +572,7 @@ vows.describe('Server').addBatch({
     },
   },
   
+  // OK
   'server with one star response handler handling a transaction with matching type': {
     topic: function() {
       var self = this;
@@ -602,6 +604,7 @@ vows.describe('Server').addBatch({
     },
   },
   
+  // OK
   'server with one multiple response handlers handling a transaction with matching type': {
     topic: function() {
       var self = this;
@@ -668,6 +671,7 @@ vows.describe('Server').addBatch({
     },
   },
   
+  // OK
   'server with one response handler that throws an exception': {
     topic: function() {
       var self = this;
