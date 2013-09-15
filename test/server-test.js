@@ -721,6 +721,7 @@ vows.describe('Server').addBatch({
     },
   },
   
+  // OK
   'server with one exchanger registered with a named function with matching type': {
     topic: function() {
       var self = this;
@@ -754,6 +755,7 @@ vows.describe('Server').addBatch({
     },
   },
   
+  // OK
   'server with one exchanger registered with a named function with non-matching type': {
     topic: function() {
       var self = this;
@@ -783,6 +785,7 @@ vows.describe('Server').addBatch({
     },
   },
   
+  // OK
   'server with one exchanger registered with a named function with null type': {
     topic: function() {
       var self = this;
