@@ -846,6 +846,7 @@ vows.describe('Server').addBatch({
     },
   },
   
+  // OK
   'server with one exchanger registered with null type processing null type': {
     topic: function() {
       var self = this;
@@ -877,6 +878,7 @@ vows.describe('Server').addBatch({
     },
   },
   
+  // OK
   'server with one exchanger registered with star type processing parsed type': {
     topic: function() {
       var self = this;
@@ -908,6 +910,7 @@ vows.describe('Server').addBatch({
     },
   },
   
+  // OK
   'server with one exchanger registered with star type processing null type': {
     topic: function() {
       var self = this;
@@ -939,6 +942,7 @@ vows.describe('Server').addBatch({
     },
   },
   
+  // OK
   'server with multiple exchangers processing parsed type': {
     topic: function() {
       var self = this;
@@ -977,6 +981,7 @@ vows.describe('Server').addBatch({
     },
   },
   
+  // OK
   'server with one exchanger that encounters an error': {
     topic: function() {
       var self = this;
@@ -1007,6 +1012,7 @@ vows.describe('Server').addBatch({
     },
   },
   
+  // OK
   'server with one exchanger that throws an exception': {
     topic: function() {
       var self = this;
