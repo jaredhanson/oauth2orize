@@ -1043,6 +1043,7 @@ vows.describe('Server').addBatch({
     },
   },
   
+  // OK
   'server with no serializers': {
     topic: function() {
       var self = this;
@@ -1062,6 +1063,7 @@ vows.describe('Server').addBatch({
     },
   },
   
+  // OK
   'server with one serializer': {
     topic: function() {
       var self = this;
@@ -1083,6 +1085,7 @@ vows.describe('Server').addBatch({
     },
   },
   
+  // OK
   'server with multiple serializers': {
     topic: function() {
       var self = this;
@@ -1110,6 +1113,7 @@ vows.describe('Server').addBatch({
     },
   },
   
+  // OK
   'server with a serializer that throws an error': {
     topic: function() {
       var self = this;
