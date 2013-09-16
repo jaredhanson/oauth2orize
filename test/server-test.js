@@ -1136,6 +1136,7 @@ vows.describe('Server').addBatch({
     },
   },
   
+  // OK
   'server with no deserializers': {
     topic: function() {
       var self = this;
@@ -1155,6 +1156,7 @@ vows.describe('Server').addBatch({
     },
   },
   
+  // OK
   'server with one deserializer': {
     topic: function() {
       var self = this;
@@ -1176,6 +1178,7 @@ vows.describe('Server').addBatch({
     },
   },
   
+  // OK
   'server with multiple deserializers': {
     topic: function() {
       var self = this;
@@ -1203,6 +1206,7 @@ vows.describe('Server').addBatch({
     },
   },
   
+  // OK
   'server with one deserializer that sets client to null': {
     topic: function() {
       var self = this;
@@ -1224,6 +1228,7 @@ vows.describe('Server').addBatch({
     },
   },
   
+  // OK
   'server with one deserializer that sets client to false': {
     topic: function() {
       var self = this;
@@ -1245,6 +1250,7 @@ vows.describe('Server').addBatch({
     },
   },
   
+  // OK
   'server with multiple deserializers, the second of which sets client to null': {
     topic: function() {
       var self = this;
@@ -1272,6 +1278,7 @@ vows.describe('Server').addBatch({
     },
   },
   
+  // OK
   'server with multiple deserializers, the second of which sets client to false': {
     topic: function() {
       var self = this;
@@ -1299,6 +1306,7 @@ vows.describe('Server').addBatch({
     },
   },
   
+  // OK
   'server with a deserializer that throws an error': {
     topic: function() {
       var self = this;
