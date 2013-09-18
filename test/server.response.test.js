@@ -156,7 +156,7 @@ describe('Server', function() {
     });
   });
   
-  describe('handling response to authorization with responder that throws an exception', function() {
+  describe('handling authorization response with responder that throws an exception', function() {
     var server = new Server();
     server.grant('foo', 'response', function(txn, res, next) {
       throw new Error('something was thrown');
@@ -185,7 +185,7 @@ describe('Server', function() {
     });
   });
   
-  describe('handling response to authorization with no supported types', function() {
+  describe('handling authorization response with no supported types', function() {
     var server = new Server();
     
     describe('response', function() {
