@@ -21,12 +21,12 @@ describe('Server', function() {
     
         it('should error', function() {
           expect(err).to.be.an.instanceOf(Error);
-          expect(err.message).to.equal('Failed to serialize client.  Register serialization function using serializeClient().')
+          expect(err.message).to.equal('Failed to serialize client. Register serialization function using serializeClient().')
         });
       });
     });
     
-    describe('one serializers', function() {
+    describe('one serializer', function() {
       var server = new Server();
       server.serializeClient(function(client, done) {
         done(null, client.id);
@@ -59,10 +59,10 @@ describe('Server', function() {
         done('pass');
       });
       server.serializeClient(function(client, done) {
-        done(null, 'second-serializer');
+        done(null, '#2');
       });
       server.serializeClient(function(client, done) {
-        done(null, 'should-not-execute');
+        done(null, '#3');
       });
       
       describe('serializing', function() {
@@ -81,12 +81,36 @@ describe('Server', function() {
         });
         
         it('should serialize', function() {
-          expect(obj).to.equal('second-serializer');
+          expect(obj).to.equal('#2');
         });
       });
     });
     
-    describe('serializer that throws an error', function() {
+    describe('serializer that encounters an error', function() {
+      var server = new Server();
+      server.serializeClient(function(client, done) {
+        return done(new Error('something went wrong'));
+      });
+      
+      describe('serializing', function() {
+        var obj, err;
+    
+        before(function(done) {
+          server.serializeClient({ id: '1', name: 'Foo' }, function(e, o) {
+            err = e;
+            obj = o;
+            return done();
+          });
+        });
+    
+        it('should error', function() {
+          expect(err).to.be.an.instanceOf(Error);
+          expect(err.message).to.equal('something went wrong');
+        });
+      });
+    });
+    
+    describe('serializer that throws an exception', function() {
       var server = new Server();
       server.serializeClient(function(client, done) {
         throw new Error('something was thrown')
@@ -130,12 +154,12 @@ describe('Server', function() {
     
         it('should error', function() {
           expect(err).to.be.an.instanceOf(Error);
-          expect(err.message).to.equal('Failed to deserialize client.  Register deserialization function using deserializeClient().')
+          expect(err.message).to.equal('Failed to deserialize client. Register deserialization function using deserializeClient().')
         });
       });
     });
     
-    describe('one deserializers', function() {
+    describe('one deserializer', function() {
       var server = new Server();
       server.deserializeClient(function(id, done) {
         done(null, { id: id });
@@ -156,7 +180,7 @@ describe('Server', function() {
           expect(err).to.be.null;
         });
         
-        it('should serialize', function() {
+        it('should deserialize', function() {
           expect(obj.id).to.equal('1');
         });
       });
@@ -168,10 +192,10 @@ describe('Server', function() {
         done('pass');
       });
       server.deserializeClient(function(id, done) {
-        done(null, 'second-deserializer');
+        done(null, { id: '#2' });
       });
       server.deserializeClient(function(id, done) {
-        done(null, 'should-not-execute');
+        done(null, { id: '#3' });
       });
       
       describe('deserializing', function() {
@@ -189,13 +213,13 @@ describe('Server', function() {
           expect(err).to.be.null;
         });
         
-        it('should serialize', function() {
-          expect(obj).to.equal('second-deserializer');
+        it('should deserialize', function() {
+          expect(obj.id).to.equal('#2');
         });
       });
     });
     
-    describe('deserializer to null', function() {
+    describe('one deserializer to null', function() {
       var server = new Server();
       server.deserializeClient(function(id, done) {
         done(null, null);
@@ -222,7 +246,7 @@ describe('Server', function() {
       });
     });
     
-    describe('deserializer to false', function() {
+    describe('one deserializer to false', function() {
       var server = new Server();
       server.deserializeClient(function(id, done) {
         done(null, false);
@@ -249,7 +273,7 @@ describe('Server', function() {
       });
     });
     
-    describe('multiple deserializer to null', function() {
+    describe('multiple deserializers to null', function() {
       var server = new Server();
       server.deserializeClient(function(obj, done) {
         done('pass');
@@ -258,7 +282,7 @@ describe('Server', function() {
         done(null, null);
       });
       server.deserializeClient(function(obj, done) {
-        done(null, 'should-not-execute');
+        done(null, { id: '#3' });
       });
       
       describe('deserializing', function() {
@@ -282,7 +306,7 @@ describe('Server', function() {
       });
     });
     
-    describe('multiple deserializer to false', function() {
+    describe('multiple deserializers to false', function() {
       var server = new Server();
       server.deserializeClient(function(obj, done) {
         done('pass');
@@ -291,7 +315,7 @@ describe('Server', function() {
         done(null, false);
       });
       server.deserializeClient(function(obj, done) {
-        done(null, 'should-not-execute');
+        done(null, { id: '#3' });
       });
       
       describe('deserializing', function() {
@@ -315,7 +339,31 @@ describe('Server', function() {
       });
     });
     
-    describe('deserializer that throws', function() {
+    describe('deserializer that encounters an error', function() {
+      var server = new Server();
+      server.deserializeClient(function(obj, done) {
+        return done(new Error('something went wrong'));
+      });
+      
+      describe('deserializing', function() {
+        var obj, err;
+    
+        before(function(done) {
+          server.deserializeClient('1', function(e, o) {
+            err = e;
+            obj = o;
+            return done();
+          });
+        });
+    
+        it('should error', function() {
+          expect(err).to.be.an.instanceOf(Error);
+          expect(err.message).to.equal('something went wrong')
+        });
+      });
+    });
+    
+    describe('deserializer that throws an exception', function() {
       var server = new Server();
       server.deserializeClient(function(obj, done) {
         throw new Error('something was thrown');
