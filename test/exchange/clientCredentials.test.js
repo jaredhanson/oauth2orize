@@ -15,6 +15,8 @@ describe('exchange.clientCredentials', function() {
       return done(null, 's3cr1t', 'blahblag', { 'token_type': 'foo', 'expires_in': 3600 })
     } else if (client.id == 'cUN') {
       return done(null, false)
+    } else if (client.id == 'cTHROW') {
+      throw new Error('something was thrown')
     }
     return done(new Error('something is wrong'));
   }
@@ -249,6 +251,28 @@ describe('exchange.clientCredentials', function() {
     it('should error', function() {
       expect(err).to.be.an.instanceOf(Error);
       expect(err.message).to.equal('something is wrong');
+    });
+  });
+  
+  describe('encountering an exception while issuing an access token', function() {
+    var response, err;
+
+    before(function(done) {
+      chai.connect(clientCredentials(issue))
+        .req(function(req) {
+          req.user = { id: 'cTHROW', name: 'Example' };
+          req.body = {};
+        })
+        .next(function(e) {
+          err = e;
+          done();
+        })
+        .dispatch();
+    });
+    
+    it('should error', function() {
+      expect(err).to.be.an.instanceOf(Error);
+      expect(err.message).to.equal('something was thrown');
     });
   });
   

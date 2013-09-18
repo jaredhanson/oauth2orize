@@ -211,7 +211,7 @@ describe('exchange.authorizationCode', function() {
     });
   });
   
-  describe('encountering an error while issuing an access token', function() {
+  describe('encountering an exception while issuing an access token', function() {
     var response, err;
 
     before(function(done) {
