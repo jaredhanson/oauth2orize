@@ -199,8 +199,10 @@ describe('transactionLoader', function() {
         .dispatch();
     });
     
-    it('should not next with error', function() {
-      expect(err).to.be.undefined;
+    it('should error', function() {
+      expect(err).to.be.an.instanceOf(Error);
+      expect(err.constructor.name).to.equal('BadRequestError');
+      expect(err.message).to.equal('Missing required parameter: transaction_id');
     });
     
     it('should not restore transaction', function() {
@@ -226,8 +228,10 @@ describe('transactionLoader', function() {
         .dispatch();
     });
     
-    it('should not next with error', function() {
-      expect(err).to.be.undefined;
+    it('should error', function() {
+      expect(err).to.be.an.instanceOf(Error);
+      expect(err.constructor.name).to.equal('ForbiddenError');
+      expect(err.message).to.equal('Unable to load OAuth 2.0 transaction: 1234');
     });
     
     it('should not restore transaction', function() {
@@ -252,8 +256,10 @@ describe('transactionLoader', function() {
         .dispatch();
     });
     
-    it('should not next with error', function() {
-      expect(err).to.be.undefined;
+    it('should error', function() {
+      expect(err).to.be.an.instanceOf(Error);
+      expect(err.constructor.name).to.equal('ForbiddenError');
+      expect(err.message).to.equal('Unable to load OAuth 2.0 transactions from session');
     });
     
     it('should not restore transaction', function() {

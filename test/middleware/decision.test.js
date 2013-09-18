@@ -368,7 +368,7 @@ describe('decision', function() {
     it('should error', function() {
       expect(err).to.be.an.instanceOf(Error);
       expect(err.constructor.name).to.equal('ForbiddenError');
-      expect(err.message).to.equal('Unable to load OAuth 2.0 transaction from session');
+      expect(err.message).to.equal('Unable to load OAuth 2.0 transactions from session');
     });
     
     it('should not set user on transaction', function() {
