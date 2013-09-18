@@ -132,7 +132,7 @@ describe('transactionLoader', function() {
     it('should error', function() {
       expect(err).to.be.an.instanceOf(Error);
       expect(err.constructor.name).to.equal('AuthorizationError');
-      expect(err.message).to.equal('Client is no longer authorized');
+      expect(err.message).to.equal('Unauthorized client');
       expect(err.code).to.equal('unauthorized_client');
     });
     
@@ -170,6 +170,7 @@ describe('transactionLoader', function() {
     
     it('should error', function() {
       expect(err).to.be.an.instanceOf(Error);
+      expect(err.message).to.equal('something went wrong while deserializing client');
     });
     
     it('should not restore transaction', function() {
@@ -181,7 +182,7 @@ describe('transactionLoader', function() {
     });
   });
   
-  describe('handling a request without transaction', function() {
+  describe('handling a request without transaction id', function() {
     var request, err;
 
     before(function(done) {
@@ -207,7 +208,7 @@ describe('transactionLoader', function() {
     });
   });
   
-  describe('handling a request with transaction id lacking corresponding transaction', function() {
+  describe('handling a request with transaction id that does not reference transaction', function() {
     var request, err;
 
     before(function(done) {
@@ -217,6 +218,32 @@ describe('transactionLoader', function() {
           req.body = { 'transaction_id': '1234' };
           req.session = {};
           req.session.authorize = {};
+        })
+        .next(function(e) {
+          err = e;
+          done();
+        })
+        .dispatch();
+    });
+    
+    it('should not next with error', function() {
+      expect(err).to.be.undefined;
+    });
+    
+    it('should not restore transaction', function() {
+      expect(request.oauth2).to.be.undefined;
+    });
+  });
+  
+  describe('handling a request without transactions in session', function() {
+    var request, err;
+
+    before(function(done) {
+      chai.connect(transactionLoader(server))
+        .req(function(req) {
+          request = req;
+          req.body = { 'transaction_id': '1234' };
+          req.session = {};
         })
         .next(function(e) {
           err = e;
@@ -252,33 +279,6 @@ describe('transactionLoader', function() {
     it('should error', function() {
       expect(err).to.be.an.instanceOf(Error);
       expect(err.message).to.equal('OAuth2orize requires session support. Did you forget app.use(express.session(...))?');
-    });
-    
-    it('should not restore transaction', function() {
-      expect(request.oauth2).to.be.undefined;
-    });
-  });
-  
-  describe('handling a request without transactions in session', function() {
-    var request, err;
-
-    before(function(done) {
-      chai.connect(transactionLoader(server))
-        .req(function(req) {
-          request = req;
-          req.body = { 'transaction_id': '1234' };
-          req.session = {};
-        })
-        .next(function(e) {
-          err = e;
-          done();
-        })
-        .dispatch();
-    });
-    
-    it('should error', function() {
-      expect(err).to.be.an.instanceOf(Error);
-      expect(err.message).to.equal('Unable load OAuth 2.0 transaction from session');
     });
     
     it('should not restore transaction', function() {
