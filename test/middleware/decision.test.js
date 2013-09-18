@@ -9,7 +9,7 @@ describe('decision', function() {
   server.grant('code', 'response', function(txn, res, next) {
     if (txn.res.allow == false) { return res.redirect(txn.redirectURI + '?error=access_denied'); }
     if (txn.transactionID == 'abc123') { return res.redirect(txn.redirectURI + '?code=a1b1c1'); }
-    return next(new Error('something went wrong while issuing response'));
+    return next(new Error('something went wrong while handling response'));
   });
   
   it('should be named decision', function() {
@@ -116,7 +116,7 @@ describe('decision', function() {
     });
   });
   
-  describe('handling a user decision to allow access but unknown response type', function() {
+  describe('handling a user decision to allow access using unknown response type', function() {
     var request, response, err;
 
     before(function(done) {
@@ -206,6 +206,7 @@ describe('decision', function() {
     
     it('should error', function() {
       expect(err).to.be.an.instanceOf(Error);
+      expect(err.message).to.equal('something went wrong while handling response');
     });
     
     it('should set user on transaction', function() {
@@ -255,44 +256,6 @@ describe('decision', function() {
     it('should error', function() {
       expect(err).to.be.an.instanceOf(Error);
       expect(err.message).to.equal('OAuth2orize requires session support. Did you forget app.use(express.session(...))?');
-    });
-    
-    it('should not set user on transaction', function() {
-      expect(request.oauth2.user).to.be.undefined;
-    });
-    
-    it('should not set response on transaction', function() {
-      expect(request.oauth2.res).to.be.undefined;
-    });
-  });
-  
-  describe('handling a request without transactions in session', function() {
-    var request, response, err;
-
-    before(function(done) {
-      chai.connect(decision(server))
-        .req(function(req) {
-          request = req;
-          req.query = {};
-          req.body = {};
-          req.session = {};
-          req.user = { id: 'u1234', username: 'bob' };
-          req.oauth2 = {};
-          req.oauth2.transactionID = 'abc123';
-          req.oauth2.client = { id: 'c5678', name: 'Example' };
-          req.oauth2.redirectURI = 'http://example.com/auth/callback';
-          req.oauth2.req = { type: 'code', scope: 'email' };
-        })
-        .next(function(e) {
-          err = e;
-          done();
-        })
-        .dispatch();
-    });
-    
-    it('should error', function() {
-      expect(err).to.be.an.instanceOf(Error);
-      expect(err.message).to.equal('Unable to load OAuth 2.0 transaction from session');
     });
     
     it('should not set user on transaction', function() {
@@ -378,12 +341,51 @@ describe('decision', function() {
     });
   });
   
+  describe('handling a request without transactions in session', function() {
+    var request, response, err;
+
+    before(function(done) {
+      chai.connect(decision(server))
+        .req(function(req) {
+          request = req;
+          req.query = {};
+          req.body = {};
+          req.session = {};
+          req.user = { id: 'u1234', username: 'bob' };
+          req.oauth2 = {};
+          req.oauth2.transactionID = 'abc123';
+          req.oauth2.client = { id: 'c5678', name: 'Example' };
+          req.oauth2.redirectURI = 'http://example.com/auth/callback';
+          req.oauth2.req = { type: 'code', scope: 'email' };
+        })
+        .next(function(e) {
+          err = e;
+          done();
+        })
+        .dispatch();
+    });
+    
+    it('should error', function() {
+      expect(err).to.be.an.instanceOf(Error);
+      expect(err.constructor.name).to.equal('ForbiddenError');
+      expect(err.message).to.equal('Unable to load OAuth 2.0 transaction from session');
+    });
+    
+    it('should not set user on transaction', function() {
+      expect(request.oauth2.user).to.be.undefined;
+    });
+    
+    it('should not set response on transaction', function() {
+      expect(request.oauth2.res).to.be.undefined;
+    });
+  });
+  
   describe('with parsing function', function() {
     var mw = decision(server, function(req, done) {
       done(null, { scope: req.query.scope });
     });
     
-    describe('handling a user decision to allow access', function() {
+    describe('handling a user decision', function() {
       var request, response;
 
       before(function(done) {
@@ -492,7 +494,7 @@ describe('decision', function() {
       done(new Error('something went wrong'));
     });
     
-    describe('encountering an error while parsing', function() {
+    describe('handling a user decision', function() {
       var request, response, err;
 
       before(function(done) {
@@ -635,6 +637,57 @@ describe('decision', function() {
     
       it('should remove transaction from session', function() {
         expect(request.session['oauth2orize']['abc123']).to.be.undefined;
+      });
+    });
+  });
+  
+  describe('with user property option', function() {
+    var mw = decision(server, { userProperty: 'other' });
+    
+    describe('handling a user decision to allow access', function() {
+      var request, response;
+
+      before(function(done) {
+        chai.connect(mw)
+          .req(function(req) {
+            request = req;
+            req.query = {};
+            req.body = {};
+            req.session = {};
+            req.session['authorize'] = {};
+            req.session['authorize']['abc123'] = { protocol: 'oauth2' };
+            req.other = { id: 'u1234', username: 'bob' };
+            req.oauth2 = {};
+            req.oauth2.transactionID = 'abc123';
+            req.oauth2.client = { id: 'c5678', name: 'Example' };
+            req.oauth2.redirectURI = 'http://example.com/auth/callback';
+            req.oauth2.req = { type: 'code', scope: 'email' };
+          })
+          .end(function(res) {
+            response = res;
+            done();
+          })
+          .dispatch();
+      });
+    
+      it('should set user on transaction', function() {
+        expect(request.oauth2.user).to.be.an('object')
+        expect(request.oauth2.user.id).to.equal('u1234');
+        expect(request.oauth2.user.username).to.equal('bob');
+      });
+    
+      it('should set response on transaction', function() {
+        expect(request.oauth2.res).to.be.an('object')
+        expect(request.oauth2.res.allow).to.be.true;
+      });
+    
+      it('should respond', function() {
+        expect(response.statusCode).to.equal(302);
+        expect(response.getHeader('Location')).to.equal('http://example.com/auth/callback?code=a1b1c1');
+      });
+    
+      it('should remove transaction from session', function() {
+        expect(request.session['authorize']['abc123']).to.be.undefined;
       });
     });
   });
