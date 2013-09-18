@@ -18,8 +18,9 @@ describe('authorization', function() {
       scope: req.query['scope']
     }
   });
+  
   server.grant('throw-error', function(req) {
-    throw new Error('something went wrong while parsing request');
+    throw new Error('something went wrong while parsing authorization request');
   });
   
   function validate(clientID, redirectURI, done) {
@@ -100,68 +101,6 @@ describe('authorization', function() {
     });
   });
   
-  describe('handling a request for authorization from unauthorized client', function() {
-    var request, err;
-
-    before(function(done) {
-      chai.connect(authorization(server, validate))
-        .req(function(req) {
-          request = req;
-          req.query = { response_type: 'code', client_id: '2234', redirect_uri: 'http://example.com/auth/callback' };
-          req.session = {};
-        })
-        .next(function(e) {
-          err = e;
-          done();
-        })
-        .dispatch();
-    });
-    
-    it('should error', function() {
-      expect(err).to.be.an.instanceOf(Error);
-      expect(err.constructor.name).to.equal('AuthorizationError');
-      expect(err.message).to.equal('Client is unauthorized');
-      expect(err.code).to.equal('unauthorized_client');
-    });
-  
-    it('should start transaction', function() {
-      expect(request.oauth2).to.be.an('object');
-      expect(request.oauth2.client).to.be.undefined;
-      expect(request.oauth2.redirectURI).to.be.undefined;
-    });
-  });
-  
-  describe('handling a request for authorization from unauthorized client informed via redirect', function() {
-    var request, err;
-
-    before(function(done) {
-      chai.connect(authorization(server, validate))
-        .req(function(req) {
-          request = req;
-          req.query = { response_type: 'code', client_id: '3234', redirect_uri: 'http://example.com/auth/callback' };
-          req.session = {};
-        })
-        .next(function(e) {
-          err = e;
-          done();
-        })
-        .dispatch();
-    });
-    
-    it('should error', function() {
-      expect(err).to.be.an.instanceOf(Error);
-      expect(err.constructor.name).to.equal('AuthorizationError');
-      expect(err.message).to.equal('Client is unauthorized');
-      expect(err.code).to.equal('unauthorized_client');
-    });
-  
-    it('should start transaction', function() {
-      expect(request.oauth2).to.be.an('object');
-      expect(request.oauth2.client).to.be.undefined;
-      expect(request.oauth2.redirectURI).to.equal('http://example.com/auth/callback');
-    });
-  });
-  
   describe('handling a request for authorization with empty query', function() {
     var request, err;
 
@@ -220,7 +159,69 @@ describe('authorization', function() {
     });
   });
   
-  describe('encountering an error parsing request', function() {
+  describe('handling a request for authorization from unauthorized client', function() {
+    var request, err;
+
+    before(function(done) {
+      chai.connect(authorization(server, validate))
+        .req(function(req) {
+          request = req;
+          req.query = { response_type: 'code', client_id: '2234', redirect_uri: 'http://example.com/auth/callback' };
+          req.session = {};
+        })
+        .next(function(e) {
+          err = e;
+          done();
+        })
+        .dispatch();
+    });
+    
+    it('should error', function() {
+      expect(err).to.be.an.instanceOf(Error);
+      expect(err.constructor.name).to.equal('AuthorizationError');
+      expect(err.message).to.equal('Unauthorized client');
+      expect(err.code).to.equal('unauthorized_client');
+    });
+  
+    it('should start transaction', function() {
+      expect(request.oauth2).to.be.an('object');
+      expect(request.oauth2.client).to.be.undefined;
+      expect(request.oauth2.redirectURI).to.be.undefined;
+    });
+  });
+  
+  describe('handling a request for authorization from unauthorized client informed via redirect', function() {
+    var request, err;
+
+    before(function(done) {
+      chai.connect(authorization(server, validate))
+        .req(function(req) {
+          request = req;
+          req.query = { response_type: 'code', client_id: '3234', redirect_uri: 'http://example.com/auth/callback' };
+          req.session = {};
+        })
+        .next(function(e) {
+          err = e;
+          done();
+        })
+        .dispatch();
+    });
+    
+    it('should error', function() {
+      expect(err).to.be.an.instanceOf(Error);
+      expect(err.constructor.name).to.equal('AuthorizationError');
+      expect(err.message).to.equal('Unauthorized client');
+      expect(err.code).to.equal('unauthorized_client');
+    });
+  
+    it('should start transaction', function() {
+      expect(request.oauth2).to.be.an('object');
+      expect(request.oauth2.client).to.be.undefined;
+      expect(request.oauth2.redirectURI).to.equal('http://example.com/auth/callback');
+    });
+  });
+  
+  describe('encountering an error thrown while parsing request', function() {
     var request, err;
 
     before(function(done) {
@@ -239,7 +240,7 @@ describe('authorization', function() {
   
     it('should error', function() {
       expect(err).to.be.an.instanceOf(Error);
-      expect(err.message).to.equal('something went wrong while parsing request');
+      expect(err.message).to.equal('something went wrong while parsing authorization request');
     });
   
     it('should not start transaction', function() {
@@ -247,7 +248,7 @@ describe('authorization', function() {
     });
   });
   
-  describe('encountering an error validating client', function() {
+  describe('encountering an error while validating client', function() {
     var request, err;
 
     before(function(done) {
@@ -276,7 +277,7 @@ describe('authorization', function() {
     });
   });
   
-  describe('encountering an error serializing client', function() {
+  describe('encountering an error while serializing client', function() {
     var request, err;
 
     before(function(done) {
