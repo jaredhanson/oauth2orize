@@ -20,6 +20,10 @@ describe('UnorderedList', function() {
       expect(ul.equalTo(other)).to.be.true;
     });
     
+    it('should be equal to array with same item', function() {
+      expect(ul.equalTo(['a'])).to.be.true;
+    });
+    
     it('should not be equal to list with superset of item', function() {
       var other = new UnorderedList(['a', 'b']);
       expect(ul.equalTo(other)).to.be.false;
