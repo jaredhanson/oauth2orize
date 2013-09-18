@@ -36,7 +36,7 @@ describe('Server', function() {
     });
     
     it('should have no exchanges', function() {
-      expect(server._exchangers).to.have.length(0);
+      expect(server._exchanges).to.have.length(0);
     });
     
     it('should have no serializers or deserializers', function() {
