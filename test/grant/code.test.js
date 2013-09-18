@@ -126,7 +126,7 @@ describe('grant.code', function() {
       });
     });
     
-    describe('request with list of scopes and scope separator option', function() {
+    describe('request with list of scopes using scope separator option', function() {
       var err, out;
       
       before(function(done) {
@@ -161,7 +161,7 @@ describe('grant.code', function() {
       });
     });
     
-    describe('request with list of scopes separated by space and multiple scope separator option', function() {
+    describe('request with list of scopes separated by space using multiple scope separator option', function() {
       var err, out;
       
       before(function(done) {
@@ -196,7 +196,7 @@ describe('grant.code', function() {
       });
     });
     
-    describe('request with list of scopes separated by comma and multiple scope separator option', function() {
+    describe('request with list of scopes separated by comma using multiple scope separator option', function() {
       var err, out;
       
       before(function(done) {
@@ -260,12 +260,14 @@ describe('grant.code', function() {
   
   describe('decision handling', function() {
     function issue(client, redirectURI, user, done) {
-      if (client.id == 'c123' && redirectURI == 'http://example.com/auth/other/callback' && user.id == 'u123') {
+      if (client.id == 'c123' && redirectURI == 'http://example.com/auth/callback' && user.id == 'u123') {
         return done(null, 'xyz');
-      } else if (client.id == 'cUN') {
+      } else if (client.id == 'cUNAUTHZ') {
         return done(null, false);
+      } else if (client.id == 'cTHROW') {
+        throw new Error('something was thrown')
       }
-      return done(new Error('something is wrong'));
+      return done(new Error('something went wrong'));
     }
     
     describe('transaction', function() {
@@ -275,9 +277,9 @@ describe('grant.code', function() {
         chai.grant(code(issue))
           .txn(function(txn) {
             txn.client = { id: 'c123', name: 'Example' };
-            txn.redirectURI = 'http://example.com/auth/callback';
+            txn.redirectURI = 'http://www.example.com/auth/callback';
             txn.req = {
-              redirectURI: 'http://example.com/auth/other/callback'
+              redirectURI: 'http://example.com/auth/callback'
             }
             txn.user = { id: 'u123', name: 'Bob' };
             txn.res = { allow: true };
@@ -291,7 +293,7 @@ describe('grant.code', function() {
       
       it('should respond', function() {
         expect(response.statusCode).to.equal(302);
-        expect(response.getHeader('Location')).to.equal('http://example.com/auth/callback?code=xyz');
+        expect(response.getHeader('Location')).to.equal('http://www.example.com/auth/callback?code=xyz');
       });
     });
     
@@ -302,9 +304,9 @@ describe('grant.code', function() {
         chai.grant(code(issue))
           .txn(function(txn) {
             txn.client = { id: 'c123', name: 'Example' };
-            txn.redirectURI = 'http://example.com/auth/callback';
+            txn.redirectURI = 'http://www.example.com/auth/callback';
             txn.req = {
-              redirectURI: 'http://example.com/auth/other/callback',
+              redirectURI: 'http://example.com/auth/callback',
               state: 'f1o1o1'
             }
             txn.user = { id: 'u123', name: 'Bob' };
@@ -319,7 +321,7 @@ describe('grant.code', function() {
       
       it('should respond', function() {
         expect(response.statusCode).to.equal(302);
-        expect(response.getHeader('Location')).to.equal('http://example.com/auth/callback?code=xyz&state=f1o1o1');
+        expect(response.getHeader('Location')).to.equal('http://www.example.com/auth/callback?code=xyz&state=f1o1o1');
       });
     });
     
@@ -330,9 +332,9 @@ describe('grant.code', function() {
         chai.grant(code(issue))
           .txn(function(txn) {
             txn.client = { id: 'c123', name: 'Example' };
-            txn.redirectURI = 'http://example.com/auth/callback';
+            txn.redirectURI = 'http://www.example.com/auth/callback';
             txn.req = {
-              redirectURI: 'http://example.com/auth/other/callback'
+              redirectURI: 'http://example.com/auth/callback'
             }
             txn.user = { id: 'u123', name: 'Bob' };
             txn.res = { allow: false };
@@ -346,7 +348,7 @@ describe('grant.code', function() {
       
       it('should respond', function() {
         expect(response.statusCode).to.equal(302);
-        expect(response.getHeader('Location')).to.equal('http://example.com/auth/callback?error=access_denied');
+        expect(response.getHeader('Location')).to.equal('http://www.example.com/auth/callback?error=access_denied');
       });
     });
     
@@ -357,9 +359,9 @@ describe('grant.code', function() {
         chai.grant(code(issue))
           .txn(function(txn) {
             txn.client = { id: 'c123', name: 'Example' };
-            txn.redirectURI = 'http://example.com/auth/callback';
+            txn.redirectURI = 'http://www.example.com/auth/callback';
             txn.req = {
-              redirectURI: 'http://example.com/auth/other/callback',
+              redirectURI: 'http://example.com/auth/callback',
               state: 'f2o2o2'
             }
             txn.user = { id: 'u123', name: 'Bob' };
@@ -374,20 +376,20 @@ describe('grant.code', function() {
       
       it('should respond', function() {
         expect(response.statusCode).to.equal(302);
-        expect(response.getHeader('Location')).to.equal('http://example.com/auth/callback?error=access_denied&state=f2o2o2');
+        expect(response.getHeader('Location')).to.equal('http://www.example.com/auth/callback?error=access_denied&state=f2o2o2');
       });
     });
     
-    describe('not issuing a code', function() {
+    describe('unauthorized client', function() {
       var err;
       
       before(function(done) {
         chai.grant(code(issue))
           .txn(function(txn) {
-            txn.client = { id: 'cUN', name: 'Example' };
-            txn.redirectURI = 'http://example.com/auth/callback';
+            txn.client = { id: 'cUNAUTHZ', name: 'Example' };
+            txn.redirectURI = 'http://www.example.com/auth/callback';
             txn.req = {
-              redirectURI: 'http://example.com/auth/other/callback'
+              redirectURI: 'http://example.com/auth/callback'
             }
             txn.user = { id: 'u123', name: 'Bob' };
             txn.res = { allow: true };
@@ -414,10 +416,10 @@ describe('grant.code', function() {
       before(function(done) {
         chai.grant(code(issue))
           .txn(function(txn) {
-            txn.client = { id: 'cERR', name: 'Example' };
-            txn.redirectURI = 'http://example.com/auth/callback';
+            txn.client = { id: 'cERROR', name: 'Example' };
+            txn.redirectURI = 'http://www.example.com/auth/callback';
             txn.req = {
-              redirectURI: 'http://example.com/auth/other/callback'
+              redirectURI: 'http://example.com/auth/callback'
             }
             txn.user = { id: 'u123', name: 'Bob' };
             txn.res = { allow: true };
@@ -431,7 +433,34 @@ describe('grant.code', function() {
       
       it('should error', function() {
         expect(err).to.be.an.instanceOf(Error);
-        expect(err.message).to.equal('something is wrong');
+        expect(err.message).to.equal('something went wrong');
+      });
+    });
+    
+    describe('throwing an error while issuing code', function() {
+      var err;
+      
+      before(function(done) {
+        chai.grant(code(issue))
+          .txn(function(txn) {
+            txn.client = { id: 'cTHROW', name: 'Example' };
+            txn.redirectURI = 'http://www.example.com/auth/callback';
+            txn.req = {
+              redirectURI: 'http://example.com/auth/callback'
+            }
+            txn.user = { id: 'u123', name: 'Bob' };
+            txn.res = { allow: true };
+          })
+          .next(function(e) {
+            err = e;
+            done();
+          })
+          .decide();
+      });
+      
+      it('should error', function() {
+        expect(err).to.be.an.instanceOf(Error);
+        expect(err.message).to.equal('something was thrown');
       });
     });
     
@@ -441,9 +470,9 @@ describe('grant.code', function() {
       before(function(done) {
         chai.grant(code(issue))
           .txn(function(txn) {
-            txn.client = { id: 'cERR', name: 'Example' };
+            txn.client = { id: 'c123', name: 'Example' };
             txn.req = {
-              redirectURI: 'http://example.com/auth/other/callback'
+              redirectURI: 'http://example.com/auth/callback'
             }
             txn.user = { id: 'u123', name: 'Bob' };
             txn.res = { allow: true };
@@ -464,10 +493,10 @@ describe('grant.code', function() {
   
   describe('decision handling with user response', function() {
     function issue(client, redirectURI, user, ares, done) {
-      if (client.id == 'c123' && redirectURI == 'http://example.com/auth/other/callback' && user.id == 'u123' && ares.scope == 'foo') {
+      if (client.id == 'c123' && redirectURI == 'http://example.com/auth/callback' && user.id == 'u123' && ares.scope == 'foo') {
         return done(null, 'xyz');
       }
-      return done(new Error('something is wrong'));
+      return done(new Error('something went wrong'));
     }
     
     describe('transaction with response scope', function() {
@@ -477,9 +506,9 @@ describe('grant.code', function() {
         chai.grant(code(issue))
           .txn(function(txn) {
             txn.client = { id: 'c123', name: 'Example' };
-            txn.redirectURI = 'http://example.com/auth/callback';
+            txn.redirectURI = 'http://www.example.com/auth/callback';
             txn.req = {
-              redirectURI: 'http://example.com/auth/other/callback'
+              redirectURI: 'http://example.com/auth/callback'
             }
             txn.user = { id: 'u123', name: 'Bob' };
             txn.res = { allow: true, scope: 'foo' };
@@ -493,7 +522,7 @@ describe('grant.code', function() {
       
       it('should respond', function() {
         expect(response.statusCode).to.equal(302);
-        expect(response.getHeader('Location')).to.equal('http://example.com/auth/callback?code=xyz');
+        expect(response.getHeader('Location')).to.equal('http://www.example.com/auth/callback?code=xyz');
       });
     });
   });
