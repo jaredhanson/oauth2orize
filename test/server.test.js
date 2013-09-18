@@ -48,7 +48,7 @@ describe('Server', function() {
   describe('#decision', function() {
     var server = new Server();
     
-    it('should create handler with two functions in stack', function() {
+    it('should create handler stack with two functions', function() {
       var handler = server.decision();
       expect(handler).to.be.an('array');
       expect(handler).to.have.length(2);
@@ -58,7 +58,7 @@ describe('Server', function() {
       expect(handler[1]).to.have.length(3);
     });
     
-    it('should create handler with one function when transaction loader is disabled', function() {
+    it('should create function handler when transaction loader is disabled', function() {
       var handler = server.decision({ loadTransaction: false });
       expect(handler).to.be.an('function');
       expect(handler).to.have.length(3);

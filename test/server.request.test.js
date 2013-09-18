@@ -3,17 +3,17 @@ var Server = require('../lib/server');
 
 describe('Server', function() {
   
-  describe('parsing requests for authorization with one supported type', function() {
+  describe('parsing authorization requests with one supported type', function() {
     var server = new Server();
     server.grant('foo', function(req) {
-      return { foo: '1' }
+      return { foo: req.query.foo }
     });
     
     describe('request for supported type', function() {
       var areq, err;
     
       before(function(done) {
-        var req = {};
+        var req = { query: { foo: '1' } };
         
         server._parse('foo', req, function(e, ar) {
           areq = ar;
@@ -26,7 +26,7 @@ describe('Server', function() {
         expect(err).to.be.null;
       });
     
-      it('should parse an empty object', function() {
+      it('should parse request', function() {
         expect(areq).to.be.an('object');
         expect(Object.keys(areq)).to.have.length(2);
         expect(areq.type).to.equal('foo');
@@ -38,7 +38,7 @@ describe('Server', function() {
       var areq, err;
     
       before(function(done) {
-        var req = {};
+        var req = { query: { foo: '1' } };
         
         server._parse('bar', req, function(e, ar) {
           areq = ar;
@@ -51,7 +51,7 @@ describe('Server', function() {
         expect(err).to.be.null;
       });
     
-      it('should parse an empty object', function() {
+      it('should parse only type', function() {
         expect(areq).to.be.an('object');
         expect(Object.keys(areq)).to.have.length(1);
         expect(areq.type).to.equal('bar');
@@ -62,7 +62,7 @@ describe('Server', function() {
       var areq, err;
     
       before(function(done) {
-        var req = {};
+        var req = { query: { foo: '1' } };
         
         server._parse(undefined, req, function(e, ar) {
           areq = ar;
@@ -75,24 +75,24 @@ describe('Server', function() {
         expect(err).to.be.null;
       });
     
-      it('should parse an empty object', function() {
+      it('should not parse request', function() {
         expect(areq).to.be.an('object');
         expect(Object.keys(areq)).to.have.length(0);
       });
     });
   });
   
-  describe('parsing requests for authorization with one wildcard parser', function() {
+  describe('parsing authorization requests with one wildcard parser', function() {
     var server = new Server();
     server.grant('*', function(req) {
-      return { star: '1' }
+      return { star: req.query.star }
     });
     
     describe('request for type', function() {
       var areq, err;
     
       before(function(done) {
-        var req = {};
+        var req = { query: { star: 'orion' } };
         
         server._parse('foo', req, function(e, ar) {
           areq = ar;
@@ -105,29 +105,29 @@ describe('Server', function() {
         expect(err).to.be.null;
       });
     
-      it('should parse an empty object', function() {
+      it('should parse request', function() {
         expect(areq).to.be.an('object');
         expect(Object.keys(areq)).to.have.length(2);
         expect(areq.type).to.equal('foo');
-        expect(areq.star).to.equal('1');
+        expect(areq.star).to.equal('orion');
       });
     });
   });
   
-  describe('parsing requests for authorization with one supported type and one wildcard parser', function() {
+  describe('parsing authorization requests with a wildcard parser and one supported type', function() {
     var server = new Server();
     server.grant('*', function(req) {
-      return { star: '1' }
+      return { star: req.query.star }
     });
     server.grant('bar', function(req) {
-      return { bar: '2' }
+      return { bar: req.query.bar }
     });
     
     describe('request for supported type', function() {
       var areq, err;
     
       before(function(done) {
-        var req = {};
+        var req = { query: { bar: '10', star: 'orion' } };
         
         server._parse('bar', req, function(e, ar) {
           areq = ar;
@@ -140,17 +140,17 @@ describe('Server', function() {
         expect(err).to.be.null;
       });
     
-      it('should parse an empty object', function() {
+      it('should parse request', function() {
         expect(areq).to.be.an('object');
         expect(Object.keys(areq)).to.have.length(3);
         expect(areq.type).to.equal('bar');
-        expect(areq.star).to.equal('1');
-        expect(areq.bar).to.equal('2');
+        expect(areq.star).to.equal('orion');
+        expect(areq.bar).to.equal('10');
       });
     });
   });
   
-  describe('parsing requests for authorization with no supported types', function() {
+  describe('parsing authorization requests with no supported types', function() {
     var server = new Server();
     
     describe('request for type', function() {
@@ -170,7 +170,7 @@ describe('Server', function() {
         expect(err).to.be.null;
       });
     
-      it('should parse an empty object', function() {
+      it('should parse only type', function() {
         expect(areq).to.be.an('object');
         expect(Object.keys(areq)).to.have.length(1);
         expect(areq.type).to.equal('foo');
@@ -194,27 +194,27 @@ describe('Server', function() {
         expect(err).to.be.null;
       });
     
-      it('should parse an empty object', function() {
+      it('should not parse request', function() {
         expect(areq).to.be.an('object');
         expect(Object.keys(areq)).to.have.length(0);
       });
     });
   });
   
-  describe('parsing requests with an async parser preceeding a supported type', function() {
+  describe('parsing authorization requests with an async wildcard parser preceeding one supported type', function() {
     var server = new Server();
     server.grant('*', function(req, done) {
-      return done(null, { async: 'yay' });
+      return done(null, { star: req.query.star });
     });
     server.grant('bar', function(req) {
-      return { bar: '2' }
+      return { bar: req.query.bar }
     })
     
     describe('request for supported type', function() {
       var areq, err;
     
       before(function(done) {
-        var req = {};
+        var req = { query: { bar: '10', star: 'orion' } };
         
         server._parse('bar', req, function(e, ar) {
           areq = ar;
@@ -227,30 +227,30 @@ describe('Server', function() {
         expect(err).to.be.null;
       });
     
-      it('should parse an empty object', function() {
+      it('should parse request', function() {
         expect(areq).to.be.an('object');
         expect(Object.keys(areq)).to.have.length(3);
         expect(areq.type).to.equal('bar');
-        expect(areq.async).to.equal('yay');
-        expect(areq.bar).to.equal('2');
+        expect(areq.star).to.equal('orion');
+        expect(areq.bar).to.equal('10');
       });
     });
   });
   
-  describe('parsing requests with an async parser that encounters an error preceeding a supported type', function() {
+  describe('parsing requests with an async wildcard parser that encounters an error preceeding one supported type', function() {
     var server = new Server();
     server.grant('*', function(req, done) {
       return done(new Error('something went wrong'));
     });
     server.grant('bar', function(req) {
-      return { bar: '2' }
+      return { bar: req.query.bar }
     })
     
     describe('request for supported type', function() {
       var areq, err;
     
       before(function(done) {
-        var req = {};
+        var req = { query: { bar: '10', star: 'orion' } };
         
         server._parse('bar', req, function(e, ar) {
           areq = ar;
