@@ -36,6 +36,9 @@ describe('authorization', function() {
     if (clientID == '3234') {
       return done(null, false, 'http://example.com/auth/callback');
     }
+    if (clientID == '4234') {
+      throw new Error('something was thrown while validating client');
+    }
     return done(new Error('something went wrong while validating client'));
   }
   
@@ -274,6 +277,33 @@ describe('authorization', function() {
       expect(request.oauth2).to.be.an('object');
       expect(request.oauth2.client).to.be.undefined;
       expect(request.oauth2.redirectURI).to.be.undefined;
+    });
+  });
+  
+  describe('encountering an error thrown while validating client', function() {
+    var request, err;
+
+    before(function(done) {
+      chai.connect(authorization(server, validate))
+        .req(function(req) {
+          request = req;
+          req.query = { response_type: 'code', client_id: '4234', redirect_uri: 'http://example.com/auth/callback' };
+          req.session = {};
+        })
+        .next(function(e) {
+          err = e;
+          done();
+        })
+        .dispatch();
+    });
+  
+    it('should error', function() {
+      expect(err).to.be.an.instanceOf(Error);
+      expect(err.message).to.equal('something was thrown while validating client');
+    });
+  
+    it('should not start transaction', function() {
+      expect(request.oauth2).to.be.undefined;
     });
   });
   
