@@ -126,7 +126,7 @@ describe('grant.token', function() {
       });
     });
     
-    describe('request with list of scopes and scope separator option', function() {
+    describe('request with list of scopes using scope separator option', function() {
       var err, out;
       
       before(function(done) {
@@ -161,7 +161,7 @@ describe('grant.token', function() {
       });
     });
     
-    describe('request with list of scopes separated by space and multiple scope separator option', function() {
+    describe('request with list of scopes separated by space using multiple scope separator option', function() {
       var err, out;
       
       before(function(done) {
@@ -196,7 +196,7 @@ describe('grant.token', function() {
       });
     });
     
-    describe('request with list of scopes separated by comma and multiple scope separator option', function() {
+    describe('request with list of scopes separated by comma using multiple scope separator option', function() {
       var err, out;
       
       before(function(done) {
@@ -266,8 +266,10 @@ describe('grant.token', function() {
         return done(null, 'xyz', { 'expires_in': 3600 });
       } else if (client.id == 'c323' && user.id == 'u123') {
         return done(null, 'xyz', { 'token_type': 'foo', 'expires_in': 3600 });
-      } else if (client.id == 'cUN') {
+      } else if (client.id == 'cUNAUTHZ') {
         return done(null, false);
+      } else if (client.id == 'cTHROW') {
+        throw new Error('something was thrown');
       }
       return done(new Error('something is wrong'));
     }
@@ -436,13 +438,13 @@ describe('grant.token', function() {
       });
     });
     
-    describe('not issuing a token', function() {
+    describe('unauthorized client', function() {
       var err;
       
       before(function(done) {
         chai.grant(token(issue))
           .txn(function(txn) {
-            txn.client = { id: 'cUN', name: 'Example' };
+            txn.client = { id: 'cUNAUTHZ', name: 'Example' };
             txn.redirectURI = 'http://example.com/auth/callback';
             txn.req = {
               redirectURI: 'http://example.com/auth/callback'
@@ -472,7 +474,7 @@ describe('grant.token', function() {
       before(function(done) {
         chai.grant(token(issue))
           .txn(function(txn) {
-            txn.client = { id: 'cERR', name: 'Example' };
+            txn.client = { id: 'cERROR', name: 'Example' };
             txn.redirectURI = 'http://example.com/auth/callback';
             txn.req = {
               redirectURI: 'http://example.com/auth/callback'
@@ -490,6 +492,33 @@ describe('grant.token', function() {
       it('should error', function() {
         expect(err).to.be.an.instanceOf(Error);
         expect(err.message).to.equal('something is wrong');
+      });
+    });
+    
+    describe('throwing an error while issuing token', function() {
+      var err;
+      
+      before(function(done) {
+        chai.grant(token(issue))
+          .txn(function(txn) {
+            txn.client = { id: 'cTHROW', name: 'Example' };
+            txn.redirectURI = 'http://example.com/auth/callback';
+            txn.req = {
+              redirectURI: 'http://example.com/auth/callback'
+            }
+            txn.user = { id: 'u123', name: 'Bob' };
+            txn.res = { allow: true };
+          })
+          .next(function(e) {
+            err = e;
+            done();
+          })
+          .decide();
+      });
+      
+      it('should error', function() {
+        expect(err).to.be.an.instanceOf(Error);
+        expect(err.message).to.equal('something was thrown');
       });
     });
     
