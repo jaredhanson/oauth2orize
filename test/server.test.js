@@ -45,6 +45,16 @@ describe('Server', function() {
     });
   });
   
+  describe('#authorization', function() {
+    var server = new Server();
+    
+    it('should create function handler', function() {
+      var handler = server.authorization(function(){});
+      expect(handler).to.be.an('function');
+      expect(handler).to.have.length(3);
+    });
+  });
+  
   describe('#decision', function() {
     var server = new Server();
     
@@ -62,6 +72,26 @@ describe('Server', function() {
       var handler = server.decision({ loadTransaction: false });
       expect(handler).to.be.an('function');
       expect(handler).to.have.length(3);
+    });
+  });
+  
+  describe('#token', function() {
+    var server = new Server();
+    
+    it('should create function handler', function() {
+      var handler = server.token();
+      expect(handler).to.be.an('function');
+      expect(handler).to.have.length(3);
+    });
+  });
+  
+  describe('#errorHandler', function() {
+    var server = new Server();
+    
+    it('should create function error handler', function() {
+      var handler = server.errorHandler();
+      expect(handler).to.be.an('function');
+      expect(handler).to.have.length(4);
     });
   });
   
