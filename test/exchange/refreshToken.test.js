@@ -13,6 +13,8 @@ describe('exchange.refreshToken', function() {
       return done(null, 's3cr1t', null, { 'expires_in': 3600 })
     } else if (client.id == 'c423' && refreshToken == 'refreshing') {
       return done(null, 's3cr1t', 'blahblag', { 'token_type': 'foo', 'expires_in': 3600 })
+    } else if (client.id == 'c523' && refreshToken == 'refreshing') {
+      return done(null, 's3cr1t', { 'expires_in': 3600 })
     } else if (client.id == 'cUN' && refreshToken == 'refreshing') {
       return done(null, false)
     } else if (client.id == 'cTHROW') {
@@ -82,6 +84,33 @@ describe('exchange.refreshToken', function() {
     
     it('should respond with body', function() {
       expect(response.body).to.equal('{"access_token":"s3cr1t","refresh_token":"getANotehr","token_type":"bearer"}');
+    });
+  });
+  
+  describe('issuing an access token and params', function() {
+    var response, err;
+
+    before(function(done) {
+      chai.connect(refreshToken(issue))
+        .req(function(req) {
+          req.user = { id: 'c523', name: 'Example' };
+          req.body = { refresh_token: 'refreshing' };
+        })
+        .end(function(res) {
+          response = res;
+          done();
+        })
+        .dispatch();
+    });
+    
+    it('should respond with headers', function() {
+      expect(response.getHeader('Content-Type')).to.equal('application/json');
+      expect(response.getHeader('Cache-Control')).to.equal('no-store');
+      expect(response.getHeader('Pragma')).to.equal('no-cache');
+    });
+    
+    it('should respond with body', function() {
+      expect(response.body).to.equal('{"access_token":"s3cr1t","expires_in":3600,"token_type":"bearer"}');
     });
   });
   
