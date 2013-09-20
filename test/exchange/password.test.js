@@ -256,10 +256,10 @@ describe('exchange.password', function() {
     
     it('should error', function() {
       expect(err).to.be.an.instanceOf(Error);
-      expect(err.constructor.name).to.equal('AuthorizationError');
+      expect(err.constructor.name).to.equal('TokenError');
       expect(err.message).to.equal('Invalid resource owner credentials');
       expect(err.code).to.equal('invalid_grant');
-      expect(err.status).to.equal(500);
+      expect(err.status).to.equal(403);
     });
   });
   
@@ -281,7 +281,7 @@ describe('exchange.password', function() {
     
     it('should error', function() {
       expect(err).to.be.an.instanceOf(Error);
-      expect(err.constructor.name).to.equal('AuthorizationError');
+      expect(err.constructor.name).to.equal('TokenError');
       expect(err.message).to.equal('Missing required parameter: username');
       expect(err.code).to.equal('invalid_request');
       expect(err.status).to.equal(400);
@@ -306,7 +306,7 @@ describe('exchange.password', function() {
     
     it('should error', function() {
       expect(err).to.be.an.instanceOf(Error);
-      expect(err.constructor.name).to.equal('AuthorizationError');
+      expect(err.constructor.name).to.equal('TokenError');
       expect(err.message).to.equal('Missing required parameter: password');
       expect(err.code).to.equal('invalid_request');
       expect(err.status).to.equal(400);

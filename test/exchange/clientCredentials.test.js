@@ -254,10 +254,10 @@ describe('exchange.clientCredentials', function() {
     
     it('should error', function() {
       expect(err).to.be.an.instanceOf(Error);
-      expect(err.constructor.name).to.equal('AuthorizationError');
+      expect(err.constructor.name).to.equal('TokenError');
       expect(err.message).to.equal('Invalid client credentials');
       expect(err.code).to.equal('invalid_grant');
-      expect(err.status).to.equal(500);
+      expect(err.status).to.equal(403);
     });
   });
   
