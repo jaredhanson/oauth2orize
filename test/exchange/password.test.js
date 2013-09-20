@@ -259,7 +259,7 @@ describe('exchange.password', function() {
       expect(err.constructor.name).to.equal('AuthorizationError');
       expect(err.message).to.equal('Invalid resource owner credentials');
       expect(err.code).to.equal('invalid_grant');
-      expect(err.status).to.equal(400);
+      expect(err.status).to.equal(500);
     });
   });
   

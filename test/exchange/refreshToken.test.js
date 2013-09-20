@@ -259,7 +259,7 @@ describe('exchange.refreshToken', function() {
       expect(err.constructor.name).to.equal('AuthorizationError');
       expect(err.message).to.equal('Invalid refresh token');
       expect(err.code).to.equal('invalid_grant');
-      expect(err.status).to.equal(400);
+      expect(err.status).to.equal(500);
     });
   });
   

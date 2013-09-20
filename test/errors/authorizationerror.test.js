@@ -10,7 +10,7 @@ describe('AuthorizationError', function() {
       expect(err.message).to.be.undefined;
       expect(err.code).to.equal('server_error');
       expect(err.uri).to.be.undefined;
-      expect(err.status).to.equal(400);
+      expect(err.status).to.equal(500);
     });
     
     it('should format correctly', function() {
@@ -26,7 +26,7 @@ describe('AuthorizationError', function() {
       expect(err.message).to.equal('Invalid return URI');
       expect(err.code).to.equal('server_error');
       expect(err.uri).to.be.undefined;
-      expect(err.status).to.equal(400);
+      expect(err.status).to.equal(500);
     });
     
     it('should format correctly', function() {
@@ -34,14 +34,25 @@ describe('AuthorizationError', function() {
     });
   });
   
-  describe('constructed with a message and invalid_client code', function() {
-    var err = new AuthorizationError('Invalid client', 'invalid_client');
+  describe('constructed with a message and invalid_request code', function() {
+    var err = new AuthorizationError('Invalid request', 'invalid_request');
     
     it('should have default properties', function() {
-      expect(err.message).to.equal('Invalid client');
-      expect(err.code).to.equal('invalid_client');
+      expect(err.message).to.equal('Invalid request');
+      expect(err.code).to.equal('invalid_request');
       expect(err.uri).to.be.undefined;
-      expect(err.status).to.equal(401);
+      expect(err.status).to.equal(400);
+    });
+  });
+  
+  describe('constructed with a message and unauthorized_client code', function() {
+    var err = new AuthorizationError('Unauthorized client', 'unauthorized_client');
+    
+    it('should have default properties', function() {
+      expect(err.message).to.equal('Unauthorized client');
+      expect(err.code).to.equal('unauthorized_client');
+      expect(err.uri).to.be.undefined;
+      expect(err.status).to.equal(403);
     });
   });
   
@@ -56,14 +67,25 @@ describe('AuthorizationError', function() {
     });
   });
   
-  describe('constructed with a message and server_error code', function() {
-    var err = new AuthorizationError('Server error', 'server_error');
+  describe('constructed with a message and unsupported_response_type code', function() {
+    var err = new AuthorizationError('Unsupported response type', 'unsupported_response_type');
     
     it('should have default properties', function() {
-      expect(err.message).to.equal('Server error');
-      expect(err.code).to.equal('server_error');
+      expect(err.message).to.equal('Unsupported response type');
+      expect(err.code).to.equal('unsupported_response_type');
       expect(err.uri).to.be.undefined;
-      expect(err.status).to.equal(500);
+      expect(err.status).to.equal(501);
+    });
+  });
+  
+  describe('constructed with a message and invalid_scope code', function() {
+    var err = new AuthorizationError('Invalid scope', 'invalid_scope');
+    
+    it('should have default properties', function() {
+      expect(err.message).to.equal('Invalid scope');
+      expect(err.code).to.equal('invalid_scope');
+      expect(err.uri).to.be.undefined;
+      expect(err.status).to.equal(400);
     });
   });
   
@@ -79,17 +101,17 @@ describe('AuthorizationError', function() {
   });
   
   describe('constructed with a message, code, uri and status', function() {
-    var err = new AuthorizationError('Unsupported response type: foo', 'unsupported_response_type', 'http://www.example.com/oauth/help', 501);
+    var err = new AuthorizationError('Payment required', 'payment_required', 'http://www.example.com/oauth/help', 402);
     
     it('should have default properties', function() {
-      expect(err.message).to.equal('Unsupported response type: foo');
-      expect(err.code).to.equal('unsupported_response_type');
+      expect(err.message).to.equal('Payment required');
+      expect(err.code).to.equal('payment_required');
       expect(err.uri).to.equal('http://www.example.com/oauth/help');
-      expect(err.status).to.equal(501);
+      expect(err.status).to.equal(402);
     });
     
     it('should format correctly', function() {
-      expect(err.toString()).to.equal('AuthorizationError: Unsupported response type: foo');
+      expect(err.toString()).to.equal('AuthorizationError: Payment required');
     });
   });
   
