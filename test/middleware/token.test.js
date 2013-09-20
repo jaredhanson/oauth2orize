@@ -64,7 +64,7 @@ describe('token', function() {
     
     it('should error', function() {
       expect(err).to.be.an.instanceOf(Error);
-      expect(err.constructor.name).to.equal('AuthorizationError');
+      expect(err.constructor.name).to.equal('TokenError');
       expect(err.message).to.equal('Unsupported grant type: foo');
       expect(err.code).to.equal('unsupported_grant_type');
     });
