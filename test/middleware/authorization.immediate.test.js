@@ -7,8 +7,7 @@ describe('authorization', function() {
   
   var server = new Server();
   server.serializeClient(function(client, done) {
-    if (client.id == '1234' || client.id == '2234') { return done(null, client.id); }
-    return done(new Error('something went wrong while serializing client'));
+    return done(null, client.id);
   });
   
   server.grant('code', function(req) {
@@ -22,16 +21,19 @@ describe('authorization', function() {
     if ((txn.client.id == '1234' || txn.client.id == '2234') && txn.user.id == 'u123' && txn.res.allow === true && txn.res.scope === 'read') {
       return res.redirect(txn.redirectURI);
     }
-    return done(new Error('something went wrong while sending response'));
+    return next(new Error('something went wrong while sending response'));
+  });
+  
+  server.grant('foo', function(req) {
+    return {
+      clientID: req.query['client_id'],
+      redirectURI: req.query['redirect_uri'],
+      scope: req.query['scope']
+    }
   });
   
   function validate(clientID, redirectURI, done) {
-    if (clientID == '1234' && redirectURI == 'http://example.com/auth/callback') {
-      return done(null, { id: '1234', name: 'Example' }, 'http://example.com/auth/callback');
-    } else if (clientID == '2234' && redirectURI == 'http://example.com/auth/callback') {
-      return done(null, { id: '2234', name: 'Example' }, 'http://example.com/auth/callback');
-    }
-    return done(new Error('something went wrong while validating client'));
+    return done(null, { id: clientID }, 'http://example.com/auth/callback');
   }
   
   function immediate(client, user, done) {
@@ -39,7 +41,11 @@ describe('authorization', function() {
       return done(null, true, { scope: 'read' });
     } else if (client.id == '2234' && user.id == 'u123') {
       return done(null, false);
-    }
+    } else if (client.id == 'T234' && user.id == 'u123') {
+      throw new Error('something was thrown while checking immediate status')
+    } else if (client.id == 'ER34' && user.id == 'u123') {
+      return done(null, true, { scope: 'read' });
+    } 
     return done(new Error('something went wrong while checking immediate status'));
   }
   
@@ -113,6 +119,134 @@ describe('authorization', function() {
       expect(request.session['authorize'][tid].req.type).to.equal('code');
       expect(request.session['authorize'][tid].req.clientID).to.equal('2234');
       expect(request.session['authorize'][tid].req.redirectURI).to.equal('http://example.com/auth/callback');
+    });
+  });
+  
+  describe('handling a request that encounters an error while checking immediate status', function() {
+    var request, response, err;
+
+    before(function(done) {
+      chai.connect(authorization(server, validate, immediate))
+        .req(function(req) {
+          request = req;
+          req.query = { response_type: 'code', client_id: 'X234', redirect_uri: 'http://example.com/auth/callback' };
+          req.session = {};
+          req.user = { id: 'u123' };
+        })
+        .next(function(e) {
+          err = e;
+          done();
+        })
+        .dispatch();
+    });
+    
+    it('should error', function() {
+      expect(err).to.be.an.instanceOf(Error);
+      expect(err.message).to.equal('something went wrong while checking immediate status');
+    });
+    
+    it('should add transaction', function() {
+      expect(request.oauth2).to.be.an('object');
+    });
+    
+    it('should not store transaction in session', function() {
+      expect(request.session['authorize']).to.be.undefined;
+    });
+  });
+  
+  describe('handling a request that throws an error while checking immediate status', function() {
+    var request, response, err;
+
+    before(function(done) {
+      chai.connect(authorization(server, validate, immediate))
+        .req(function(req) {
+          request = req;
+          req.query = { response_type: 'code', client_id: 'T234', redirect_uri: 'http://example.com/auth/callback' };
+          req.session = {};
+          req.user = { id: 'u123' };
+        })
+        .next(function(e) {
+          err = e;
+          done();
+        })
+        .dispatch();
+    });
+    
+    it('should error', function() {
+      expect(err).to.be.an.instanceOf(Error);
+      expect(err.message).to.equal('something was thrown while checking immediate status');
+    });
+    
+    it('should add transaction', function() {
+      expect(request.oauth2).to.be.an('object');
+    });
+    
+    it('should not store transaction in session', function() {
+      expect(request.session['authorize']).to.be.undefined;
+    });
+  });
+  
+  describe('handling a request that is immediately authorized but encounters an error while responding', function() {
+    var request, response, err;
+
+    before(function(done) {
+      chai.connect(authorization(server, validate, immediate))
+        .req(function(req) {
+          request = req;
+          req.query = { response_type: 'code', client_id: 'ER34', redirect_uri: 'http://example.com/auth/callback' };
+          req.session = {};
+          req.user = { id: 'u123' };
+        })
+        .next(function(e) {
+          err = e;
+          done();
+        })
+        .dispatch();
+    });
+    
+    it('should error', function() {
+      expect(err).to.be.an.instanceOf(Error);
+      expect(err.message).to.equal('something went wrong while sending response');
+    });
+    
+    it('should add transaction', function() {
+      expect(request.oauth2).to.be.an('object');
+    });
+    
+    it('should not store transaction in session', function() {
+      expect(request.session['authorize']).to.be.undefined;
+    });
+  });
+  
+  describe('handling a request that is immediately authorized but unable to respond', function() {
+    var request, response, err;
+
+    before(function(done) {
+      chai.connect(authorization(server, validate, immediate))
+        .req(function(req) {
+          request = req;
+          req.query = { response_type: 'foo', client_id: '1234', redirect_uri: 'http://example.com/auth/callback' };
+          req.session = {};
+          req.user = { id: 'u123' };
+        })
+        .next(function(e) {
+          err = e;
+          done();
+        })
+        .dispatch();
+    });
+    
+    it('should error', function() {
+      expect(err).to.be.an.instanceOf(Error);
+      expect(err.message).to.equal('Unsupported response type: foo');
+    });
+    
+    it('should add transaction', function() {
+      expect(request.oauth2).to.be.an('object');
+    });
+    
+    it('should not store transaction in session', function() {
+      expect(request.session['authorize']).to.be.undefined;
     });
   });
   
