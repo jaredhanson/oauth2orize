@@ -297,7 +297,7 @@ describe('grant.token', function() {
       
       it('should respond', function() {
         expect(response.statusCode).to.equal(302);
-        expect(response.getHeader('Location')).to.equal('http://example.com/auth/callback#access_token=xyz&token_type=bearer');
+        expect(response.getHeader('Location')).to.equal('http://example.com/auth/callback#access_token=xyz&token_type=Bearer');
       });
     });
     
@@ -325,7 +325,7 @@ describe('grant.token', function() {
       
       it('should respond', function() {
         expect(response.statusCode).to.equal(302);
-        expect(response.getHeader('Location')).to.equal('http://example.com/auth/callback#access_token=xyz&token_type=bearer&state=f1o1o1');
+        expect(response.getHeader('Location')).to.equal('http://example.com/auth/callback#access_token=xyz&token_type=Bearer&state=f1o1o1');
       });
     });
     
@@ -352,7 +352,7 @@ describe('grant.token', function() {
       
       it('should respond', function() {
         expect(response.statusCode).to.equal(302);
-        expect(response.getHeader('Location')).to.equal('http://example.com/auth/callback#access_token=xyz&expires_in=3600&token_type=bearer');
+        expect(response.getHeader('Location')).to.equal('http://example.com/auth/callback#access_token=xyz&expires_in=3600&token_type=Bearer');
       });
     });
     
@@ -580,7 +580,7 @@ describe('grant.token', function() {
       
       it('should respond', function() {
         expect(response.statusCode).to.equal(302);
-        expect(response.getHeader('Location')).to.equal('http://example.com/auth/callback#access_token=xyz&token_type=bearer');
+        expect(response.getHeader('Location')).to.equal('http://example.com/auth/callback#access_token=xyz&token_type=Bearer');
       });
     });
   });

@@ -56,7 +56,7 @@ describe('exchange.password', function() {
     });
     
     it('should respond with body', function() {
-      expect(response.body).to.equal('{"access_token":"s3cr1t","token_type":"bearer"}');
+      expect(response.body).to.equal('{"access_token":"s3cr1t","token_type":"Bearer"}');
     });
   });
   
@@ -83,7 +83,7 @@ describe('exchange.password', function() {
     });
     
     it('should respond with body', function() {
-      expect(response.body).to.equal('{"access_token":"s3cr1t","refresh_token":"getANotehr","token_type":"bearer"}');
+      expect(response.body).to.equal('{"access_token":"s3cr1t","refresh_token":"getANotehr","token_type":"Bearer"}');
     });
   });
   
@@ -110,7 +110,7 @@ describe('exchange.password', function() {
     });
     
     it('should respond with body', function() {
-      expect(response.body).to.equal('{"access_token":"s3cr1t","expires_in":3600,"token_type":"bearer"}');
+      expect(response.body).to.equal('{"access_token":"s3cr1t","expires_in":3600,"token_type":"Bearer"}');
     });
   });
   
@@ -137,7 +137,7 @@ describe('exchange.password', function() {
     });
     
     it('should respond with body', function() {
-      expect(response.body).to.equal('{"access_token":"s3cr1t","expires_in":3600,"token_type":"bearer"}');
+      expect(response.body).to.equal('{"access_token":"s3cr1t","expires_in":3600,"token_type":"Bearer"}');
     });
   });
   
@@ -199,7 +199,7 @@ describe('exchange.password', function() {
     });
     
     it('should respond with body', function() {
-      expect(response.body).to.equal('{"access_token":"s3cr1t","token_type":"bearer"}');
+      expect(response.body).to.equal('{"access_token":"s3cr1t","token_type":"Bearer"}');
     });
   });
   
@@ -234,7 +234,7 @@ describe('exchange.password', function() {
     });
     
     it('should respond with body', function() {
-      expect(response.body).to.equal('{"access_token":"s3cr1t","token_type":"bearer"}');
+      expect(response.body).to.equal('{"access_token":"s3cr1t","token_type":"Bearer"}');
     });
   });
   
@@ -410,7 +410,7 @@ describe('exchange.password', function() {
       });
     
       it('should respond with body', function() {
-        expect(response.body).to.equal('{"access_token":"s3cr1t","token_type":"bearer"}');
+        expect(response.body).to.equal('{"access_token":"s3cr1t","token_type":"Bearer"}');
       });
     });
   });
@@ -447,7 +447,7 @@ describe('exchange.password', function() {
       });
     
       it('should respond with body', function() {
-        expect(response.body).to.equal('{"access_token":"s3cr1t","token_type":"bearer"}');
+        expect(response.body).to.equal('{"access_token":"s3cr1t","token_type":"Bearer"}');
       });
     });
     
@@ -474,7 +474,7 @@ describe('exchange.password', function() {
       });
     
       it('should respond with body', function() {
-        expect(response.body).to.equal('{"access_token":"s3cr1t","token_type":"bearer"}');
+        expect(response.body).to.equal('{"access_token":"s3cr1t","token_type":"Bearer"}');
       });
     });
   });
@@ -502,7 +502,7 @@ describe('exchange.password', function() {
     });
     
     it('should respond with body', function() {
-      expect(response.body).to.equal('{"access_token":"s3cr1t","token_type":"bearer"}');
+      expect(response.body).to.equal('{"access_token":"s3cr1t","token_type":"Bearer"}');
     });
   });
   
