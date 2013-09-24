@@ -33,6 +33,8 @@
   ],
   "main": "./lib",
   "dependencies": {
+    "uid2": "0.0.x",
+    "utils-merge": "1.x.x",
     "debug": "0.7.x"
   },
   "devDependencies": {
