@@ -250,4 +250,48 @@ describe('authorization', function() {
     });
   });
   
+  describe('immediate callback with scope', function() {
+    function immediate(client, user, scope, done) {
+      if (client.id == '1234' && user.id == 'u123' && scope == 'profile') {
+        return done(null, true, { scope: 'read' });
+      }
+      return done(new Error('something went wrong while checking immediate status'));
+    }
+    
+    describe('handling a request that is immediately authorized', function() {
+      var request, response, err;
+
+      before(function(done) {
+        chai.connect(authorization(server, validate, immediate))
+          .req(function(req) {
+            request = req;
+            req.query = { response_type: 'code', client_id: '1234', redirect_uri: 'http://example.com/auth/callback', scope: 'profile' };
+            req.session = {};
+            req.user = { id: 'u123' };
+          })
+          .end(function(res) {
+            response = res;
+            done();
+          })
+          .dispatch();
+      });
+    
+      it('should not error', function() {
+        expect(err).to.be.undefined;
+      });
+    
+      it('should respond', function() {
+        expect(response.getHeader('Location')).to.equal('http://example.com/auth/callback');
+      });
+    
+      it('should add transaction', function() {
+        expect(request.oauth2).to.be.an('object');
+      });
+    
+      it('should not store transaction in session', function() {
+        expect(request.session['authorize']).to.be.undefined;
+      });
+    });
+  });
+  
 });
