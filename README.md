@@ -1,12 +1,17 @@
 # OAuth2orize
 
+[![Build](https://travis-ci.org/jaredhanson/oauth2orize.png)](http://travis-ci.org/jaredhanson/oauth2orize)
+[![Coverage](https://coveralls.io/repos/jaredhanson/oauth2orize/badge.png)](https://coveralls.io/r/jaredhanson/oauth2orize)
+[![Dependencies](https://david-dm.org/jaredhanson/oauth2orize.png)](http://david-dm.org/jaredhanson/oauth2orize)
+
+
 OAuth2orize is an authorization server toolkit for Node.js.  It provides a suite
 of middleware that, combined with [Passport](http://passportjs.org/)
-authentication middleware and application-specific route handlers, can be used
-to assemble a server that implements the [OAuth 2.0](http://tools.ietf.org/html/draft-ietf-oauth-v2-28)
+authentication strategies and application-specific route handlers, can be used
+to assemble a server that implements the [OAuth 2.0](http://tools.ietf.org/html/rfc6749)
 protocol.
 
-## Installation
+## Install
 
     $ npm install oauth2orize
 
@@ -14,8 +19,8 @@ protocol.
 
 OAuth 2.0 defines an authorization framework, allowing an extensible set of
 authorization grants to be exchanged for access tokens.  Implementations are
-free to choose what types to support, by using bundled middleware to support
-common types or plugins to support extension types.
+free to choose what grant types to support, by using bundled middleware to
+support common types or plugins to support extension types.
 
 #### Create an OAuth Server
 
@@ -24,7 +29,7 @@ middleware that will be mounted in routes, as well as configuration options.
 
     var server = oauth2orize.createServer();
 
-#### Register Grant Middleware
+#### Register Grants
 
 A client must obtain permission from a user before it is issued an access token.
 This permission is known as a grant, the most common type of which is an
@@ -42,7 +47,7 @@ authorization code.
 
 OAuth2orize also bundles support for implicit token grants.
 
-#### Register Exchange Middleware
+#### Register Exchanges
 
 After a client has obtained an authorization grant from the user, that grant can
 be exchanged for an access token.
@@ -98,7 +103,7 @@ using `decision` middleware.
        server.decision());
        
 Based on the grant type requested by the client, the appropriate grant
-middleware registered above will be invoked to issue an authorization code.
+module registered above will be invoked to issue an authorization code.
 
 #### Session Serialization
 
@@ -135,7 +140,7 @@ provided by [passport-http](https://github.com/jaredhanson/passport-http)) or
 client credentials in the request body (as provided by 
 [passport-oauth2-client-password](https://github.com/jaredhanson/passport-oauth2-client-password)).
 
-Based on the grant type issue to the client, the appropriate exchange middleware
+Based on the grant type issued to the client, the appropriate exchange module
 registered above will be invoked to issue an access token.  If an error occurs,
 `errorHandler` middleware will format an error response.
 
@@ -158,12 +163,16 @@ an HTTP Bearer authentication header (as provided by [passport-http-bearer](http
 This [example](https://github.com/jaredhanson/oauth2orize/tree/master/examples/express2) demonstrates
 how to implement an OAuth service provider, complete with protected API access.
 
+## Related Modules
+
+- [oauth2orize-openid](https://github.com/jaredhanson/oauth2orize-openid) — Extensions to support OpenID Connect
+- [oauth2orize-jwt-bearer](https://github.com/xtuple/oauth2orize-jwt-bearer) — Exchange JWT assertions for access tokens
+- [passport-http-bearer](https://github.com/jaredhanson/passport-http-bearer) — Bearer token authentication strategy for APIs
+
 ## Tests
 
-    $ npm install --dev
-    $ make test
-
-[![Build Status](https://secure.travis-ci.org/jaredhanson/oauth2orize.png)](http://travis-ci.org/jaredhanson/oauth2orize)
+    $ npm install
+    $ npm test
 
 ## Credits
 
@@ -171,23 +180,6 @@ how to implement an OAuth service provider, complete with protected API access.
 
 ## License
 
-(The MIT License)
+[The MIT License](http://opensource.org/licenses/MIT)
 
-Copyright (c) 2012 Jared Hanson
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of
-this software and associated documentation files (the "Software"), to deal in
-the Software without restriction, including without limitation the rights to
-use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
-the Software, and to permit persons to whom the Software is furnished to do so,
-subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+Copyright (c) 2012-2013 Jared Hanson <[http://jaredhanson.net/](http://jaredhanson.net/)>
