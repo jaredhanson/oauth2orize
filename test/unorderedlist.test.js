@@ -28,6 +28,18 @@ describe('UnorderedList', function() {
       var other = new UnorderedList(['a', 'b']);
       expect(ul.equalTo(other)).to.be.false;
     });
+    
+    it('should check if it contains element', function() {
+      expect(ul.contains('a')).to.be.true;
+      expect(ul.contains('b')).to.be.false;
+    });
+    
+    it('should check if it contains any element', function() {
+      expect(ul.containsAny(['a'])).to.be.true;
+      expect(ul.containsAny(['b'])).to.be.false;
+      expect(ul.containsAny(['1', 'a'])).to.be.true;
+      expect(ul.containsAny(['2', 'b'])).to.be.false;
+    });
   });
   
   describe('constructed with a multiple element array', function() {
@@ -61,6 +73,21 @@ describe('UnorderedList', function() {
     it('should not be equal to list with superset of items', function() {
       var other = new UnorderedList(['a', 'b', 'c']);
       expect(ul.equalTo(other)).to.be.false;
+    });
+    
+    it('should check if it contains element', function() {
+      expect(ul.contains('a')).to.be.true;
+      expect(ul.contains('b')).to.be.true;
+      expect(ul.contains('c')).to.be.false;
+    });
+    
+    it('should check if it contains any element', function() {
+      expect(ul.containsAny(['a'])).to.be.true;
+      expect(ul.containsAny(['b'])).to.be.true;
+      expect(ul.containsAny(['c'])).to.be.false;
+      expect(ul.containsAny(['1', 'a'])).to.be.true;
+      expect(ul.containsAny(['2', 'b'])).to.be.true;
+      expect(ul.containsAny(['3', 'c'])).to.be.false;
     });
   });
   
