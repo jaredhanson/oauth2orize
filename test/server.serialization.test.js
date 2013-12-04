@@ -12,7 +12,7 @@ describe('Server', function() {
         var obj, err;
     
         before(function(done) {
-          server.serializeClient({ id: '1', name: 'Foo' }, function(e, o) {
+          server.serializeClient({ id: '1', name: 'Foo' }, {}, function(e, o) {
             err = e;
             obj = o;
             return done();
@@ -36,7 +36,7 @@ describe('Server', function() {
         var obj, err;
     
         before(function(done) {
-          server.serializeClient({ id: '1', name: 'Foo' }, function(e, o) {
+          server.serializeClient({ id: '1', name: 'Foo' }, {}, function(e, o) {
             err = e;
             obj = o;
             return done();
@@ -69,7 +69,7 @@ describe('Server', function() {
         var obj, err;
     
         before(function(done) {
-          server.serializeClient({ id: '1', name: 'Foo' }, function(e, o) {
+          server.serializeClient({ id: '1', name: 'Foo' }, {}, function(e, o) {
             err = e;
             obj = o;
             return done();
@@ -96,7 +96,7 @@ describe('Server', function() {
         var obj, err;
     
         before(function(done) {
-          server.serializeClient({ id: '1', name: 'Foo' }, function(e, o) {
+          server.serializeClient({ id: '1', name: 'Foo' }, {}, function(e, o) {
             err = e;
             obj = o;
             return done();
@@ -120,7 +120,7 @@ describe('Server', function() {
         var obj, err;
     
         before(function(done) {
-          server.serializeClient({ id: '1', name: 'Foo' }, function(e, o) {
+          server.serializeClient({ id: '1', name: 'Foo' }, {}, function(e, o) {
             err = e;
             obj = o;
             return done();
@@ -145,7 +145,7 @@ describe('Server', function() {
         var obj, err;
     
         before(function(done) {
-          server.deserializeClient('1', function(e, o) {
+          server.deserializeClient('1', {}, function(e, o) {
             err = e;
             obj = o;
             return done();
@@ -169,7 +169,7 @@ describe('Server', function() {
         var obj, err;
     
         before(function(done) {
-          server.deserializeClient('1', function(e, o) {
+          server.deserializeClient('1', {}, function(e, o) {
             err = e;
             obj = o;
             return done();
@@ -202,7 +202,7 @@ describe('Server', function() {
         var obj, err;
     
         before(function(done) {
-          server.deserializeClient('1', function(e, o) {
+          server.deserializeClient('1', {}, function(e, o) {
             err = e;
             obj = o;
             return done();
@@ -229,7 +229,7 @@ describe('Server', function() {
         var obj, err;
     
         before(function(done) {
-          server.deserializeClient('1', function(e, o) {
+          server.deserializeClient('1', {}, function(e, o) {
             err = e;
             obj = o;
             return done();
@@ -256,7 +256,7 @@ describe('Server', function() {
         var obj, err;
     
         before(function(done) {
-          server.deserializeClient('1', function(e, o) {
+          server.deserializeClient('1', {}, function(e, o) {
             err = e;
             obj = o;
             return done();
@@ -289,7 +289,7 @@ describe('Server', function() {
         var obj, err;
     
         before(function(done) {
-          server.deserializeClient('1', function(e, o) {
+          server.deserializeClient('1', {}, function(e, o) {
             err = e;
             obj = o;
             return done();
@@ -322,7 +322,7 @@ describe('Server', function() {
         var obj, err;
     
         before(function(done) {
-          server.deserializeClient('1', function(e, o) {
+          server.deserializeClient('1', {}, function(e, o) {
             err = e;
             obj = o;
             return done();
@@ -349,7 +349,7 @@ describe('Server', function() {
         var obj, err;
     
         before(function(done) {
-          server.deserializeClient('1', function(e, o) {
+          server.deserializeClient('1', {}, function(e, o) {
             err = e;
             obj = o;
             return done();
@@ -373,7 +373,7 @@ describe('Server', function() {
         var obj, err;
     
         before(function(done) {
-          server.deserializeClient('1', function(e, o) {
+          server.deserializeClient('1', {}, function(e, o) {
             err = e;
             obj = o;
             return done();

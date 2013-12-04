@@ -15,13 +15,14 @@ describe('Server', function() {
     
       before(function(done) {
         var txn = { req: { type: 'foo', scope: 'read' } };
+        var req = {};
         var res = {};
         res.end = function(data) {
           result = data;
           done();
         }
         
-        server._respond(txn, res, function(e) {
+        server._respond(txn, req, res, function(e) {
           done(new Error('should not be called'));
         });
       });
@@ -40,12 +41,13 @@ describe('Server', function() {
     
       before(function(done) {
         var txn = { req: { type: 'unsupported' } };
+        var req = {};
         var res = {};
         res.end = function(data) {
           done(new Error('should not be called'));
         }
         
-        server._respond(txn, res, function(e) {
+        server._respond(txn, req, res, function(e) {
           err = e;
           done();
         });
@@ -68,13 +70,14 @@ describe('Server', function() {
     
       before(function(done) {
         var txn = { req: { type: 'foo', scope: 'read' } };
+        var req = {};
         var res = {};
         res.end = function(data) {
           result = data;
           done();
         }
         
-        server._respond(txn, res, function(e) {
+        server._respond(txn, req, res, function(e) {
           done(new Error('should not be called'));
         });
       });
@@ -105,6 +108,7 @@ describe('Server', function() {
     
       before(function(done) {
         var txn = { req: { type: 'foo', scope: 'read' } };
+        var req = {};
         var res = {};
         res.end = function(data) {
           result = data;
@@ -112,7 +116,7 @@ describe('Server', function() {
         }
         
         response = res;
-        server._respond(txn, res, function(e) {
+        server._respond(txn, req, res, function(e) {
           done(new Error('should not be called'));
         });
       });
@@ -138,12 +142,13 @@ describe('Server', function() {
     
       before(function(done) {
         var txn = { req: { type: 'foo', scope: 'read' } };
+        var req = {};
         var res = {};
         res.end = function(data) {
           done(new Error('should not be called'));
         }
         
-        server._respond(txn, res, function(e) {
+        server._respond(txn, req, res, function(e) {
           err = e;
           done();
         });
@@ -167,12 +172,13 @@ describe('Server', function() {
     
       before(function(done) {
         var txn = { req: { type: 'foo', scope: 'read' } };
+        var req = {};
         var res = {};
         res.end = function(data) {
           done(new Error('should not be called'));
         }
         
-        server._respond(txn, res, function(e) {
+        server._respond(txn, req, res, function(e) {
           err = e;
           done();
         });
@@ -193,9 +199,10 @@ describe('Server', function() {
     
       before(function(done) {
         var txn = { req: { type: 'foo', scope: 'read' } };
+        var req = {};
         var res = {};
         
-        server._respond(txn, res, function(e) {
+        server._respond(txn, req, res, function(e) {
           err = e;
           done();
         });
