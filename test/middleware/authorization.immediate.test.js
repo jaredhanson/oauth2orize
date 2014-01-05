@@ -53,7 +53,7 @@ describe('authorization', function() {
     var request, response, err;
 
     before(function(done) {
-      chai.connect(authorization(server, validate, immediate))
+      chai.connect.use('express', authorization(server, validate, immediate))
         .req(function(req) {
           request = req;
           req.query = { response_type: 'code', client_id: '1234', redirect_uri: 'http://example.com/auth/callback' };
@@ -88,7 +88,7 @@ describe('authorization', function() {
     var request, response, err;
 
     before(function(done) {
-      chai.connect(authorization(server, validate, immediate))
+      chai.connect.use(authorization(server, validate, immediate))
         .req(function(req) {
           request = req;
           req.query = { response_type: 'code', client_id: '2234', redirect_uri: 'http://example.com/auth/callback' };
@@ -126,7 +126,7 @@ describe('authorization', function() {
     var request, response, err;
 
     before(function(done) {
-      chai.connect(authorization(server, validate, immediate))
+      chai.connect.use(authorization(server, validate, immediate))
         .req(function(req) {
           request = req;
           req.query = { response_type: 'code', client_id: 'X234', redirect_uri: 'http://example.com/auth/callback' };
@@ -158,7 +158,7 @@ describe('authorization', function() {
     var request, response, err;
 
     before(function(done) {
-      chai.connect(authorization(server, validate, immediate))
+      chai.connect.use(authorization(server, validate, immediate))
         .req(function(req) {
           request = req;
           req.query = { response_type: 'code', client_id: 'T234', redirect_uri: 'http://example.com/auth/callback' };
@@ -190,7 +190,7 @@ describe('authorization', function() {
     var request, response, err;
 
     before(function(done) {
-      chai.connect(authorization(server, validate, immediate))
+      chai.connect.use(authorization(server, validate, immediate))
         .req(function(req) {
           request = req;
           req.query = { response_type: 'code', client_id: 'ER34', redirect_uri: 'http://example.com/auth/callback' };
@@ -222,7 +222,7 @@ describe('authorization', function() {
     var request, response, err;
 
     before(function(done) {
-      chai.connect(authorization(server, validate, immediate))
+      chai.connect.use(authorization(server, validate, immediate))
         .req(function(req) {
           request = req;
           req.query = { response_type: 'foo', client_id: '1234', redirect_uri: 'http://example.com/auth/callback' };
@@ -262,7 +262,7 @@ describe('authorization', function() {
       var request, response, err;
 
       before(function(done) {
-        chai.connect(authorization(server, validate, immediate))
+        chai.connect.use('express', authorization(server, validate, immediate))
           .req(function(req) {
             request = req;
             req.query = { response_type: 'code', client_id: '1234', redirect_uri: 'http://example.com/auth/callback', scope: 'profile' };

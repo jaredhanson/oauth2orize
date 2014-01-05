@@ -14,7 +14,7 @@ describe('errorHandler', function() {
       var res;
   
       before(function(done) {
-        chai.connect(errorHandler())
+        chai.connect.use(errorHandler())
           .req(function(req) {
           })
           .end(function(r) {
@@ -39,7 +39,7 @@ describe('errorHandler', function() {
       var res;
   
       before(function(done) {
-        chai.connect(errorHandler())
+        chai.connect.use(errorHandler())
           .req(function(req) {
           })
           .end(function(r) {
@@ -64,7 +64,7 @@ describe('errorHandler', function() {
       var res;
   
       before(function(done) {
-        chai.connect(errorHandler())
+        chai.connect.use(errorHandler())
           .req(function(req) {
           })
           .end(function(r) {
@@ -91,7 +91,7 @@ describe('errorHandler', function() {
       var res;
   
       before(function(done) {
-        chai.connect(errorHandler({ mode: 'indirect' }))
+        chai.connect.use('express', errorHandler({ mode: 'indirect' }))
           .req(function(req) {
             req.oauth2 = { redirectURI: 'http://example.com/auth/callback' };
           })
@@ -118,7 +118,7 @@ describe('errorHandler', function() {
       var res;
   
       before(function(done) {
-        chai.connect(errorHandler({ mode: 'indirect' }))
+        chai.connect.use('express', errorHandler({ mode: 'indirect' }))
           .req(function(req) {
             req.oauth2 = { redirectURI: 'http://example.com/auth/callback' };
           })
@@ -145,7 +145,7 @@ describe('errorHandler', function() {
       var res;
   
       before(function(done) {
-        chai.connect(errorHandler({ mode: 'indirect' }))
+        chai.connect.use('express', errorHandler({ mode: 'indirect' }))
           .req(function(req) {
             req.oauth2 = { redirectURI: 'http://example.com/auth/callback' };
           })
@@ -172,7 +172,7 @@ describe('errorHandler', function() {
       var res;
   
       before(function(done) {
-        chai.connect(errorHandler({ mode: 'indirect' }))
+        chai.connect.use('express', errorHandler({ mode: 'indirect' }))
           .req(function(req) {
             req.oauth2 = { redirectURI: 'http://example.com/auth/callback' };
             req.oauth2.req = { state: '1234' };
@@ -200,7 +200,7 @@ describe('errorHandler', function() {
       var res;
   
       before(function(done) {
-        chai.connect(errorHandler({ mode: 'indirect' }))
+        chai.connect.use('express', errorHandler({ mode: 'indirect' }))
           .req(function(req) {
             req.oauth2 = { redirectURI: 'http://example.com/auth/callback' };
             req.oauth2.req = { type: 'token' };
@@ -228,7 +228,7 @@ describe('errorHandler', function() {
       var res;
   
       before(function(done) {
-        chai.connect(errorHandler({ mode: 'indirect' }))
+        chai.connect.use('express', errorHandler({ mode: 'indirect' }))
           .req(function(req) {
             req.oauth2 = { redirectURI: 'http://example.com/auth/callback' };
             req.oauth2.req = { type: 'token' };
@@ -256,7 +256,7 @@ describe('errorHandler', function() {
       var res;
   
       before(function(done) {
-        chai.connect(errorHandler({ mode: 'indirect' }))
+        chai.connect.use('express', errorHandler({ mode: 'indirect' }))
           .req(function(req) {
             req.oauth2 = { redirectURI: 'http://example.com/auth/callback' };
             req.oauth2.req = { type: 'token' };
@@ -284,7 +284,7 @@ describe('errorHandler', function() {
       var res;
   
       before(function(done) {
-        chai.connect(errorHandler({ mode: 'indirect' }))
+        chai.connect.use('express', errorHandler({ mode: 'indirect' }))
           .req(function(req) {
             req.oauth2 = { redirectURI: 'http://example.com/auth/callback' };
             req.oauth2.req = { type: 'token', state: '1234' };
@@ -312,7 +312,7 @@ describe('errorHandler', function() {
       var res;
   
       before(function(done) {
-        chai.connect(errorHandler({ mode: 'indirect', fragment: ['token', 'id_token'] }))
+        chai.connect.use('express', errorHandler({ mode: 'indirect', fragment: ['token', 'id_token'] }))
           .req(function(req) {
             req.oauth2 = { redirectURI: 'http://example.com/auth/callback' };
             req.oauth2.req = { type: 'code id_token' };
@@ -340,7 +340,7 @@ describe('errorHandler', function() {
       var err;
   
       before(function(done) {
-        chai.connect(errorHandler({ mode: 'indirect' }))
+        chai.connect.use(errorHandler({ mode: 'indirect' }))
           .req(function(req) {
           })
           .next(function(e) {
@@ -360,7 +360,7 @@ describe('errorHandler', function() {
       var err;
   
       before(function(done) {
-        chai.connect(errorHandler({ mode: 'indirect' }))
+        chai.connect.use(errorHandler({ mode: 'indirect' }))
           .req(function(req) {
             req.oauth2 = {};
           })
@@ -383,7 +383,7 @@ describe('errorHandler', function() {
       var err;
   
       before(function(done) {
-        chai.connect(errorHandler({ mode: 'unknown' }))
+        chai.connect.use(errorHandler({ mode: 'unknown' }))
           .req(function(req) {
           })
           .next(function(e) {

@@ -37,7 +37,7 @@ describe('exchange.password', function() {
     var response, err;
 
     before(function(done) {
-      chai.connect(password(issue))
+      chai.connect.use(password(issue))
         .req(function(req) {
           req.user = { id: 'c123', name: 'Example' };
           req.body = { username: 'bob', password: 'shh' };
@@ -64,7 +64,7 @@ describe('exchange.password', function() {
     var response, err;
 
     before(function(done) {
-      chai.connect(password(issue))
+      chai.connect.use(password(issue))
         .req(function(req) {
           req.user = { id: 'c223', name: 'Example' };
           req.body = { username: 'bob', password: 'shh' };
@@ -91,7 +91,7 @@ describe('exchange.password', function() {
     var response, err;
 
     before(function(done) {
-      chai.connect(password(issue))
+      chai.connect.use(password(issue))
         .req(function(req) {
           req.user = { id: 'c523', name: 'Example' };
           req.body = { username: 'bob', password: 'shh' };
@@ -118,7 +118,7 @@ describe('exchange.password', function() {
     var response, err;
 
     before(function(done) {
-      chai.connect(password(issue))
+      chai.connect.use(password(issue))
         .req(function(req) {
           req.user = { id: 'c323', name: 'Example' };
           req.body = { username: 'bob', password: 'shh' };
@@ -145,7 +145,7 @@ describe('exchange.password', function() {
     var response, err;
 
     before(function(done) {
-      chai.connect(password(issue))
+      chai.connect.use(password(issue))
         .req(function(req) {
           req.user = { id: 'c423', name: 'Example' };
           req.body = { username: 'bob', password: 'shh' };
@@ -180,7 +180,7 @@ describe('exchange.password', function() {
     var response, err;
 
     before(function(done) {
-      chai.connect(password(issue))
+      chai.connect.use(password(issue))
         .req(function(req) {
           req.user = { id: 'c123', name: 'Example' };
           req.body = { username: 'bob', password: 'shh', scope: 'read' };
@@ -215,7 +215,7 @@ describe('exchange.password', function() {
     var response, err;
 
     before(function(done) {
-      chai.connect(password(issue))
+      chai.connect.use(password(issue))
         .req(function(req) {
           req.user = { id: 'c123', name: 'Example' };
           req.body = { username: 'bob', password: 'shh', scope: 'read write' };
@@ -242,7 +242,7 @@ describe('exchange.password', function() {
     var response, err;
 
     before(function(done) {
-      chai.connect(password(issue))
+      chai.connect.use(password(issue))
         .req(function(req) {
           req.user = { id: 'cUN', name: 'Example' };
           req.body = { username: 'bob', password: 'shh' };
@@ -267,7 +267,7 @@ describe('exchange.password', function() {
     var response, err;
 
     before(function(done) {
-      chai.connect(password(issue))
+      chai.connect.use(password(issue))
         .req(function(req) {
           req.user = { id: 'c123', name: 'Example' };
           req.body = { password: 'shh' };
@@ -292,7 +292,7 @@ describe('exchange.password', function() {
     var response, err;
 
     before(function(done) {
-      chai.connect(password(issue))
+      chai.connect.use(password(issue))
         .req(function(req) {
           req.user = { id: 'c123', name: 'Example' };
           req.body = { username: 'bob' };
@@ -317,7 +317,7 @@ describe('exchange.password', function() {
     var response, err;
 
     before(function(done) {
-      chai.connect(password(issue))
+      chai.connect.use(password(issue))
         .req(function(req) {
           req.user = { id: 'cXXX', name: 'Example' };
           req.body = { username: 'bob', password: 'shh' };
@@ -339,7 +339,7 @@ describe('exchange.password', function() {
     var response, err;
 
     before(function(done) {
-      chai.connect(password(issue))
+      chai.connect.use(password(issue))
         .req(function(req) {
           req.user = { id: 'cTHROW', name: 'Example' };
           req.body = { username: 'bob', password: 'shh' };
@@ -361,7 +361,7 @@ describe('exchange.password', function() {
     var response, err;
 
     before(function(done) {
-      chai.connect(password(issue))
+      chai.connect.use(password(issue))
         .req(function(req) {
           req.user = { id: 'c123', name: 'Example' };
         })
@@ -391,7 +391,7 @@ describe('exchange.password', function() {
       var response, err;
 
       before(function(done) {
-        chai.connect(password({ scopeSeparator: ',' }, issue))
+        chai.connect.use(password({ scopeSeparator: ',' }, issue))
           .req(function(req) {
             req.user = { id: 'c123', name: 'Example' };
             req.body = { username: 'bob', password: 'shh', scope: 'read,write' };
@@ -428,7 +428,7 @@ describe('exchange.password', function() {
       var response, err;
 
       before(function(done) {
-        chai.connect(password({ scopeSeparator: [' ', ','] }, issue))
+        chai.connect.use(password({ scopeSeparator: [' ', ','] }, issue))
           .req(function(req) {
             req.user = { id: 'c123', name: 'Example' };
             req.body = { username: 'bob', password: 'shh', scope: 'read write' };
@@ -455,7 +455,7 @@ describe('exchange.password', function() {
       var response, err;
 
       before(function(done) {
-        chai.connect(password({ scopeSeparator: [' ', ','] }, issue))
+        chai.connect.use(password({ scopeSeparator: [' ', ','] }, issue))
           .req(function(req) {
             req.user = { id: 'c123', name: 'Example' };
             req.body = { username: 'bob', password: 'shh', scope: 'read,write' };
@@ -483,7 +483,7 @@ describe('exchange.password', function() {
     var response, err;
 
     before(function(done) {
-      chai.connect(password({ userProperty: 'client' }, issue))
+      chai.connect.use(password({ userProperty: 'client' }, issue))
         .req(function(req) {
           req.client = { id: 'c123', name: 'Example' };
           req.body = { username: 'bob', password: 'shh' };

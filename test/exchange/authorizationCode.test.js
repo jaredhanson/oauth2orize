@@ -37,7 +37,7 @@ describe('exchange.authorizationCode', function() {
     var response, err;
 
     before(function(done) {
-      chai.connect(authorizationCode(issue))
+      chai.connect.use(authorizationCode(issue))
         .req(function(req) {
           req.user = { id: 'c123', name: 'Example' };
           req.body = { code: 'abc123', redirect_uri: 'http://example.com/oa/callback' };
@@ -64,7 +64,7 @@ describe('exchange.authorizationCode', function() {
     var response, err;
 
     before(function(done) {
-      chai.connect(authorizationCode(issue))
+      chai.connect.use(authorizationCode(issue))
         .req(function(req) {
           req.user = { id: 'c223', name: 'Example' };
           req.body = { code: 'abc223', redirect_uri: 'http://example.com/oa/callback' };
@@ -91,7 +91,7 @@ describe('exchange.authorizationCode', function() {
     var response, err;
 
     before(function(done) {
-      chai.connect(authorizationCode(issue))
+      chai.connect.use(authorizationCode(issue))
         .req(function(req) {
           req.user = { id: 'c523', name: 'Example' };
           req.body = { code: 'abc523', redirect_uri: 'http://example.com/oa/callback' };
@@ -118,7 +118,7 @@ describe('exchange.authorizationCode', function() {
     var response, err;
 
     before(function(done) {
-      chai.connect(authorizationCode(issue))
+      chai.connect.use(authorizationCode(issue))
         .req(function(req) {
           req.user = { id: 'c323', name: 'Example' };
           req.body = { code: 'abc323', redirect_uri: 'http://example.com/oa/callback' };
@@ -145,7 +145,7 @@ describe('exchange.authorizationCode', function() {
     var response, err;
 
     before(function(done) {
-      chai.connect(authorizationCode(issue))
+      chai.connect.use(authorizationCode(issue))
         .req(function(req) {
           req.user = { id: 'c423', name: 'Example' };
           req.body = { code: 'abc423', redirect_uri: 'http://example.com/oa/callback' };
@@ -172,7 +172,7 @@ describe('exchange.authorizationCode', function() {
     var response, err;
 
     before(function(done) {
-      chai.connect(authorizationCode(issue))
+      chai.connect.use(authorizationCode(issue))
         .req(function(req) {
           req.user = { id: 'cUN', name: 'Example' };
           req.body = { code: 'abcUN', redirect_uri: 'http://example.com/oa/callback' };
@@ -197,7 +197,7 @@ describe('exchange.authorizationCode', function() {
     var response, err;
 
     before(function(done) {
-      chai.connect(authorizationCode(issue))
+      chai.connect.use(authorizationCode(issue))
         .req(function(req) {
           req.user = { id: 'c123', name: 'Example' };
           req.body = { redirect_uri: 'http://example.com/oa/callback' };
@@ -222,7 +222,7 @@ describe('exchange.authorizationCode', function() {
     var response, err;
 
     before(function(done) {
-      chai.connect(authorizationCode(issue))
+      chai.connect.use(authorizationCode(issue))
         .req(function(req) {
           req.user = { id: 'cXXX', name: 'Example' };
           req.body = { code: 'abcXXX', redirect_uri: 'http://example.com/oa/callback' };
@@ -244,7 +244,7 @@ describe('exchange.authorizationCode', function() {
     var response, err;
 
     before(function(done) {
-      chai.connect(authorizationCode(issue))
+      chai.connect.use(authorizationCode(issue))
         .req(function(req) {
           req.user = { id: 'cTHROW', name: 'Example' };
           req.body = { code: 'abc123', redirect_uri: 'http://example.com/oa/callback' };
@@ -266,7 +266,7 @@ describe('exchange.authorizationCode', function() {
     var response, err;
 
     before(function(done) {
-      chai.connect(authorizationCode(issue))
+      chai.connect.use(authorizationCode(issue))
         .req(function(req) {
           req.user = { id: 'c123', name: 'Example' };
         })
@@ -287,7 +287,7 @@ describe('exchange.authorizationCode', function() {
     var response, err;
 
     before(function(done) {
-      chai.connect(authorizationCode({ userProperty: 'client' }, issue))
+      chai.connect.use(authorizationCode({ userProperty: 'client' }, issue))
         .req(function(req) {
           req.client = { id: 'c123', name: 'Example' };
           req.body = { code: 'abc123', redirect_uri: 'http://example.com/oa/callback' };

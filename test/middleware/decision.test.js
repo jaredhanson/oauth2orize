@@ -26,7 +26,7 @@ describe('decision', function() {
     var request, response;
 
     before(function(done) {
-      chai.connect(decision(server))
+      chai.connect.use('express', decision(server))
         .req(function(req) {
           request = req;
           req.query = {};
@@ -73,7 +73,7 @@ describe('decision', function() {
     var request, response;
 
     before(function(done) {
-      chai.connect(decision(server))
+      chai.connect.use('express', decision(server))
         .req(function(req) {
           request = req;
           req.query = {};
@@ -120,7 +120,7 @@ describe('decision', function() {
     var request, response, err;
 
     before(function(done) {
-      chai.connect(decision(server))
+      chai.connect.use(decision(server))
         .req(function(req) {
           request = req;
           req.query = {};
@@ -178,7 +178,7 @@ describe('decision', function() {
     var request, response, err;
 
     before(function(done) {
-      chai.connect(decision(server))
+      chai.connect.use(decision(server))
         .req(function(req) {
           request = req;
           req.query = {};
@@ -234,7 +234,7 @@ describe('decision', function() {
     var request, response, err;
 
     before(function(done) {
-      chai.connect(decision(server))
+      chai.connect.use(decision(server))
         .req(function(req) {
           request = req;
           req.query = {};
@@ -271,7 +271,7 @@ describe('decision', function() {
     var request, response, err;
 
     before(function(done) {
-      chai.connect(decision(server))
+      chai.connect.use(decision(server))
         .req(function(req) {
           request = req;
           req.query = {};
@@ -314,7 +314,7 @@ describe('decision', function() {
     var request, response, err;
 
     before(function(done) {
-      chai.connect(decision(server))
+      chai.connect.use(decision(server))
         .req(function(req) {
           request = req;
           req.query = {};
@@ -345,7 +345,7 @@ describe('decision', function() {
     var request, response, err;
 
     before(function(done) {
-      chai.connect(decision(server))
+      chai.connect.use(decision(server))
         .req(function(req) {
           request = req;
           req.query = {};
@@ -389,7 +389,7 @@ describe('decision', function() {
       var request, response;
 
       before(function(done) {
-        chai.connect(mw)
+        chai.connect.use('express', mw)
           .req(function(req) {
             request = req;
             req.query = {};
@@ -444,7 +444,7 @@ describe('decision', function() {
       var request, response;
 
       before(function(done) {
-        chai.connect(mw)
+        chai.connect.use('express', mw)
           .req(function(req) {
             request = req;
             req.query = {};
@@ -498,7 +498,7 @@ describe('decision', function() {
       var request, response, err;
 
       before(function(done) {
-        chai.connect(mw)
+        chai.connect.use(mw)
           .req(function(req) {
             request = req;
             req.query = {};
@@ -546,7 +546,7 @@ describe('decision', function() {
       var request, response;
 
       before(function(done) {
-        chai.connect(mw)
+        chai.connect.use('express', mw)
           .req(function(req) {
             request = req;
             req.query = {};
@@ -597,7 +597,7 @@ describe('decision', function() {
       var request, response;
 
       before(function(done) {
-        chai.connect(mw)
+        chai.connect.use('express', mw)
           .req(function(req) {
             request = req;
             req.query = {};
@@ -648,7 +648,7 @@ describe('decision', function() {
       var request, response;
 
       before(function(done) {
-        chai.connect(mw)
+        chai.connect.use('express', mw)
           .req(function(req) {
             request = req;
             req.query = {};

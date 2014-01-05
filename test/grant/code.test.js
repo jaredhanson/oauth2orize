@@ -30,7 +30,7 @@ describe('grant.code', function() {
       var err, out;
       
       before(function(done) {
-        chai.grant(code(issue))
+        chai.oauth2orize.grant(code(issue))
           .req(function(req) {
             req.query = {};
             req.query.client_id = 'c123';
@@ -61,7 +61,7 @@ describe('grant.code', function() {
       var err, out;
       
       before(function(done) {
-        chai.grant(code(issue))
+        chai.oauth2orize.grant(code(issue))
           .req(function(req) {
             req.query = {};
             req.query.client_id = 'c123';
@@ -95,7 +95,7 @@ describe('grant.code', function() {
       var err, out;
       
       before(function(done) {
-        chai.grant(code(issue))
+        chai.oauth2orize.grant(code(issue))
           .req(function(req) {
             req.query = {};
             req.query.client_id = 'c123';
@@ -130,7 +130,7 @@ describe('grant.code', function() {
       var err, out;
       
       before(function(done) {
-        chai.grant(code({ scopeSeparator: ',' }, issue))
+        chai.oauth2orize.grant(code({ scopeSeparator: ',' }, issue))
           .req(function(req) {
             req.query = {};
             req.query.client_id = 'c123';
@@ -165,7 +165,7 @@ describe('grant.code', function() {
       var err, out;
       
       before(function(done) {
-        chai.grant(code({ scopeSeparator: [' ', ','] }, issue))
+        chai.oauth2orize.grant(code({ scopeSeparator: [' ', ','] }, issue))
           .req(function(req) {
             req.query = {};
             req.query.client_id = 'c123';
@@ -200,7 +200,7 @@ describe('grant.code', function() {
       var err, out;
       
       before(function(done) {
-        chai.grant(code({ scopeSeparator: [' ', ','] }, issue))
+        chai.oauth2orize.grant(code({ scopeSeparator: [' ', ','] }, issue))
           .req(function(req) {
             req.query = {};
             req.query.client_id = 'c123';
@@ -235,7 +235,7 @@ describe('grant.code', function() {
       var err, out;
       
       before(function(done) {
-        chai.grant(code(issue))
+        chai.oauth2orize.grant(code(issue))
           .req(function(req) {
             req.query = {};
             req.query.redirect_uri = 'http://example.com/auth/callback';
@@ -274,7 +274,7 @@ describe('grant.code', function() {
       var response;
       
       before(function(done) {
-        chai.grant(code(issue))
+        chai.oauth2orize.grant(code(issue))
           .txn(function(txn) {
             txn.client = { id: 'c123', name: 'Example' };
             txn.redirectURI = 'http://www.example.com/auth/callback';
@@ -301,7 +301,7 @@ describe('grant.code', function() {
       var response;
       
       before(function(done) {
-        chai.grant(code(issue))
+        chai.oauth2orize.grant(code(issue))
           .txn(function(txn) {
             txn.client = { id: 'c123', name: 'Example' };
             txn.redirectURI = 'http://www.example.com/auth/callback';
@@ -329,7 +329,7 @@ describe('grant.code', function() {
       var response;
       
       before(function(done) {
-        chai.grant(code(issue))
+        chai.oauth2orize.grant(code(issue))
           .txn(function(txn) {
             txn.client = { id: 'c123', name: 'Example' };
             txn.redirectURI = 'http://www.example.com/auth/callback';
@@ -356,7 +356,7 @@ describe('grant.code', function() {
       var response;
       
       before(function(done) {
-        chai.grant(code(issue))
+        chai.oauth2orize.grant(code(issue))
           .txn(function(txn) {
             txn.client = { id: 'c123', name: 'Example' };
             txn.redirectURI = 'http://www.example.com/auth/callback';
@@ -384,7 +384,7 @@ describe('grant.code', function() {
       var err;
       
       before(function(done) {
-        chai.grant(code(issue))
+        chai.oauth2orize.grant(code(issue))
           .txn(function(txn) {
             txn.client = { id: 'cUNAUTHZ', name: 'Example' };
             txn.redirectURI = 'http://www.example.com/auth/callback';
@@ -414,7 +414,7 @@ describe('grant.code', function() {
       var err;
       
       before(function(done) {
-        chai.grant(code(issue))
+        chai.oauth2orize.grant(code(issue))
           .txn(function(txn) {
             txn.client = { id: 'cERROR', name: 'Example' };
             txn.redirectURI = 'http://www.example.com/auth/callback';
@@ -441,7 +441,7 @@ describe('grant.code', function() {
       var err;
       
       before(function(done) {
-        chai.grant(code(issue))
+        chai.oauth2orize.grant(code(issue))
           .txn(function(txn) {
             txn.client = { id: 'cTHROW', name: 'Example' };
             txn.redirectURI = 'http://www.example.com/auth/callback';
@@ -468,7 +468,7 @@ describe('grant.code', function() {
       var err;
       
       before(function(done) {
-        chai.grant(code(issue))
+        chai.oauth2orize.grant(code(issue))
           .txn(function(txn) {
             txn.client = { id: 'c123', name: 'Example' };
             txn.req = {
@@ -503,7 +503,7 @@ describe('grant.code', function() {
       var response;
       
       before(function(done) {
-        chai.grant(code(issue))
+        chai.oauth2orize.grant(code(issue))
           .txn(function(txn) {
             txn.client = { id: 'c123', name: 'Example' };
             txn.redirectURI = 'http://www.example.com/auth/callback';

@@ -1,8 +1,6 @@
-var chai = require('chai')
-  , connect = require('chai-connect-middleware')
-  , grant = require('chai-oauth2orize-grant');
+var chai = require('chai');
 
-chai.use(connect);
-chai.use(grant);
+chai.use(require('chai-connect-middleware'));
+chai.use(require('chai-oauth2orize-grant'));
 
 global.expect = chai.expect;

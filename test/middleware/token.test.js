@@ -31,7 +31,7 @@ describe('token', function() {
     var response, err;
 
     before(function(done) {
-      chai.connect(token(server))
+      chai.connect.use(token(server))
         .req(function(req) {
           req.body = { grant_type: 'authorization_code', code: 'abc123' };
         })
@@ -51,7 +51,7 @@ describe('token', function() {
     var response, err;
 
     before(function(done) {
-      chai.connect(token(server))
+      chai.connect.use(token(server))
         .req(function(req) {
           req.body = { grant_type: 'foo', code: 'abc123' };
         })
@@ -74,7 +74,7 @@ describe('token', function() {
     var response, err;
 
     before(function(done) {
-      chai.connect(token(server))
+      chai.connect.use(token(server))
         .req(function(req) {
           req.body = { grant_type: 'next-error', code: 'abc123' };
         })

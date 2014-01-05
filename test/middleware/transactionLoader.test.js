@@ -26,7 +26,7 @@ describe('transactionLoader', function() {
     var request, err;
 
     before(function(done) {
-      chai.connect(transactionLoader(server))
+      chai.connect.use(transactionLoader(server))
         .req(function(req) {
           request = req;
           req.query = { 'transaction_id': '1234' };
@@ -68,7 +68,7 @@ describe('transactionLoader', function() {
     var request, err;
 
     before(function(done) {
-      chai.connect(transactionLoader(server))
+      chai.connect.use(transactionLoader(server))
         .req(function(req) {
           request = req;
           req.body = { 'transaction_id': '1234' };
@@ -110,7 +110,7 @@ describe('transactionLoader', function() {
     var request, err;
 
     before(function(done) {
-      chai.connect(transactionLoader(server))
+      chai.connect.use(transactionLoader(server))
         .req(function(req) {
           request = req;
           req.query = { 'transaction_id': '1234' };
@@ -149,7 +149,7 @@ describe('transactionLoader', function() {
     var request, err;
 
     before(function(done) {
-      chai.connect(transactionLoader(server))
+      chai.connect.use(transactionLoader(server))
         .req(function(req) {
           request = req;
           req.query = { 'transaction_id': '1234' };
@@ -186,7 +186,7 @@ describe('transactionLoader', function() {
     var request, err;
 
     before(function(done) {
-      chai.connect(transactionLoader(server))
+      chai.connect.use(transactionLoader(server))
         .req(function(req) {
           request = req;
           req.session = {};
@@ -214,7 +214,7 @@ describe('transactionLoader', function() {
     var request, err;
 
     before(function(done) {
-      chai.connect(transactionLoader(server))
+      chai.connect.use(transactionLoader(server))
         .req(function(req) {
           request = req;
           req.body = { 'transaction_id': '1234' };
@@ -243,7 +243,7 @@ describe('transactionLoader', function() {
     var request, err;
 
     before(function(done) {
-      chai.connect(transactionLoader(server))
+      chai.connect.use(transactionLoader(server))
         .req(function(req) {
           request = req;
           req.body = { 'transaction_id': '1234' };
@@ -271,7 +271,7 @@ describe('transactionLoader', function() {
     var request, err;
 
     before(function(done) {
-      chai.connect(transactionLoader(server))
+      chai.connect.use(transactionLoader(server))
         .req(function(req) {
           request = req;
         })
@@ -297,7 +297,7 @@ describe('transactionLoader', function() {
       var request, err;
 
       before(function(done) {
-        chai.connect(transactionLoader(server, { transactionField: 'txn_id' }))
+        chai.connect.use(transactionLoader(server, { transactionField: 'txn_id' }))
           .req(function(req) {
             request = req;
             req.body = { 'txn_id': '1234' };
@@ -341,7 +341,7 @@ describe('transactionLoader', function() {
       var request, err;
 
       before(function(done) {
-        chai.connect(transactionLoader(server, { sessionKey: 'oauth2orize' }))
+        chai.connect.use(transactionLoader(server, { sessionKey: 'oauth2orize' }))
           .req(function(req) {
             request = req;
             req.body = { 'transaction_id': '1234' };

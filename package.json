@@ -40,8 +40,8 @@
   "devDependencies": {
     "mocha": "1.x.x",
     "chai": "1.x.x",
-    "chai-connect-middleware": "0.1.x",
-    "chai-oauth2orize-grant": "0.1.x"
+    "chai-connect-middleware": "0.3.x",
+    "chai-oauth2orize-grant": "0.2.x"
   },
   "engines": {
     "node": ">= 0.4.0"
