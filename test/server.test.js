@@ -8,7 +8,7 @@ describe('Server', function() {
     
     it('should wrap authorization middleware', function() {
       expect(server.authorization).to.be.a('function');
-      expect(server.authorization).to.have.length(2);
+      expect(server.authorization).to.have.length(3);
       expect(server.authorize).to.equal(server.authorization);
     });
     
