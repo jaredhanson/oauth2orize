@@ -1,3 +1,6 @@
+/* global describe, it, expect, before */
+/* jshint camelcase: false, expr: true */
+
 var chai = require('chai')
   , token = require('../../lib/grant/token');
 
@@ -24,7 +27,7 @@ describe('grant.token', function() {
   });
   
   describe('request parsing', function() {
-    function issue(){};
+    function issue(){}
     
     describe('request', function() {
       var err, out;
@@ -284,7 +287,7 @@ describe('grant.token', function() {
             txn.redirectURI = 'http://example.com/auth/callback';
             txn.req = {
               redirectURI: 'http://example.com/auth/callback'
-            }
+            };
             txn.user = { id: 'u123', name: 'Bob' };
             txn.res = { allow: true };
           })
@@ -312,7 +315,7 @@ describe('grant.token', function() {
             txn.req = {
               redirectURI: 'http://example.com/auth/callback',
               state: 'f1o1o1'
-            }
+            };
             txn.user = { id: 'u123', name: 'Bob' };
             txn.res = { allow: true };
           })
@@ -339,7 +342,7 @@ describe('grant.token', function() {
             txn.redirectURI = 'http://example.com/auth/callback';
             txn.req = {
               redirectURI: 'http://example.com/auth/callback'
-            }
+            };
             txn.user = { id: 'u123', name: 'Bob' };
             txn.res = { allow: true };
           })
@@ -366,7 +369,7 @@ describe('grant.token', function() {
             txn.redirectURI = 'http://example.com/auth/callback';
             txn.req = {
               redirectURI: 'http://example.com/auth/callback'
-            }
+            };
             txn.user = { id: 'u123', name: 'Bob' };
             txn.res = { allow: true };
           })
@@ -393,7 +396,7 @@ describe('grant.token', function() {
             txn.redirectURI = 'http://example.com/auth/callback';
             txn.req = {
               redirectURI: 'http://example.com/auth/callback'
-            }
+            };
             txn.user = { id: 'u123', name: 'Bob' };
             txn.res = { allow: false };
           })
@@ -421,7 +424,7 @@ describe('grant.token', function() {
             txn.req = {
               redirectURI: 'http://example.com/auth/callback',
               state: 'f2o2o2'
-            }
+            };
             txn.user = { id: 'u123', name: 'Bob' };
             txn.res = { allow: false };
           })
@@ -448,7 +451,7 @@ describe('grant.token', function() {
             txn.redirectURI = 'http://example.com/auth/callback';
             txn.req = {
               redirectURI: 'http://example.com/auth/callback'
-            }
+            };
             txn.user = { id: 'u123', name: 'Bob' };
             txn.res = { allow: true };
           })
@@ -478,7 +481,7 @@ describe('grant.token', function() {
             txn.redirectURI = 'http://example.com/auth/callback';
             txn.req = {
               redirectURI: 'http://example.com/auth/callback'
-            }
+            };
             txn.user = { id: 'u123', name: 'Bob' };
             txn.res = { allow: true };
           })
@@ -505,7 +508,7 @@ describe('grant.token', function() {
             txn.redirectURI = 'http://example.com/auth/callback';
             txn.req = {
               redirectURI: 'http://example.com/auth/callback'
-            }
+            };
             txn.user = { id: 'u123', name: 'Bob' };
             txn.res = { allow: true };
           })
@@ -531,7 +534,7 @@ describe('grant.token', function() {
             txn.client = { id: 'c123', name: 'Example' };
             txn.req = {
               redirectURI: 'http://example.com/auth/callback'
-            }
+            };
             txn.user = { id: 'u123', name: 'Bob' };
             txn.res = { allow: true };
           })
@@ -567,7 +570,7 @@ describe('grant.token', function() {
             txn.redirectURI = 'http://example.com/auth/callback';
             txn.req = {
               redirectURI: 'http://example.com/auth/callback'
-            }
+            };
             txn.user = { id: 'u123', name: 'Bob' };
             txn.res = { allow: true, scope: 'foo' };
           })

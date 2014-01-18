@@ -1,3 +1,6 @@
+/* global describe, it, expect, before */
+/* jshint camelcase: false, expr: true */
+
 var chai = require('chai')
   , code = require('../../lib/grant/code');
 
@@ -24,7 +27,7 @@ describe('grant.code', function() {
   });
   
   describe('request parsing', function() {
-    function issue(){};
+    function issue(){}
     
     describe('request', function() {
       var err, out;
@@ -265,7 +268,7 @@ describe('grant.code', function() {
       } else if (client.id == 'cUNAUTHZ') {
         return done(null, false);
       } else if (client.id == 'cTHROW') {
-        throw new Error('something was thrown')
+        throw new Error('something was thrown');
       }
       return done(new Error('something went wrong'));
     }
@@ -280,7 +283,7 @@ describe('grant.code', function() {
             txn.redirectURI = 'http://www.example.com/auth/callback';
             txn.req = {
               redirectURI: 'http://example.com/auth/callback'
-            }
+            };
             txn.user = { id: 'u123', name: 'Bob' };
             txn.res = { allow: true };
           })
@@ -308,7 +311,7 @@ describe('grant.code', function() {
             txn.req = {
               redirectURI: 'http://example.com/auth/callback',
               state: 'f1o1o1'
-            }
+            };
             txn.user = { id: 'u123', name: 'Bob' };
             txn.res = { allow: true };
           })
@@ -335,7 +338,7 @@ describe('grant.code', function() {
             txn.redirectURI = 'http://www.example.com/auth/callback';
             txn.req = {
               redirectURI: 'http://example.com/auth/callback'
-            }
+            };
             txn.user = { id: 'u123', name: 'Bob' };
             txn.res = { allow: false };
           })
@@ -363,7 +366,7 @@ describe('grant.code', function() {
             txn.req = {
               redirectURI: 'http://example.com/auth/callback',
               state: 'f2o2o2'
-            }
+            };
             txn.user = { id: 'u123', name: 'Bob' };
             txn.res = { allow: false };
           })
@@ -390,7 +393,7 @@ describe('grant.code', function() {
             txn.redirectURI = 'http://www.example.com/auth/callback';
             txn.req = {
               redirectURI: 'http://example.com/auth/callback'
-            }
+            };
             txn.user = { id: 'u123', name: 'Bob' };
             txn.res = { allow: true };
           })
@@ -420,7 +423,7 @@ describe('grant.code', function() {
             txn.redirectURI = 'http://www.example.com/auth/callback';
             txn.req = {
               redirectURI: 'http://example.com/auth/callback'
-            }
+            };
             txn.user = { id: 'u123', name: 'Bob' };
             txn.res = { allow: true };
           })
@@ -447,7 +450,7 @@ describe('grant.code', function() {
             txn.redirectURI = 'http://www.example.com/auth/callback';
             txn.req = {
               redirectURI: 'http://example.com/auth/callback'
-            }
+            };
             txn.user = { id: 'u123', name: 'Bob' };
             txn.res = { allow: true };
           })
@@ -473,7 +476,7 @@ describe('grant.code', function() {
             txn.client = { id: 'c123', name: 'Example' };
             txn.req = {
               redirectURI: 'http://example.com/auth/callback'
-            }
+            };
             txn.user = { id: 'u123', name: 'Bob' };
             txn.res = { allow: true };
           })
@@ -509,7 +512,7 @@ describe('grant.code', function() {
             txn.redirectURI = 'http://www.example.com/auth/callback';
             txn.req = {
               redirectURI: 'http://example.com/auth/callback'
-            }
+            };
             txn.user = { id: 'u123', name: 'Bob' };
             txn.res = { allow: true, scope: 'foo' };
           })
