@@ -4,6 +4,7 @@
 [![Coverage](https://coveralls.io/repos/jaredhanson/oauth2orize/badge.png)](https://coveralls.io/r/jaredhanson/oauth2orize)
 [![Quality](https://codeclimate.com/github/jaredhanson/locomotive.png)](https://codeclimate.com/github/jaredhanson/oauth2orize)
 [![Dependencies](https://david-dm.org/jaredhanson/oauth2orize.png)](https://david-dm.org/jaredhanson/oauth2orize)
+[![Tips](http://img.shields.io/gittip/jaredhanson.png)](https://www.gittip.com/jaredhanson/)
 
 
 OAuth2orize is an authorization server toolkit for Node.js.  It provides a suite
