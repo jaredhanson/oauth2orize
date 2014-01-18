@@ -1,3 +1,6 @@
+/* global describe, it, expect, before */
+/* jshint expr: true, sub: true */
+
 var chai = require('chai')
   , transactionLoader = require('../../lib/middleware/transactionLoader')
   , Server = require('../../lib/server');

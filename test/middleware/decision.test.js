@@ -1,3 +1,6 @@
+/* global describe, it, expect, before */
+/* jshint expr: true, sub: true */
+
 var chai = require('chai')
   , decision = require('../../lib/middleware/decision')
   , Server = require('../../lib/server');
@@ -7,7 +10,7 @@ describe('decision', function() {
   
   var server = new Server();
   server.grant('code', 'response', function(txn, res, next) {
-    if (txn.res.allow == false) { return res.redirect(txn.redirectURI + '?error=access_denied'); }
+    if (txn.res.allow === false) { return res.redirect(txn.redirectURI + '?error=access_denied'); }
     if (txn.transactionID == 'abc123') { return res.redirect(txn.redirectURI + '?code=a1b1c1'); }
     return next(new Error('something went wrong while handling response'));
   });
@@ -49,13 +52,13 @@ describe('decision', function() {
     });
     
     it('should set user on transaction', function() {
-      expect(request.oauth2.user).to.be.an('object')
+      expect(request.oauth2.user).to.be.an('object');
       expect(request.oauth2.user.id).to.equal('u1234');
       expect(request.oauth2.user.username).to.equal('bob');
     });
     
     it('should set response on transaction', function() {
-      expect(request.oauth2.res).to.be.an('object')
+      expect(request.oauth2.res).to.be.an('object');
       expect(request.oauth2.res.allow).to.be.true;
     });
     
@@ -96,13 +99,13 @@ describe('decision', function() {
     });
     
     it('should set user on transaction', function() {
-      expect(request.oauth2.user).to.be.an('object')
+      expect(request.oauth2.user).to.be.an('object');
       expect(request.oauth2.user.id).to.equal('u1234');
       expect(request.oauth2.user.username).to.equal('bob');
     });
     
     it('should set response on transaction', function() {
-      expect(request.oauth2.res).to.be.an('object')
+      expect(request.oauth2.res).to.be.an('object');
       expect(request.oauth2.res.allow).to.be.false;
     });
     
@@ -154,13 +157,13 @@ describe('decision', function() {
     });
     
     it('should set user on transaction', function() {
-      expect(request.oauth2.user).to.be.an('object')
+      expect(request.oauth2.user).to.be.an('object');
       expect(request.oauth2.user.id).to.equal('u1234');
       expect(request.oauth2.user.username).to.equal('bob');
     });
     
     it('should set response on transaction', function() {
-      expect(request.oauth2.res).to.be.an('object')
+      expect(request.oauth2.res).to.be.an('object');
       expect(request.oauth2.res.allow).to.be.true;
     });
     
@@ -210,13 +213,13 @@ describe('decision', function() {
     });
     
     it('should set user on transaction', function() {
-      expect(request.oauth2.user).to.be.an('object')
+      expect(request.oauth2.user).to.be.an('object');
       expect(request.oauth2.user.id).to.equal('u1234');
       expect(request.oauth2.user.username).to.equal('bob');
     });
     
     it('should set response on transaction', function() {
-      expect(request.oauth2.res).to.be.an('object')
+      expect(request.oauth2.res).to.be.an('object');
       expect(request.oauth2.res.allow).to.be.true;
     });
     
@@ -231,7 +234,7 @@ describe('decision', function() {
   });
   
   describe('handling a request without a session', function() {
-    var request, response, err;
+    var request, err;
 
     before(function(done) {
       chai.connect.use(decision(server))
@@ -268,7 +271,7 @@ describe('decision', function() {
   });
   
   describe('handling a request without a body', function() {
-    var request, response, err;
+    var request, err;
 
     before(function(done) {
       chai.connect.use(decision(server))
@@ -311,7 +314,7 @@ describe('decision', function() {
   });
   
   describe('handling a request without a transaction', function() {
-    var request, response, err;
+    var request, err;
 
     before(function(done) {
       chai.connect.use(decision(server))
@@ -342,7 +345,7 @@ describe('decision', function() {
   });
   
   describe('handling a request without transactions in session', function() {
-    var request, response, err;
+    var request, err;
 
     before(function(done) {
       chai.connect.use(decision(server))
@@ -413,13 +416,13 @@ describe('decision', function() {
       });
     
       it('should set user on transaction', function() {
-        expect(request.oauth2.user).to.be.an('object')
+        expect(request.oauth2.user).to.be.an('object');
         expect(request.oauth2.user.id).to.equal('u1234');
         expect(request.oauth2.user.username).to.equal('bob');
       });
     
       it('should set response on transaction', function() {
-        expect(request.oauth2.res).to.be.an('object')
+        expect(request.oauth2.res).to.be.an('object');
         expect(request.oauth2.res.allow).to.be.true;
         expect(request.oauth2.res.scope).to.equal('no-email');
       });
@@ -468,13 +471,13 @@ describe('decision', function() {
       });
     
       it('should set user on transaction', function() {
-        expect(request.oauth2.user).to.be.an('object')
+        expect(request.oauth2.user).to.be.an('object');
         expect(request.oauth2.user.id).to.equal('u1234');
         expect(request.oauth2.user.username).to.equal('bob');
       });
     
       it('should set response on transaction', function() {
-        expect(request.oauth2.res).to.be.an('object')
+        expect(request.oauth2.res).to.be.an('object');
         expect(request.oauth2.res.allow).to.be.false;
       });
     
@@ -495,7 +498,7 @@ describe('decision', function() {
     });
     
     describe('handling a user decision', function() {
-      var request, response, err;
+      var request, err;
 
       before(function(done) {
         chai.connect.use(mw)
@@ -569,13 +572,13 @@ describe('decision', function() {
       });
     
       it('should set user on transaction', function() {
-        expect(request.oauth2.user).to.be.an('object')
+        expect(request.oauth2.user).to.be.an('object');
         expect(request.oauth2.user.id).to.equal('u1234');
         expect(request.oauth2.user.username).to.equal('bob');
       });
     
       it('should set response on transaction', function() {
-        expect(request.oauth2.res).to.be.an('object')
+        expect(request.oauth2.res).to.be.an('object');
         expect(request.oauth2.res.allow).to.be.false;
       });
     
@@ -620,13 +623,13 @@ describe('decision', function() {
       });
     
       it('should set user on transaction', function() {
-        expect(request.oauth2.user).to.be.an('object')
+        expect(request.oauth2.user).to.be.an('object');
         expect(request.oauth2.user.id).to.equal('u1234');
         expect(request.oauth2.user.username).to.equal('bob');
       });
     
       it('should set response on transaction', function() {
-        expect(request.oauth2.res).to.be.an('object')
+        expect(request.oauth2.res).to.be.an('object');
         expect(request.oauth2.res.allow).to.be.true;
       });
     
@@ -671,13 +674,13 @@ describe('decision', function() {
       });
     
       it('should set user on transaction', function() {
-        expect(request.oauth2.user).to.be.an('object')
+        expect(request.oauth2.user).to.be.an('object');
         expect(request.oauth2.user.id).to.equal('u1234');
         expect(request.oauth2.user.username).to.equal('bob');
       });
     
       it('should set response on transaction', function() {
-        expect(request.oauth2.res).to.be.an('object')
+        expect(request.oauth2.res).to.be.an('object');
         expect(request.oauth2.res.allow).to.be.true;
       });
     

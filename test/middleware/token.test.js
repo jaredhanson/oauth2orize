@@ -1,3 +1,6 @@
+/* global describe, it, expect, before */
+/* jshint camelcase: false */
+
 var chai = require('chai')
   , token = require('../../lib/middleware/token')
   , Server = require('../../lib/server');
@@ -11,7 +14,7 @@ describe('token', function() {
       var json = JSON.stringify({ token_type: 'bearer', access_token: 'aaa-111-ccc' });
       return res.end(json);
     }
-    return done(new Error('something went wrong while exchanging grant'));
+    return next(new Error('something went wrong while exchanging grant'));
   });
   server.exchange('next-error', function(req, res, next) {
     next(new Error('something went wrong'));
@@ -28,7 +31,7 @@ describe('token', function() {
   });
   
   describe('handling a request for an access token', function() {
-    var response, err;
+    var response;
 
     before(function(done) {
       chai.connect.use(token(server))
@@ -48,7 +51,7 @@ describe('token', function() {
   });
   
   describe('handling a request for an access token with unsupported grant type', function() {
-    var response, err;
+    var err;
 
     before(function(done) {
       chai.connect.use(token(server))
@@ -71,7 +74,7 @@ describe('token', function() {
   });
   
   describe('encountering an error while exchanging grant', function() {
-    var response, err;
+    var err;
 
     before(function(done) {
       chai.connect.use(token(server))

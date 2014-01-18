@@ -1,3 +1,6 @@
+/* global describe, it, expect, before */
+/* jshint camelcase: false, expr: true, sub: true */
+
 var chai = require('chai')
   , authorization = require('../../lib/middleware/authorization')
   , Server = require('../../lib/server');
@@ -15,7 +18,7 @@ describe('authorization', function() {
       clientID: req.query['client_id'],
       redirectURI: req.query['redirect_uri'],
       scope: req.query['scope']
-    }
+    };
   });
   server.grant('code', 'response', function(txn, res, next) {
     if ((txn.client.id == '1234' || txn.client.id == '2234') && txn.user.id == 'u123' && txn.res.allow === true && txn.res.scope === 'read') {
@@ -29,7 +32,7 @@ describe('authorization', function() {
       clientID: req.query['client_id'],
       redirectURI: req.query['redirect_uri'],
       scope: req.query['scope']
-    }
+    };
   });
   
   function validate(clientID, redirectURI, done) {
@@ -42,10 +45,10 @@ describe('authorization', function() {
     } else if (client.id == '2234' && user.id == 'u123') {
       return done(null, false);
     } else if (client.id == 'T234' && user.id == 'u123') {
-      throw new Error('something was thrown while checking immediate status')
+      throw new Error('something was thrown while checking immediate status');
     } else if (client.id == 'ER34' && user.id == 'u123') {
       return done(null, true, { scope: 'read' });
-    } 
+    }
     return done(new Error('something went wrong while checking immediate status'));
   }
   
@@ -85,7 +88,7 @@ describe('authorization', function() {
   });
   
   describe('handling a request that is not immediately authorized', function() {
-    var request, response, err;
+    var request, err;
 
     before(function(done) {
       chai.connect.use(authorization(server, validate, immediate))
@@ -123,7 +126,7 @@ describe('authorization', function() {
   });
   
   describe('handling a request that encounters an error while checking immediate status', function() {
-    var request, response, err;
+    var request, err;
 
     before(function(done) {
       chai.connect.use(authorization(server, validate, immediate))
@@ -155,7 +158,7 @@ describe('authorization', function() {
   });
   
   describe('handling a request that throws an error while checking immediate status', function() {
-    var request, response, err;
+    var request, err;
 
     before(function(done) {
       chai.connect.use(authorization(server, validate, immediate))
@@ -187,7 +190,7 @@ describe('authorization', function() {
   });
   
   describe('handling a request that is immediately authorized but encounters an error while responding', function() {
-    var request, response, err;
+    var request, err;
 
     before(function(done) {
       chai.connect.use(authorization(server, validate, immediate))
@@ -219,7 +222,7 @@ describe('authorization', function() {
   });
   
   describe('handling a request that is immediately authorized but unable to respond', function() {
-    var request, response, err;
+    var request, err;
 
     before(function(done) {
       chai.connect.use(authorization(server, validate, immediate))

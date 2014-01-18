@@ -1,3 +1,6 @@
+/* global describe, it, expect, before */
+/* jshint camelcase: false, expr: true, sub: true */
+
 var chai = require('chai')
   , authorization = require('../../lib/middleware/authorization')
   , Server = require('../../lib/server');
@@ -16,7 +19,7 @@ describe('authorization', function() {
       clientID: req.query['client_id'],
       redirectURI: req.query['redirect_uri'],
       scope: req.query['scope']
-    }
+    };
   });
   
   server.grant('throw-error', function(req) {

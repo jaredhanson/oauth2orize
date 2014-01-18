@@ -1,3 +1,6 @@
+/* global describe, it, expect, before */
+/* jshint expr: true */
+
 var chai = require('chai')
   , errorHandler = require('../../lib/middleware/errorHandler')
   , AuthorizationError = require('../../lib/errors/authorizationerror');
@@ -15,8 +18,6 @@ describe('errorHandler', function() {
   
       before(function(done) {
         chai.connect.use(errorHandler())
-          .req(function(req) {
-          })
           .end(function(r) {
             res = r;
             done();
@@ -40,8 +41,6 @@ describe('errorHandler', function() {
   
       before(function(done) {
         chai.connect.use(errorHandler())
-          .req(function(req) {
-          })
           .end(function(r) {
             res = r;
             done();
@@ -65,8 +64,6 @@ describe('errorHandler', function() {
   
       before(function(done) {
         chai.connect.use(errorHandler())
-          .req(function(req) {
-          })
           .end(function(r) {
             res = r;
             done();
@@ -341,8 +338,6 @@ describe('errorHandler', function() {
   
       before(function(done) {
         chai.connect.use(errorHandler({ mode: 'indirect' }))
-          .req(function(req) {
-          })
           .next(function(e) {
             err = e;
             done();
@@ -384,8 +379,6 @@ describe('errorHandler', function() {
   
       before(function(done) {
         chai.connect.use(errorHandler({ mode: 'unknown' }))
-          .req(function(req) {
-          })
           .next(function(e) {
             err = e;
             done();
