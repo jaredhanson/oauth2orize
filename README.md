@@ -176,6 +176,10 @@ how to implement an OAuth service provider, complete with protected API access.
     $ npm install
     $ npm test
 
+## Debugging
+
+oauth2orize uses the [debug module](https://www.npmjs.org/package/debug).  You can enable debugging messages on the console by doing ```export DEBUG=oauth2orize``` before running your application.
+
 ## Credits
 
   - [Jared Hanson](http://github.com/jaredhanson)
