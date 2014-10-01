@@ -3,6 +3,7 @@
 
 var chai = require('chai')
   , authorization = require('../../lib/middleware/authorization')
+  , AuthorizationError = require('../../lib/errors/authorizationerror')
   , Server = require('../../lib/server');
 
 
@@ -26,7 +27,22 @@ describe('authorization', function() {
     }
     return next(new Error('something went wrong while sending response'));
   });
-  
+
+  server.grant('token', function (req) {
+    return {
+      clientID: req.query['client_id'],
+      redirectURI: req.query['redirect_uri'],
+      scope: req.query['scope'],
+      immediate: req.query['immediate'] === 'true'
+    };
+  });
+  server.grant('token', 'response', function(txn, res, next) {
+    if ((txn.client.id == '1234' || txn.client.id == '2234') && txn.user.id == 'u123' && txn.res.allow === true && txn.res.scope === 'read') {
+      return res.redirect(txn.redirectURI);
+    }
+    return next(new Error('something went wrong while sending response'));
+  });
+
   server.grant('foo', function(req) {
     return {
       clientID: req.query['client_id'],
@@ -296,5 +312,61 @@ describe('authorization', function() {
       });
     });
   });
-  
+
+  describe('with immediate query flag and no user', function() {
+    var err;
+
+    function immediate(client, user, scope, done) {
+      done(null, false);
+    }
+
+    before(function(done) {
+      chai.connect.use(authorization(server, validate, immediate))
+        .req(function(req) {
+          req.query = { response_type: 'token', client_id: '1234', redirect_uri: 'http://example.com/auth/callback', immediate: 'true' };
+          req.session = {};
+        })
+        .next(function(e) {
+          err = e;
+          done();
+        })
+        .dispatch();
+    });
+
+    it('should error immediate_unsuccessful', function() {
+      expect(err).to.be.instanceOf(AuthorizationError);
+      expect(err.code).to.equal('immediate_unsuccessful');
+    });
+
+  });
+
+  describe('with immediate query flag and with an user', function() {
+    var err;
+
+    function immediate(client, user, scope, done) {
+      done(null, false);
+    }
+
+    before(function(done) {
+      chai.connect.use(authorization(server, validate, immediate))
+        .req(function(req) {
+          req.query = { response_type: 'token', client_id: '1234', redirect_uri: 'http://example.com/auth/callback', immediate: 'true' };
+          req.session = {};
+          req.user = { id: 'u123' };
+        })
+        .next(function(e) {
+          err = e;
+          done();
+        })
+        .dispatch();
+    });
+
+    it('should error immediate_unsuccessful', function() {
+      expect(err).to.be.instanceOf(AuthorizationError);
+      expect(err.code).to.equal('immediate_unsuccessful');
+    });
+
+  });
+
+
 });
