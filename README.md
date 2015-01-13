@@ -1,3 +1,10 @@
+# No longer maintained
+
+The original author of this module is satisfied with its completion and has moved on to other things.
+
+Further development for oauth2orize is continuing at https://github.com/coolaj86/oauth2orize
+
+
 # OAuth2orize
 
 [![Build](https://travis-ci.org/jaredhanson/oauth2orize.png)](https://travis-ci.org/jaredhanson/oauth2orize)
