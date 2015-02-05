@@ -27,7 +27,7 @@ Visit <http://localhost:3000/login> to see the server running locally.
 Provider / Consumer Walkthrough
 ===
 
-Interacting the this provider directly doesn't showcase it's oauth2 functionality.
+Interacting with this provider directly doesn't showcase it's oauth2 functionality.
 
 1. Visiting `/` takes you to a blank page... not too interesting
 2. `/login` will ask you for credentials.
@@ -47,7 +47,7 @@ Below is a mapping of the API in the context of a passport-strategy
 * `/dialog/authorize` is the `authorizationURL`.
 * `/oauth/token` is the `tokenURL`
 * `/api/userinfo` is a protected resource that requires user permission
-* `/api/clientinfo` is a protected that requires a token generated from the client's id and secret
+* `/api/clientinfo` is a protected resource that requires a token generated from the client's id and secret
 * Usage of `scope` is not demonstrated in this example.
 
 The standalone usable resources are
