@@ -18,6 +18,10 @@ describe('ForbiddenError', function() {
     it('should have status', function() {
       expect(err.status).to.equal(403);
     });
+    
+    it('should inherits from Error', function() {
+      expect(err).to.be.instanceof(Error);
+    });
   });
   
   describe('constructed with a message', function() {

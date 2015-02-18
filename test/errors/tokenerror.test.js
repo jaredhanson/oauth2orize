@@ -1,4 +1,5 @@
-var TokenError = require('../../lib/errors/tokenerror');
+var OAuth2Error = require('../../lib/errors/oauth2error')
+  , TokenError = require('../../lib/errors/tokenerror');
 
 
 describe('TokenError', function() {
@@ -16,6 +17,11 @@ describe('TokenError', function() {
     it('should format correctly', function() {
       //expect(err.toString()).to.equal('AuthorizationError');
       expect(err.toString().indexOf('TokenError')).to.equal(0);
+    });
+    
+    it('should inherits from OAuth2Error and Error', function() {
+      expect(err).to.be.instanceof(OAuth2Error);
+      expect(err).to.be.instanceof(Error);
     });
   });
   
