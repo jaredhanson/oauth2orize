@@ -38,6 +38,7 @@ describe('oauth2orize', function() {
   });
   
   it('should export Error constructors', function() {
+    expect(oauth2orize.OAuth2Error).to.be.a('function');
     expect(oauth2orize.AuthorizationError).to.be.a('function');
     expect(oauth2orize.TokenError).to.be.a('function');
   });
