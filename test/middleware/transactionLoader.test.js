@@ -177,7 +177,8 @@ describe('transactionLoader', function() {
     });
     
     it('should not restore transaction', function() {
-      expect(request.oauth2).to.be.undefined;
+      expect(Object.keys(request.oauth2)).to.have.length(1);
+      expect(request.oauth2.transactionID).to.equal('1234');
     });
     
     it('should leave transaction in session', function() {
