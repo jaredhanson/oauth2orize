@@ -202,6 +202,40 @@ describe('exchange.clientCredentials', function() {
     });
   });
   
+  describe('issuing an access token based on scope and body', function() {
+    function issue(client, scope, body, done) {
+      if (client.id == 'c123' && scope.length == 1 && scope[0] == 'read' && body.audience == 'https://www.example.com/') {
+        return done(null, 's3cr1t')
+      }
+      return done(new Error('something is wrong'));
+    }
+    
+    var response, err;
+
+    before(function(done) {
+      chai.connect.use(clientCredentials(issue))
+        .req(function(req) {
+          req.user = { id: 'c123', name: 'Example' };
+          req.body = { scope: 'read', audience: 'https://www.example.com/' };
+        })
+        .end(function(res) {
+          response = res;
+          done();
+        })
+        .dispatch();
+    });
+    
+    it('should respond with headers', function() {
+      expect(response.getHeader('Content-Type')).to.equal('application/json');
+      expect(response.getHeader('Cache-Control')).to.equal('no-store');
+      expect(response.getHeader('Pragma')).to.equal('no-cache');
+    });
+    
+    it('should respond with body', function() {
+      expect(response.body).to.equal('{"access_token":"s3cr1t","token_type":"Bearer"}');
+    });
+  });
+  
   describe('issuing an access token based on array of scopes', function() {
     function issue(client, scope, done) {
       if (client.id == 'c123' && scope.length == 2 && scope[0] == 'read' && scope[1] == 'write') {

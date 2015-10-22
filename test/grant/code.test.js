@@ -705,4 +705,41 @@ describe('grant.code', function() {
     });
   });
   
+  describe('decision handling with user response and client request', function() {
+    function issue(client, redirectURI, user, ares, areq, done) {
+      if (client.id == 'c123' && redirectURI == 'http://example.com/auth/callback' && user.id == 'u123' && ares.scope == 'foo' && areq.codeChallenge == 'hashed-s3cr1t') {
+        return done(null, 'xyz');
+      }
+      return done(new Error('something went wrong'));
+    }
+    
+    describe('transaction with response scope', function() {
+      var response;
+      
+      before(function(done) {
+        chai.oauth2orize.grant(code(issue))
+          .txn(function(txn) {
+            txn.client = { id: 'c123', name: 'Example' };
+            txn.redirectURI = 'http://www.example.com/auth/callback';
+            txn.req = {
+              redirectURI: 'http://example.com/auth/callback',
+              codeChallenge: 'hashed-s3cr1t'
+            };
+            txn.user = { id: 'u123', name: 'Bob' };
+            txn.res = { allow: true, scope: 'foo' };
+          })
+          .end(function(res) {
+            response = res;
+            done();
+          })
+          .decide();
+      });
+      
+      it('should respond', function() {
+        expect(response.statusCode).to.equal(302);
+        expect(response.getHeader('Location')).to.equal('http://www.example.com/auth/callback?code=xyz');
+      });
+    });
+  });
+  
 });

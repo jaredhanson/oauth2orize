@@ -1,10 +1,10 @@
 # OAuth2orize
 
-[![Build](https://travis-ci.org/jaredhanson/oauth2orize.png)](https://travis-ci.org/jaredhanson/oauth2orize)
-[![Coverage](https://coveralls.io/repos/jaredhanson/oauth2orize/badge.png)](https://coveralls.io/r/jaredhanson/oauth2orize)
-[![Quality](https://codeclimate.com/github/jaredhanson/oauth2orize.png)](https://codeclimate.com/github/jaredhanson/oauth2orize)
-[![Dependencies](https://david-dm.org/jaredhanson/oauth2orize.png)](https://david-dm.org/jaredhanson/oauth2orize)
-[![Tips](http://img.shields.io/gittip/jaredhanson.png)](https://www.gittip.com/jaredhanson/)
+[![Build](https://travis-ci.org/jaredhanson/oauth2orize.svg?branch=master)](https://travis-ci.org/jaredhanson/oauth2orize)
+[![Coverage](https://coveralls.io/repos/jaredhanson/oauth2orize/badge.svg?branch=master)](https://coveralls.io/r/jaredhanson/oauth2orize)
+[![Quality](https://codeclimate.com/github/jaredhanson/oauth2orize/badges/gpa.svg)](https://codeclimate.com/github/jaredhanson/oauth2orize)
+[![Dependencies](https://david-dm.org/jaredhanson/oauth2orize.svg)](https://david-dm.org/jaredhanson/oauth2orize)
+[![Tips](https://img.shields.io/gratipay/jaredhanson.svg)](https://gratipay.com/jaredhanson/)
 
 
 OAuth2orize is an authorization server toolkit for Node.js.  It provides a suite
@@ -176,6 +176,10 @@ how to implement an OAuth service provider, complete with protected API access.
     $ npm install
     $ npm test
 
+## Debugging
+
+oauth2orize uses the [debug module](https://www.npmjs.org/package/debug).  You can enable debugging messages on the console by doing ```export DEBUG=oauth2orize``` before running your application.
+
 ## Credits
 
   - [Jared Hanson](http://github.com/jaredhanson)
@@ -184,4 +188,4 @@ how to implement an OAuth service provider, complete with protected API access.
 
 [The MIT License](http://opensource.org/licenses/MIT)
 
-Copyright (c) 2012-2013 Jared Hanson <[http://jaredhanson.net/](http://jaredhanson.net/)>
+Copyright (c) 2012-2015 Jared Hanson <[http://jaredhanson.net/](http://jaredhanson.net/)>
