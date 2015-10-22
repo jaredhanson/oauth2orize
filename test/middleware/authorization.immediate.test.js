@@ -289,10 +289,61 @@ describe('authorization', function() {
     
       it('should add transaction', function() {
         expect(request.oauth2).to.be.an('object');
+        expect(request.oauth2.res).to.be.an('object');
+        expect(request.oauth2.res.allow).to.equal(true);
+        expect(request.oauth2.res.scope).to.equal('read');
       });
     
       it('should not store transaction in session', function() {
         expect(request.session['authorize']).to.be.undefined;
+      });
+    });
+    
+    describe('handling a request that is not immediately authorized', function() {
+      var request, response, err;
+
+      function immediate(client, user, scope, done) {
+        if (client.id == '1234' && user.id == 'u123' && scope == 'profile') {
+          return done(null, false, { scope: 'read', format: 'application/jwt' });
+        }
+        return done(new Error('something went wrong while checking immediate status'));
+      }
+
+      before(function(done) {
+        chai.connect.use('express', authorization(server, validate, immediate))
+          .req(function(req) {
+            request = req;
+            req.query = { response_type: 'code', client_id: '1234', redirect_uri: 'http://example.com/auth/callback', scope: 'profile' };
+            req.session = {};
+            req.user = { id: 'u123' };
+          })
+          .next(function(e) {
+            err = e;
+            done();
+          })
+          .dispatch();
+      });
+    
+      it('should not error', function() {
+        expect(err).to.be.undefined;
+      });
+    
+      it('should add transaction', function() {
+        expect(request.oauth2).to.be.an('object');
+        expect(request.oauth2.res).to.be.undefined;
+      });
+    
+      it('should store transaction in session', function() {
+        var tid = request.oauth2.transactionID;
+        expect(request.session['authorize'][tid]).to.be.an('object');
+        expect(request.session['authorize'][tid].protocol).to.equal('oauth2');
+        expect(request.session['authorize'][tid].client).to.equal('1234');
+        expect(request.session['authorize'][tid].redirectURI).to.equal('http://example.com/auth/callback');
+        expect(request.session['authorize'][tid].req.type).to.equal('code');
+        expect(request.session['authorize'][tid].req.clientID).to.equal('1234');
+        expect(request.session['authorize'][tid].req.redirectURI).to.equal('http://example.com/auth/callback');
+        expect(request.session['authorize'][tid].info.format).to.equal('application/jwt');
+        expect(request.session['authorize'][tid].info.scope).to.equal('read');
       });
     });
   });
