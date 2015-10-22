@@ -80,7 +80,8 @@ describe('transactionLoader', function() {
           req.session.authorize['1234'] = {
             client: '1',
             redirectURI: 'http://www.example.com/auth/callback',
-            req: { redirectURI: 'http://www.example.com/auth/callback', foo: 'bar' }
+            req: { redirectURI: 'http://www.example.com/auth/callback', foo: 'bar' },
+            info: { beep: 'boop' }
           };
         })
         .next(function(e) {
@@ -102,6 +103,7 @@ describe('transactionLoader', function() {
       expect(request.oauth2.redirectURI).to.equal('http://www.example.com/auth/callback');
       expect(request.oauth2.req.redirectURI).to.equal('http://www.example.com/auth/callback');
       expect(request.oauth2.req.foo).to.equal('bar');
+      expect(request.oauth2.info.beep).to.equal('boop');
     });
     
     it('should leave transaction in session', function() {
