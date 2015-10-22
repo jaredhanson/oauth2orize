@@ -254,15 +254,15 @@ describe('authorization', function() {
   });
   
   describe('immediate callback with scope', function() {
-    function immediate(client, user, scope, done) {
-      if (client.id == '1234' && user.id == 'u123' && scope == 'profile') {
-        return done(null, true, { scope: 'read' });
-      }
-      return done(new Error('something went wrong while checking immediate status'));
-    }
-    
     describe('handling a request that is immediately authorized', function() {
       var request, response, err;
+
+      function immediate(client, user, scope, done) {
+        if (client.id == '1234' && user.id == 'u123' && scope == 'profile') {
+          return done(null, true, { scope: 'read' });
+        }
+        return done(new Error('something went wrong while checking immediate status'));
+      }
 
       before(function(done) {
         chai.connect.use('express', authorization(server, validate, immediate))
