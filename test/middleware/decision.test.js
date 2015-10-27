@@ -542,6 +542,62 @@ describe('decision', function() {
     });
   });
   
+  describe('with parsing function that clears session', function() {
+    var mw = decision(server, function(req, done) {
+      req.session = {};
+      done(null, { scope: req.query.scope });
+    });
+    
+    describe('handling a user decision', function() {
+      var request, response;
+
+      before(function(done) {
+        chai.connect.use('express', mw)
+          .req(function(req) {
+            request = req;
+            req.query = {};
+            req.query.scope = 'no-email';
+            req.body = {};
+            req.session = {};
+            req.session['authorize'] = {};
+            req.session['authorize']['abc123'] = { protocol: 'oauth2' };
+            req.user = { id: 'u1234', username: 'bob' };
+            req.oauth2 = {};
+            req.oauth2.transactionID = 'abc123';
+            req.oauth2.client = { id: 'c5678', name: 'Example' };
+            req.oauth2.redirectURI = 'http://example.com/auth/callback';
+            req.oauth2.req = { type: 'code', scope: 'email' };
+          })
+          .end(function(res) {
+            response = res;
+            done();
+          })
+          .dispatch();
+      });
+    
+      it('should set user on transaction', function() {
+        expect(request.oauth2.user).to.be.an('object');
+        expect(request.oauth2.user.id).to.equal('u1234');
+        expect(request.oauth2.user.username).to.equal('bob');
+      });
+    
+      it('should set response on transaction', function() {
+        expect(request.oauth2.res).to.be.an('object');
+        expect(request.oauth2.res.allow).to.be.true;
+        expect(request.oauth2.res.scope).to.equal('no-email');
+      });
+    
+      it('should respond', function() {
+        expect(response.statusCode).to.equal(302);
+        expect(response.getHeader('Location')).to.equal('http://example.com/auth/callback?code=a1b1c1');
+      });
+    
+      it('should remain a cleared session', function() {
+        expect(Object.keys(request.session).length).to.equal(0);
+      });
+    });
+  });
+  
   describe('with cancel field option', function() {
     var mw = decision(server, { cancelField: 'deny' });
     
