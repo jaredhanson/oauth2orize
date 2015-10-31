@@ -529,6 +529,181 @@ describe('grant.code', function() {
       });
     });
   });
+
+  describe('responseMode.form_post', function () {
+    function issue(client, redirectURI, user, done) {
+      if (client.id == 'c123' && redirectURI == 'http://example.com/auth/callback' && user.id == 'u123') {
+        return done(null, 'xyz');
+      } else if (client.id == 'cUNAUTHZ') {
+        return done(null, false);
+      } else if (client.id == 'cTHROW') {
+        throw new Error('something was thrown');
+      }
+      return done(new Error('something went wrong'));
+    }
+
+    describe('transaction', function() {
+      var response;
+      
+      before(function(done) {
+        chai.oauth2orize.grant(code(issue))
+          .txn(function(txn) {
+            txn.client = { id: 'c123', name: 'Example' };
+            txn.redirectURI = 'http://www.example.com/auth/callback';
+            txn.req = {
+              redirectURI: 'http://example.com/auth/callback',
+              responseMode: 'form_post'
+            };
+            txn.user = { id: 'u123', name: 'Bob' };
+            txn.res = { allow: true };
+          })
+          .end(function(res) {
+            response = res;
+            done();
+          })
+          .decide();
+      });
+      
+      it('should respond', function() {
+        expect(response.statusCode).to.equal(200);
+        expect(response.getHeader('Content-Type')).to.equal('text/html;charset=UTF-8');
+        expect(response.getHeader('Cache-Control')).to.equal('no-store');
+        expect(response.getHeader('Pragma')).to.equal('no-cache');
+        expect(response._data).to.have.string('<form method="post" action="http://www.example.com/auth/callback">');
+        expect(response._data).to.have.string('<input type="hidden" name="code" value="xyz"/>');
+      });
+    });
+
+    describe('transaction with request state', function() {
+      var response;
+      
+      before(function(done) {
+        chai.oauth2orize.grant(code(issue))
+          .txn(function(txn) {
+            txn.client = { id: 'c123', name: 'Example' };
+            txn.redirectURI = 'http://www.example.com/auth/callback';
+            txn.req = {
+              redirectURI: 'http://example.com/auth/callback',
+              state: 'f1o1o1',
+              responseMode: 'form_post'
+            };
+            txn.user = { id: 'u123', name: 'Bob' };
+            txn.res = { allow: true };
+          })
+          .end(function(res) {
+            response = res;
+            done();
+          })
+          .decide();
+      });
+      
+      it('should respond', function() {
+        expect(response.statusCode).to.equal(200);
+        expect(response.getHeader('Content-Type')).to.equal('text/html;charset=UTF-8');
+        expect(response.getHeader('Cache-Control')).to.equal('no-store');
+        expect(response.getHeader('Pragma')).to.equal('no-cache');
+        expect(response._data).to.have.string('<form method="post" action="http://www.example.com/auth/callback">');
+        expect(response._data).to.have.string('<input type="hidden" name="code" value="xyz"/>');
+        expect(response._data).to.have.string('<input type="hidden" name="state" value="f1o1o1"/>');
+      });
+    });
+    
+    describe('disallowed transaction', function() {
+      var response;
+      
+      before(function(done) {
+        chai.oauth2orize.grant(code(issue))
+          .txn(function(txn) {
+            txn.client = { id: 'c123', name: 'Example' };
+            txn.redirectURI = 'http://www.example.com/auth/callback';
+            txn.req = {
+              redirectURI: 'http://example.com/auth/callback',
+              responseMode: 'form_post'
+            };
+            txn.user = { id: 'u123', name: 'Bob' };
+            txn.res = { allow: false };
+          })
+          .end(function(res) {
+            response = res;
+            done();
+          })
+          .decide();
+      });
+      
+      it('should respond', function() {
+        expect(response.statusCode).to.equal(200);
+        expect(response.getHeader('Content-Type')).to.equal('text/html;charset=UTF-8');
+        expect(response.getHeader('Cache-Control')).to.equal('no-store');
+        expect(response.getHeader('Pragma')).to.equal('no-cache');
+        expect(response._data).to.have.string('<form method="post" action="http://www.example.com/auth/callback">');
+        expect(response._data).to.have.string('<input type="hidden" name="error" value="access_denied"/>');
+      });
+    });
+    
+    describe('disallowed transaction with request state', function() {
+      var response;
+      
+      before(function(done) {
+        chai.oauth2orize.grant(code(issue))
+          .txn(function(txn) {
+            txn.client = { id: 'c123', name: 'Example' };
+            txn.redirectURI = 'http://www.example.com/auth/callback';
+            txn.req = {
+              redirectURI: 'http://example.com/auth/callback',
+              state: 'f2o2o2',
+              responseMode: 'form_post'
+            };
+            txn.user = { id: 'u123', name: 'Bob' };
+            txn.res = { allow: false };
+          })
+          .end(function(res) {
+            response = res;
+            done();
+          })
+          .decide();
+      });
+      
+      it('should respond', function() {
+        expect(response.statusCode).to.equal(200);
+        expect(response.getHeader('Content-Type')).to.equal('text/html;charset=UTF-8');
+        expect(response.getHeader('Cache-Control')).to.equal('no-store');
+        expect(response.getHeader('Pragma')).to.equal('no-cache');
+        expect(response._data).to.have.string('<form method="post" action="http://www.example.com/auth/callback">');
+        expect(response._data).to.have.string('<input type="hidden" name="error" value="access_denied"/>');
+        expect(response._data).to.have.string('<input type="hidden" name="state" value="f2o2o2"/>');
+      });
+    });
+
+    describe('transaction with unsupported responseMode', function() {
+      var err;
+      
+      before(function(done) {
+        chai.oauth2orize.grant(code(issue))
+          .txn(function(txn) {
+            txn.client = { id: 'c123', name: 'Example' };
+            txn.redirectURI = 'http://www.example.com/auth/callback';
+            txn.req = {
+              redirectURI: 'http://example.com/auth/callback',
+              responseMode: 'invalid_mode'
+            };
+            txn.user = { id: 'u123', name: 'Bob' };
+            txn.res = { allow: true };
+          })
+          .next(function(e) {
+            err = e;
+            done();
+          })
+          .decide();
+      });
+      
+      it('should respond', function() {
+        expect(err).to.be.an.instanceOf(Error);
+        expect(err.constructor.name).to.equal('AuthorizationError');
+        expect(err.message).to.equal('Unsupported response mode: invalid_mode');
+        expect(err.code).to.equal('unsupported_response_mode');
+      });
+    });
+  });
   
   describe('decision handling with user response and client request', function() {
     function issue(client, redirectURI, user, ares, areq, done) {
