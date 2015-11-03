@@ -333,6 +333,74 @@ describe('errorHandler', function() {
       });
     });
     
+    describe('handling an error with state using custom response mode', function() {
+      var customResponseMode = function(txn, res, params) {
+        expect(txn.req.redirectURI).to.equal('http://example.com/auth/callback');
+        expect(params.error).to.equal('server_error');
+        expect(params.error_description).to.equal('something went wrong');
+        expect(params.state).to.equal('1234');
+      
+        res.redirect('/custom');
+      }
+      
+      var res;
+  
+      before(function(done) {
+        chai.connect.use('express', errorHandler({ mode: 'indirect', modes: { custom: customResponseMode } }))
+          .req(function(req) {
+            req.oauth2 = { redirectURI: 'http://example.com/auth/callback' };
+            req.oauth2.req = { type: 'token', redirectURI: 'http://example.com/auth/callback', state: '1234', responseMode: 'custom' };
+          })
+          .end(function(r) {
+            res = r;
+            done();
+          })
+          .dispatch(new Error('something went wrong'));
+      });
+  
+      it('should set response headers', function() {
+        expect(res.statusCode).to.equal(302);
+        expect(res.getHeader('Location')).to.equal('/custom');
+        expect(res.getHeader('Content-Type')).to.be.undefined;
+        expect(res.getHeader('WWW-Authenticate')).to.be.undefined;
+      });
+      
+      it('should not set response body', function() {
+        expect(res.body).to.be.undefined;
+      });
+    });
+    
+    describe('handling an error with state using unsupported response mode', function() {
+      var customResponseMode = function(txn, res, params) {
+        expect(txn.req.redirectURI).to.equal('http://example.com/auth/callback');
+        expect(params.error).to.equal('server_error');
+        expect(params.error_description).to.equal('something went wrong');
+        expect(params.state).to.equal('1234');
+      
+        res.redirect('/custom');
+      }
+      
+      var err;
+  
+      before(function(done) {
+        chai.connect.use('express', errorHandler({ mode: 'indirect', modes: { custom: customResponseMode } }))
+          .req(function(req) {
+            req.oauth2 = { redirectURI: 'http://example.com/auth/callback' };
+            req.oauth2.req = { type: 'token', redirectURI: 'http://example.com/auth/callback', state: '1234', responseMode: 'fubar' };
+          })
+          .next(function(e) {
+            err = e;
+            done();
+          })
+          .dispatch(new Error('something went wrong'));
+      });
+  
+      it('should next with error', function() {
+        expect(err).to.be.an.instanceOf(Error);
+        expect(err.message).to.equal('something went wrong');
+      });
+    });
+    
     describe('handling a request error without an OAuth 2.0 transaction', function() {
       var err;
   
