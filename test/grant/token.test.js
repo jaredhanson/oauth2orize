@@ -699,6 +699,39 @@ describe('grant.token', function() {
         expect(response.getHeader('Location')).to.equal('/foo');
       });
     });
+    
+    describe('transaction using unsupported response mode', function() {
+      var err;
+      
+      before(function(done) {
+        chai.oauth2orize.grant(token({ modes: { foo: fooResponseMode } }, issue))
+          .txn(function(txn) {
+            txn.client = { id: 'c123', name: 'Example' };
+            txn.redirectURI = 'http://example.com/auth/callback';
+            txn.req = {
+              redirectURI: 'http://example.com/auth/callback',
+              state: 's1t2u3',
+              responseMode: 'fubar'
+            };
+            txn.user = { id: 'u123', name: 'Bob' };
+            txn.res = { allow: true };
+          })
+          .next(function(e) {
+            err = e;
+            done();
+          })
+          .decide();
+      });
+      
+      it('should error', function() {
+        expect(err).to.be.an.instanceOf(Error);
+        expect(err.constructor.name).to.equal('AuthorizationError');
+        expect(err.message).to.equal('Unsupported response mode: fubar');
+        expect(err.code).to.equal('server_error');
+        expect(err.uri).to.equal(null);
+        expect(err.status).to.equal(501);
+      });
+    });
   });
 
 });
