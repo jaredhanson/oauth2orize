@@ -587,5 +587,151 @@ describe('grant.token', function() {
       });
     });
   });
+  
+  describe('decision handling with response mode', function() {
+    function issue(client, user, done) {
+      if (client.id == 'c123' && user.id == 'u123') {
+        return done(null, 'xyz');
+      }
+      return done(new Error('something is wrong'));
+    }
+    
+    var fooResponseMode = function(txn, res, params) {
+      expect(txn.req.redirectURI).to.equal('http://example.com/auth/callback');
+      expect(params.access_token).to.equal('xyz');
+      expect(params.token_type).to.equal('Bearer');
+      expect(params.state).to.equal('s1t2u3');
+      
+      res.redirect('/foo');
+    }
+    
+    
+    describe('transaction using default response mode', function() {
+      var response;
+      
+      before(function(done) {
+        chai.oauth2orize.grant(token({ modes: { foo: fooResponseMode } }, issue))
+          .txn(function(txn) {
+            txn.client = { id: 'c123', name: 'Example' };
+            txn.redirectURI = 'http://example.com/auth/callback';
+            txn.req = {
+              redirectURI: 'http://example.com/auth/callback',
+              state: 's1t2u3'
+            };
+            txn.user = { id: 'u123', name: 'Bob' };
+            txn.res = { allow: true };
+          })
+          .end(function(res) {
+            response = res;
+            done();
+          })
+          .decide();
+      });
+      
+      it('should respond', function() {
+        expect(response.statusCode).to.equal(302);
+        expect(response.getHeader('Location')).to.equal('http://example.com/auth/callback#access_token=xyz&token_type=Bearer&state=s1t2u3');
+      });
+    });
+    
+    describe('transaction using foo response mode', function() {
+      var response;
+      
+      before(function(done) {
+        chai.oauth2orize.grant(token({ modes: { foo: fooResponseMode } }, issue))
+          .txn(function(txn) {
+            txn.client = { id: 'c123', name: 'Example' };
+            txn.redirectURI = 'http://example.com/auth/callback';
+            txn.req = {
+              redirectURI: 'http://example.com/auth/callback',
+              state: 's1t2u3',
+              responseMode: 'foo'
+            };
+            txn.user = { id: 'u123', name: 'Bob' };
+            txn.res = { allow: true };
+          })
+          .end(function(res) {
+            response = res;
+            done();
+          })
+          .decide();
+      });
+      
+      it('should respond', function() {
+        expect(response.statusCode).to.equal(302);
+        expect(response.getHeader('Location')).to.equal('/foo');
+      });
+    });
+    
+    describe('disallowed transaction using foo response mode', function() {
+      var fooResponseMode = function(txn, res, params) {
+        expect(txn.req.redirectURI).to.equal('http://example.com/auth/callback');
+        expect(params.error).to.equal('access_denied');
+        expect(params.state).to.equal('s1t2u3');
+      
+        res.redirect('/foo');
+      }
+      
+      var response;
+      
+      before(function(done) {
+        chai.oauth2orize.grant(token({ modes: { foo: fooResponseMode } }, issue))
+          .txn(function(txn) {
+            txn.client = { id: 'c123', name: 'Example' };
+            txn.redirectURI = 'http://example.com/auth/callback';
+            txn.req = {
+              redirectURI: 'http://example.com/auth/callback',
+              state: 's1t2u3',
+              responseMode: 'foo'
+            };
+            txn.user = { id: 'u123', name: 'Bob' };
+            txn.res = { allow: false };
+          })
+          .end(function(res) {
+            response = res;
+            done();
+          })
+          .decide();
+      });
+      
+      it('should respond', function() {
+        expect(response.statusCode).to.equal(302);
+        expect(response.getHeader('Location')).to.equal('/foo');
+      });
+    });
+    
+    describe('transaction using unsupported response mode', function() {
+      var err;
+      
+      before(function(done) {
+        chai.oauth2orize.grant(token({ modes: { foo: fooResponseMode } }, issue))
+          .txn(function(txn) {
+            txn.client = { id: 'c123', name: 'Example' };
+            txn.redirectURI = 'http://example.com/auth/callback';
+            txn.req = {
+              redirectURI: 'http://example.com/auth/callback',
+              state: 's1t2u3',
+              responseMode: 'fubar'
+            };
+            txn.user = { id: 'u123', name: 'Bob' };
+            txn.res = { allow: true };
+          })
+          .next(function(e) {
+            err = e;
+            done();
+          })
+          .decide();
+      });
+      
+      it('should error', function() {
+        expect(err).to.be.an.instanceOf(Error);
+        expect(err.constructor.name).to.equal('AuthorizationError');
+        expect(err.message).to.equal('Unsupported response mode: fubar');
+        expect(err.code).to.equal('unsupported_response_mode');
+        expect(err.uri).to.equal(null);
+        expect(err.status).to.equal(501);
+      });
+    });
+  });
 
 });
