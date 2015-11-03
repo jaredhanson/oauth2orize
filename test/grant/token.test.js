@@ -727,7 +727,7 @@ describe('grant.token', function() {
         expect(err).to.be.an.instanceOf(Error);
         expect(err.constructor.name).to.equal('AuthorizationError');
         expect(err.message).to.equal('Unsupported response mode: fubar');
-        expect(err.code).to.equal('server_error');
+        expect(err.code).to.equal('unsupported_response_mode');
         expect(err.uri).to.equal(null);
         expect(err.status).to.equal(501);
       });
