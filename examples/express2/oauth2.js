@@ -5,7 +5,7 @@ var oauth2orize = require('oauth2orize')
   , passport = require('passport')
   , login = require('connect-ensure-login')
   , db = require('./db')
-  , utils = require('./utils');
+  , uid2 = require('uid2');
 
 // create OAuth 2.0 server
 var server = oauth2orize.createServer();
@@ -49,12 +49,13 @@ server.deserializeClient(function(id, done) {
 // values, and will be exchanged for an access token.
 
 server.grant(oauth2orize.grant.code(function(client, redirectURI, user, ares, done) {
-  var code = utils.uid(16)
-  
-  db.authorizationCodes.save(code, client.id, redirectURI, user.id, function(err) {
-    if (err) { return done(err); }
-    done(null, code);
-  });
+  uid2(16, function(er, code){
+    db.authorizationCodes.save(code, client.id, redirectURI, user.id, function(err) {
+      if(err) { return done(err); }
+
+      done(null, code);
+    });
+  });  
 }));
 
 // Exchange authorization codes for access tokens.  The callback accepts the
@@ -72,15 +73,15 @@ server.exchange(oauth2orize.exchange.code(function(client, code, redirectURI, do
 
       db.authorizationCodes.delete(code, function(err) {
         if(err) { return done(err); }
-        var token = utils.uid(256);
-        db.accessTokens.save(token, authCode.userID, authCode.clientID, function(err) {
-          if (err) { return done(err); }
-            done(null, token);
+        uid2(256, function(err, token){
+          db.accessTokens.save(token, authCode.userID, authCode.clientID, function(err) {
+            if (err) { return done(err); }
+              done(null, token);
+          });
         });
       });
   });
 }));
-
 
 
 // user authorization endpoint

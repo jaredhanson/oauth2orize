@@ -5,7 +5,7 @@ var oauth2orize = require('oauth2orize')
   , passport = require('passport')
   , login = require('connect-ensure-login')
   , db = require('./db')
-  , utils = require('./utils');
+  , uid2 = require('uid2');
 
 // create OAuth 2.0 server
 var server = oauth2orize.createServer();
@@ -49,11 +49,13 @@ server.deserializeClient(function(id, done) {
 // values, and will be exchanged for an access token.
 
 server.grant(oauth2orize.grant.code(function(client, redirectURI, user, ares, done) {
-  var code = utils.uid(16)
-  
-  db.authorizationCodes.save(code, client.id, redirectURI, user.id, function(err) {
+  uid2(16, function(err, code) {
     if (err) { return done(err); }
-    done(null, code);
+
+    db.authorizationCodes.save(code, client.id, redirectURI, user.id, function(err) {
+      if (err) { return done(err); }
+      done(null, code);
+    });
   });
 }));
 
@@ -64,12 +66,13 @@ server.grant(oauth2orize.grant.code(function(client, redirectURI, user, ares, do
 // values.
 
 server.grant(oauth2orize.grant.token(function(client, user, ares, done) {
-    var token = utils.uid(256);
-
+  uid2(256, function(err, token) {
+    if (err) { return done(err); }
     db.accessTokens.save(token, user.id, client.clientId, function(err) {
-        if (err) { return done(err); }
-        done(null, token);
+      if (err) { return done(err); }
+      done(null, token);
     });
+  });  
 }));
 
 // Exchange authorization codes for access tokens.  The callback accepts the
@@ -84,10 +87,12 @@ server.exchange(oauth2orize.exchange.code(function(client, code, redirectURI, do
     if (client.id !== authCode.clientID) { return done(null, false); }
     if (redirectURI !== authCode.redirectURI) { return done(null, false); }
     
-    var token = utils.uid(256)
-    db.accessTokens.save(token, authCode.userID, authCode.clientID, function(err) {
+    uid2(256, function(err, token) {
       if (err) { return done(err); }
-      done(null, token);
+      db.accessTokens.save(token, authCode.userID, authCode.clientID, function(err) {
+        if (err) { return done(err); }
+        done(null, token);
+      });
     });
   });
 }));
@@ -118,10 +123,12 @@ server.exchange(oauth2orize.exchange.password(function(client, username, passwor
                 return done(null, false);
             }
             //Everything validated, return the token
-            var token = utils.uid(256);
-            db.accessTokens.save(token, user.id, client.clientId, function(err) {
+            uid2(256, function(err, token) {
+              if (err) { return done(err); }
+              db.accessTokens.save(token, user.id, client.clientId, function(err) {
                 if (err) { return done(err); }
                 done(null, token);
+              });
             });
         });
     });
@@ -143,11 +150,14 @@ server.exchange(oauth2orize.exchange.clientCredentials(function(client, scope, d
         if(localClient.clientSecret !== client.clientSecret) {
             return done(null, false);
         }
-        var token = utils.uid(256);
-        //Pass in a null for user id since there is no user with this grant type
-        db.accessTokens.save(token, null, client.clientId, function(err) {
-            if (err) { return done(err); }
-            done(null, token);
+
+        uid2(256, function(err, token) {
+          if (err) { return done(err); }
+          //Pass in a null for user id since there is no user with this grant type
+          db.accessTokens.save(token, null, client.clientId, function(err) {
+              if (err) { return done(err); }
+              done(null, token);
+          });
         });
     });
 }));
