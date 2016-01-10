@@ -204,7 +204,7 @@ describe('exchange.refreshToken', function() {
   });
 
   describe('issuing an access token based on scope and body', function() {
-    function issue(client, refreshToken, scope, body, header, done) {
+    function issue(client, refreshToken, scope, body, headers, done) {
       if (client.id == 'c123' && refreshToken == 'refreshing'
           && scope.length == 1 && scope[0] == 'read'
           && body.audience == 'https://www.example.com/') {

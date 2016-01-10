@@ -203,7 +203,7 @@ describe('exchange.clientCredentials', function() {
   });
 
   describe('issuing an access token based on scope and body', function() {
-    function issue(client, scope, body, header, done) {
+    function issue(client, scope, body, headers, done) {
       if (client.id == 'c123' && scope.length == 1 && scope[0] == 'read' && body.audience == 'https://www.example.com/') {
         return done(null, 's3cr1t')
       }

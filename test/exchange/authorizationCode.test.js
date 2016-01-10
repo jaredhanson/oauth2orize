@@ -171,7 +171,7 @@ describe('exchange.authorizationCode', function() {
   describe('issuing an access token based on body', function() {
     var response, err;
 
-    function issue(client, code, redirectURI, body, header, done) {
+    function issue(client, code, redirectURI, body, headers, done) {
       if (client.id == 'c123' && code == 'abc123' && redirectURI == 'http://example.com/oa/callback' && body.code_verifier == 's3cr1t') {
         return done(null, 's3cr1t');
       }

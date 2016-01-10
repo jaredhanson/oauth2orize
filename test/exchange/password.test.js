@@ -204,7 +204,7 @@ describe('exchange.password', function() {
   });
 
   describe('issuing an access token based on scope and body', function() {
-    function issue(client, username, passwd, scope, body, header, done) {
+    function issue(client, username, passwd, scope, body, headers, done) {
       if (client.id == 'c123' && username == 'bob' && passwd == 'shh'
           && scope.length == 1 && scope[0] == 'read'
           && body.audience == 'https://www.example.com/') {
