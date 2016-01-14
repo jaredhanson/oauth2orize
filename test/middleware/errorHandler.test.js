@@ -34,6 +34,25 @@ describe('errorHandler', function() {
       it('should set response body', function() {
         expect(res.body).to.equal('{"error":"server_error","error_description":"something went wrong"}');
       });
+
+    });
+    
+    describe('handling an unknown error when handleAllErrors = false', function() {
+      var err;
+      
+      before(function(done) {
+        chai.connect.use(errorHandler({ handleAllErrors: false }))
+        .next(function(e) {
+          err = e;
+          done();
+        })
+        .dispatch(new Error('something went wrong'));
+      });
+      
+      it('should next with error', function() {
+        expect(err).to.be.an.instanceOf(Error);
+        expect(err.message).to.equal('something went wrong');
+      });
     });
     
     describe('handling an authorization error', function() {
@@ -59,11 +78,57 @@ describe('errorHandler', function() {
       });
     });
     
+    describe('handling an authorization error when handleAllErrors = false', function() {
+      var res;
+  
+      before(function(done) {
+        chai.connect.use(errorHandler({ handleAllErrors: false }))
+          .end(function(r) {
+            res = r;
+            done();
+          })
+          .dispatch(new AuthorizationError('something went wrong', 'invalid_request'));
+      });
+  
+      it('should set response headers', function() {
+        expect(res.statusCode).to.equal(400);
+        expect(res.getHeader('Content-Type')).to.equal('application/json');
+        expect(res.getHeader('WWW-Authenticate')).to.be.undefined;
+      });
+      
+      it('should set response body', function() {
+        expect(res.body).to.equal('{"error":"invalid_request","error_description":"something went wrong"}');
+      });
+    });
+    
     describe('handling an authorization error with URI', function() {
       var res;
   
       before(function(done) {
         chai.connect.use(errorHandler())
+          .end(function(r) {
+            res = r;
+            done();
+          })
+          .dispatch(new AuthorizationError('something went wrong', 'invalid_request', 'http://example.com/errors/1'));
+      });
+  
+      it('should set response headers', function() {
+        expect(res.statusCode).to.equal(400);
+        expect(res.getHeader('Content-Type')).to.equal('application/json');
+        expect(res.getHeader('WWW-Authenticate')).to.be.undefined;
+      });
+      
+      it('should set response body', function() {
+        expect(res.body).to.equal('{"error":"invalid_request","error_description":"something went wrong","error_uri":"http://example.com/errors/1"}');
+      });
+    });
+    
+    describe('handling an authorization error with URI when handleAllErrors = false', function() {
+      var res;
+  
+      before(function(done) {
+        chai.connect.use(errorHandler({ handleAllErrors: false }))
           .end(function(r) {
             res = r;
             done();
