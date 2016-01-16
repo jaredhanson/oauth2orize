@@ -204,10 +204,46 @@ describe('exchange.refreshToken', function() {
   });
 
   describe('issuing an access token based on scope and body', function() {
-    function issue(client, refreshToken, scope, body, headers, done) {
+    function issue(client, refreshToken, scope, body, done) {
       if (client.id == 'c123' && refreshToken == 'refreshing'
           && scope.length == 1 && scope[0] == 'read'
           && body.audience == 'https://www.example.com/') {
+        return done(null, 's3cr1t')
+      }
+      return done(new Error('something is wrong'));
+    }
+
+    var response, err;
+
+    before(function(done) {
+      chai.connect.use(refreshToken(issue))
+        .req(function(req) {
+          req.user = { id: 'c123', name: 'Example' };
+          req.body = { refresh_token: 'refreshing', scope: 'read', audience: 'https://www.example.com/' };
+        })
+        .end(function(res) {
+          response = res;
+          done();
+        })
+        .dispatch();
+    });
+
+    it('should respond with headers', function() {
+      expect(response.getHeader('Content-Type')).to.equal('application/json');
+      expect(response.getHeader('Cache-Control')).to.equal('no-store');
+      expect(response.getHeader('Pragma')).to.equal('no-cache');
+    });
+
+    it('should respond with body', function() {
+      expect(response.body).to.equal('{"access_token":"s3cr1t","token_type":"Bearer"}');
+    });
+  });
+
+  describe('issuing an access token based on scope and body with access to headers', function() {
+    function issue(client, refreshToken, scope, body, headers, done) {
+      if (client.id == 'c123' && refreshToken == 'refreshing'
+          && scope.length == 1 && scope[0] == 'read'
+          && body.audience == 'https://www.example.com/' && headers != null) {
         return done(null, 's3cr1t')
       }
       return done(new Error('something is wrong'));
