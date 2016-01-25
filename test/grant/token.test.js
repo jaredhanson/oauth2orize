@@ -615,6 +615,43 @@ describe('grant.token', function() {
       });
     });
   });
+
+  describe('decision handling with user response and client request', function() {
+    function issue(client, user, ares, areq, done) {
+      if (client.id == 'c123' && user.id == 'u123' && ares.scope == 'foo' && areq.state == 'f1o1o1') {
+        return done(null, 'xyz');
+      }
+      return done(new Error('something is wrong'));
+    }
+    
+    describe('transaction with response scope', function() {
+      var response;
+      
+      before(function(done) {
+        chai.oauth2orize.grant(token(issue))
+          .txn(function(txn) {
+            txn.client = { id: 'c123', name: 'Example' };
+            txn.redirectURI = 'http://example.com/auth/callback';
+            txn.req = {
+              redirectURI: 'http://example.com/auth/callback',
+              state: 'f1o1o1'
+            };
+            txn.user = { id: 'u123', name: 'Bob' };
+            txn.res = { allow: true, scope: 'foo' };
+          })
+          .end(function(res) {
+            response = res;
+            done();
+          })
+          .decide();
+      });
+      
+      it('should respond', function() {
+        expect(response.statusCode).to.equal(302);
+        expect(response.getHeader('Location')).to.equal('http://example.com/auth/callback#access_token=xyz&token_type=Bearer&state=f1o1o1');
+      });
+    });
+  });
   
   describe('decision handling with response mode', function() {
     function issue(client, user, done) {
