@@ -233,43 +233,6 @@ describe('decision', function() {
     });
   });
   
-  describe.skip('handling a request without a session', function() {
-    var request, err;
-
-    before(function(done) {
-      chai.connect.use(decision(server))
-        .req(function(req) {
-          request = req;
-          req.query = {};
-          req.body = {};
-          req.user = { id: 'u1234', username: 'bob' };
-          req.oauth2 = {};
-          req.oauth2.transactionID = 'abc123';
-          req.oauth2.client = { id: 'c5678', name: 'Example' };
-          req.oauth2.redirectURI = 'http://example.com/auth/callback';
-          req.oauth2.req = { type: 'code', scope: 'email' };
-        })
-        .next(function(e) {
-          err = e;
-          done();
-        })
-        .dispatch();
-    });
-    
-    it('should error', function() {
-      expect(err).to.be.an.instanceOf(Error);
-      expect(err.message).to.equal('OAuth2orize requires session support. Did you forget app.use(express.session(...))?');
-    });
-    
-    it('should not set user on transaction', function() {
-      expect(request.oauth2.user).to.be.undefined;
-    });
-    
-    it('should not set response on transaction', function() {
-      expect(request.oauth2.res).to.be.undefined;
-    });
-  });
-  
   describe('handling a request without a body', function() {
     var request, err;
 
@@ -341,45 +304,6 @@ describe('decision', function() {
     
     it('should leave transaction in session', function() {
       expect(request.session['authorize']['abc123']).to.be.an('object');
-    });
-  });
-  
-  describe.skip('handling a request without transactions in session', function() {
-    var request, err;
-
-    before(function(done) {
-      chai.connect.use(decision(server))
-        .req(function(req) {
-          request = req;
-          req.query = {};
-          req.body = {};
-          req.session = {};
-          req.user = { id: 'u1234', username: 'bob' };
-          req.oauth2 = {};
-          req.oauth2.transactionID = 'abc123';
-          req.oauth2.client = { id: 'c5678', name: 'Example' };
-          req.oauth2.redirectURI = 'http://example.com/auth/callback';
-          req.oauth2.req = { type: 'code', scope: 'email' };
-        })
-        .next(function(e) {
-          err = e;
-          done();
-        })
-        .dispatch();
-    });
-    
-    it('should error', function() {
-      expect(err).to.be.an.instanceOf(Error);
-      expect(err.constructor.name).to.equal('ForbiddenError');
-      expect(err.message).to.equal('Unable to load OAuth 2.0 transactions from session');
-    });
-    
-    it('should not set user on transaction', function() {
-      expect(request.oauth2.user).to.be.undefined;
-    });
-    
-    it('should not set response on transaction', function() {
-      expect(request.oauth2.res).to.be.undefined;
     });
   });
   
