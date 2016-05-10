@@ -233,7 +233,7 @@ describe('decision', function() {
     });
   });
   
-  describe('handling a request without a session', function() {
+  describe.skip('handling a request without a session', function() {
     var request, err;
 
     before(function(done) {
@@ -344,7 +344,7 @@ describe('decision', function() {
     });
   });
   
-  describe('handling a request without transactions in session', function() {
+  describe.skip('handling a request without transactions in session', function() {
     var request, err;
 
     before(function(done) {
