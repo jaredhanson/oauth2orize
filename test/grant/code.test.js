@@ -290,16 +290,6 @@ describe('grant.code', function() {
   });
   
   describe('decision handling', function() {
-    function issue(client, redirectURI, user, done) {
-      if (client.id == 'c123' && redirectURI == 'http://example.com/auth/callback' && user.id == 'u123') {
-        return done(null, 'xyz');
-      } else if (client.id == 'cUNAUTHZ') {
-        return done(null, false);
-      } else if (client.id == 'cTHROW') {
-        throw new Error('something was thrown');
-      }
-      return done(new Error('something went wrong'));
-    }
     
     describe('transaction', function() {
       var response;
