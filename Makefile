@@ -6,6 +6,8 @@ TESTS = test/*.test.js test/**/*.test.js
 
 LCOVFILE = ./reports/coverage/lcov.info
 
+MOCHAFLAGS = --require ./test/bootstrap/node
+
 
 view-docs:
 	open ./docs/index.html
