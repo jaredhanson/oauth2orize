@@ -4,25 +4,6 @@ var chai = require('chai')
 
 describe('exchange.password', function() {
   
-  function issue(client, username, passwd, done) {
-    if (client.id == 'c123' && username == 'bob' && passwd == 'shh') {
-      return done(null, 's3cr1t')
-    } else if (client.id == 'c223' && username == 'bob' && passwd == 'shh') {
-      return done(null, 's3cr1t', 'getANotehr')
-    } else if (client.id == 'c323' && username == 'bob' && passwd == 'shh') {
-      return done(null, 's3cr1t', null, { 'expires_in': 3600 })
-    } else if (client.id == 'c423' && username == 'bob' && passwd == 'shh') {
-      return done(null, 's3cr1t', 'blahblag', { 'token_type': 'foo', 'expires_in': 3600 })
-    } else if (client.id == 'c523' && username == 'bob' && passwd == 'shh') {
-      return done(null, 's3cr1t', { 'expires_in': 3600 })
-    } else if (client.id == 'cUN' && username == 'bob' && passwd == 'shh') {
-      return done(null, false)
-    } else if (client.id == 'cTHROW') {
-      throw new Error('something was thrown')
-    }
-    return done(new Error('something is wrong'));
-  }
-  
   it('should be named password', function() {
     expect(password(function(){}).name).to.equal('password');
   });
@@ -37,6 +18,14 @@ describe('exchange.password', function() {
     var response, err;
 
     before(function(done) {
+      function issue(client, username, passwd, done) {
+        if (client.id !== 'c123') { return done(new Error('incorrect client argument')); }
+        if (username !== 'bob') { return done(new Error('incorrect username argument')); }
+        if (passwd !== 'shh') { return done(new Error('incorrect passwd argument')); }
+        
+        return done(null, 's3cr1t')
+      }
+      
       chai.connect.use(password(issue))
         .req(function(req) {
           req.user = { id: 'c123', name: 'Example' };
@@ -64,6 +53,14 @@ describe('exchange.password', function() {
     var response, err;
 
     before(function(done) {
+      function issue(client, username, passwd, done) {
+        if (client.id !== 'c223') { return done(new Error('incorrect client argument')); }
+        if (username !== 'bob') { return done(new Error('incorrect username argument')); }
+        if (passwd !== 'shh') { return done(new Error('incorrect passwd argument')); }
+        
+        return done(null, 's3cr1t', 'getANotehr')
+      }
+      
       chai.connect.use(password(issue))
         .req(function(req) {
           req.user = { id: 'c223', name: 'Example' };
@@ -91,6 +88,14 @@ describe('exchange.password', function() {
     var response, err;
 
     before(function(done) {
+      function issue(client, username, passwd, done) {
+        if (client.id !== 'c523') { return done(new Error('incorrect client argument')); }
+        if (username !== 'bob') { return done(new Error('incorrect username argument')); }
+        if (passwd !== 'shh') { return done(new Error('incorrect passwd argument')); }
+        
+        return done(null, 's3cr1t', { 'expires_in': 3600 })
+      }
+      
       chai.connect.use(password(issue))
         .req(function(req) {
           req.user = { id: 'c523', name: 'Example' };
@@ -118,6 +123,14 @@ describe('exchange.password', function() {
     var response, err;
 
     before(function(done) {
+      function issue(client, username, passwd, done) {
+        if (client.id !== 'c323') { return done(new Error('incorrect client argument')); }
+        if (username !== 'bob') { return done(new Error('incorrect username argument')); }
+        if (passwd !== 'shh') { return done(new Error('incorrect passwd argument')); }
+        
+        return done(null, 's3cr1t', null, { 'expires_in': 3600 })
+      }
+      
       chai.connect.use(password(issue))
         .req(function(req) {
           req.user = { id: 'c323', name: 'Example' };
@@ -145,6 +158,14 @@ describe('exchange.password', function() {
     var response, err;
 
     before(function(done) {
+      function issue(client, username, passwd, done) {
+        if (client.id !== 'c423') { return done(new Error('incorrect client argument')); }
+        if (username !== 'bob') { return done(new Error('incorrect username argument')); }
+        if (passwd !== 'shh') { return done(new Error('incorrect passwd argument')); }
+        
+        return done(null, 's3cr1t', 'blahblag', { 'token_type': 'foo', 'expires_in': 3600 })
+      }
+      
       chai.connect.use(password(issue))
         .req(function(req) {
           req.user = { id: 'c423', name: 'Example' };
@@ -170,11 +191,13 @@ describe('exchange.password', function() {
   
   describe('issuing an access token based on scope', function() {
     function issue(client, username, passwd, scope, done) {
-      if (client.id == 'c123' && username == 'bob' && passwd == 'shh'
-          && scope.length == 1 && scope[0] == 'read') {
-        return done(null, 's3cr1t')
-      }
-      return done(new Error('something is wrong'));
+      if (client.id !== 'c123') { return done(new Error('incorrect client argument')); }
+      if (username !== 'bob') { return done(new Error('incorrect username argument')); }
+      if (passwd !== 'shh') { return done(new Error('incorrect passwd argument')); }
+      if (scope.length !== 1) { return done(new Error('incorrect scope argument')); }
+      if (scope[0] !== 'read') { return done(new Error('incorrect scope argument')); }
+      
+      return done(null, 's3cr1t')
     }
     
     var response, err;
@@ -205,12 +228,14 @@ describe('exchange.password', function() {
   
   describe('issuing an access token based on scope and body', function() {
     function issue(client, username, passwd, scope, body, done) {
-      if (client.id == 'c123' && username == 'bob' && passwd == 'shh'
-          && scope.length == 1 && scope[0] == 'read'
-          && body.audience == 'https://www.example.com/') {
-        return done(null, 's3cr1t')
-      }
-      return done(new Error('something is wrong'));
+      if (client.id !== 'c123') { return done(new Error('incorrect client argument')); }
+      if (username !== 'bob') { return done(new Error('incorrect username argument')); }
+      if (passwd !== 'shh') { return done(new Error('incorrect passwd argument')); }
+      if (scope.length !== 1) { return done(new Error('incorrect scope argument')); }
+      if (scope[0] !== 'read') { return done(new Error('incorrect scope argument')); }
+      if (body.audience !== 'https://www.example.com/') { return done(new Error('incorrect body argument')); }
+      
+      return done(null, 's3cr1t')
     }
     
     var response, err;
@@ -241,11 +266,14 @@ describe('exchange.password', function() {
   
   describe('issuing an access token based on array of scopes', function() {
     function issue(client, username, passwd, scope, done) {
-      if (client.id == 'c123' && username == 'bob' && passwd == 'shh'
-          && scope.length == 2 && scope[0] == 'read' && scope[1] == 'write') {
-        return done(null, 's3cr1t')
-      }
-      return done(new Error('something is wrong'));
+      if (client.id !== 'c123') { return done(new Error('incorrect client argument')); }
+      if (username !== 'bob') { return done(new Error('incorrect username argument')); }
+      if (passwd !== 'shh') { return done(new Error('incorrect passwd argument')); }
+      if (scope.length !== 2) { return done(new Error('incorrect scope argument')); }
+      if (scope[0] !== 'read') { return done(new Error('incorrect scope argument')); }
+      if (scope[1] !== 'write') { return done(new Error('incorrect scope argument')); }
+      
+      return done(null, 's3cr1t')
     }
     
     var response, err;
@@ -278,6 +306,10 @@ describe('exchange.password', function() {
     var response, err;
 
     before(function(done) {
+      function issue(client, username, passwd, done) {
+        return done(null, false)
+      }
+      
       chai.connect.use(password(issue))
         .req(function(req) {
           req.user = { id: 'cUN', name: 'Example' };
@@ -303,6 +335,10 @@ describe('exchange.password', function() {
     var response, err;
 
     before(function(done) {
+      function issue(client, username, passwd, done) {
+        return done(null, '.ignore')
+      }
+      
       chai.connect.use(password(issue))
         .req(function(req) {
           req.user = { id: 'c123', name: 'Example' };
@@ -328,6 +364,10 @@ describe('exchange.password', function() {
     var response, err;
 
     before(function(done) {
+      function issue(client, username, passwd, done) {
+        return done(null, '.ignore')
+      }
+      
       chai.connect.use(password(issue))
         .req(function(req) {
           req.user = { id: 'c123', name: 'Example' };
@@ -353,6 +393,10 @@ describe('exchange.password', function() {
     var response, err;
 
     before(function(done) {
+      function issue(client, username, passwd, done) {
+        return done(new Error('something is wrong'));
+      }
+      
       chai.connect.use(password(issue))
         .req(function(req) {
           req.user = { id: 'cXXX', name: 'Example' };
@@ -375,6 +419,10 @@ describe('exchange.password', function() {
     var response, err;
 
     before(function(done) {
+      function issue(client, username, passwd, done) {
+        throw new Error('something was thrown')
+      }
+      
       chai.connect.use(password(issue))
         .req(function(req) {
           req.user = { id: 'cTHROW', name: 'Example' };
@@ -397,6 +445,10 @@ describe('exchange.password', function() {
     var response, err;
 
     before(function(done) {
+      function issue(client, username, passwd, done) {
+        return done(new Error('something is wrong'));
+      }
+      
       chai.connect.use(password(issue))
         .req(function(req) {
           req.user = { id: 'c123', name: 'Example' };
@@ -417,11 +469,14 @@ describe('exchange.password', function() {
   describe('with scope separator option', function() {
     describe('issuing an access token based on array of scopes', function() {
       function issue(client, username, passwd, scope, done) {
-        if (client.id == 'c123' && username == 'bob' && passwd == 'shh'
-            && scope.length == 2 && scope[0] == 'read' && scope[1] == 'write') {
-          return done(null, 's3cr1t')
-        }
-        return done(new Error('something is wrong'));
+        if (client.id !== 'c123') { return done(new Error('incorrect client argument')); }
+        if (username !== 'bob') { return done(new Error('incorrect username argument')); }
+        if (passwd !== 'shh') { return done(new Error('incorrect passwd argument')); }
+        if (scope.length !== 2) { return done(new Error('incorrect scope argument')); }
+        if (scope[0] !== 'read') { return done(new Error('incorrect scope argument')); }
+        if (scope[1] !== 'write') { return done(new Error('incorrect scope argument')); }
+      
+        return done(null, 's3cr1t')
       }
     
       var response, err;
@@ -453,11 +508,14 @@ describe('exchange.password', function() {
   
   describe('with multiple scope separator option', function() {
     function issue(client, username, passwd, scope, done) {
-      if (client.id == 'c123' && username == 'bob' && passwd == 'shh'
-          && scope.length == 2 && scope[0] == 'read' && scope[1] == 'write') {
-        return done(null, 's3cr1t')
-      }
-      return done(new Error('something is wrong'));
+      if (client.id !== 'c123') { return done(new Error('incorrect client argument')); }
+      if (username !== 'bob') { return done(new Error('incorrect username argument')); }
+      if (passwd !== 'shh') { return done(new Error('incorrect passwd argument')); }
+      if (scope.length !== 2) { return done(new Error('incorrect scope argument')); }
+      if (scope[0] !== 'read') { return done(new Error('incorrect scope argument')); }
+      if (scope[1] !== 'write') { return done(new Error('incorrect scope argument')); }
+      
+      return done(null, 's3cr1t')
     }
     
     describe('issuing an access token based on scope separated by space', function() {
@@ -519,6 +577,14 @@ describe('exchange.password', function() {
     var response, err;
 
     before(function(done) {
+      function issue(client, username, passwd, done) {
+        if (client.id !== 'c123') { return done(new Error('incorrect client argument')); }
+        if (username !== 'bob') { return done(new Error('incorrect username argument')); }
+        if (passwd !== 'shh') { return done(new Error('incorrect passwd argument')); }
+        
+        return done(null, 's3cr1t')
+      }
+      
       chai.connect.use(password({ userProperty: 'client' }, issue))
         .req(function(req) {
           req.client = { id: 'c123', name: 'Example' };

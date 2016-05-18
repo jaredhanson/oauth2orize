@@ -290,7 +290,7 @@ describe('exchange.clientCredentials', function() {
     var response, err;
 
     before(function(done) {
-      function issue(client, scope, done) {
+      function issue(client, done) {
         return done(null, false)
       }
       
@@ -319,7 +319,7 @@ describe('exchange.clientCredentials', function() {
     var response, err;
 
     before(function(done) {
-      function issue(client, scope, done) {
+      function issue(client, done) {
         return done(new Error('something is wrong'));
       }
       
@@ -345,7 +345,7 @@ describe('exchange.clientCredentials', function() {
     var response, err;
 
     before(function(done) {
-      function issue(client, scope, done) {
+      function issue(client, done) {
         throw new Error('something was thrown')
       }
       
@@ -371,7 +371,7 @@ describe('exchange.clientCredentials', function() {
     var response, err;
 
     before(function(done) {
-      function issue(client, code, redirectURI, done) {
+      function issue(client, done) {
         return done(null, '.ignore')
       }
       
