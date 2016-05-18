@@ -392,7 +392,7 @@ describe('authorization', function() {
         expect(request.oauth2.res.allow).to.equal(true);
         expect(request.oauth2.res.scope).to.equal('read');
         expect(request.oauth2.info).to.be.undefined;
-        expect(request.oauth2.locals).to.be.undefined;
+        expect(request.oauth2.locals.beep).to.equal('boop');
       });
     
       it('should not store transaction in session', function() {
