@@ -283,32 +283,25 @@ describe('grant.token', function() {
       it('should error', function() {
         expect(err).to.be.an.instanceOf(Error);
         expect(err.constructor.name).to.equal('AuthorizationError');
-        expect(err.message).to.equal('scope parameter must be a string');
+        expect(err.message).to.equal('Invalid parameter: scope must be a string');
         expect(err.code).to.equal('invalid_request');
       });
     });
   });
   
   describe('decision handling', function() {
-    function issue(client, user, done) {
-      if (client.id == 'c123' && user.id == 'u123') {
-        return done(null, 'xyz');
-      } else if (client.id == 'c223' && user.id == 'u123') {
-        return done(null, 'xyz', { 'expires_in': 3600 });
-      } else if (client.id == 'c323' && user.id == 'u123') {
-        return done(null, 'xyz', { 'token_type': 'foo', 'expires_in': 3600 });
-      } else if (client.id == 'cUNAUTHZ') {
-        return done(null, false);
-      } else if (client.id == 'cTHROW') {
-        throw new Error('something was thrown');
-      }
-      return done(new Error('something is wrong'));
-    }
     
     describe('transaction', function() {
       var response;
       
       before(function(done) {
+        function issue(client, user, done) {
+          if (client.id !== 'c123') { return done(new Error('incorrect client argument')); }
+          if (user.id !== 'u123') { return done(new Error('incorrect user argument')); }
+          
+          return done(null, 'xyz');
+        }
+        
         chai.oauth2orize.grant(token(issue))
           .txn(function(txn) {
             txn.client = { id: 'c123', name: 'Example' };
@@ -336,6 +329,13 @@ describe('grant.token', function() {
       var response;
       
       before(function(done) {
+        function issue(client, user, done) {
+          if (client.id !== 'c123') { return done(new Error('incorrect client argument')); }
+          if (user.id !== 'u123') { return done(new Error('incorrect user argument')); }
+          
+          return done(null, 'xyz');
+        }
+        
         chai.oauth2orize.grant(token(issue))
           .txn(function(txn) {
             txn.client = { id: 'c123', name: 'Example' };
@@ -364,6 +364,13 @@ describe('grant.token', function() {
       var response;
       
       before(function(done) {
+        function issue(client, user, done) {
+          if (client.id !== 'c223') { return done(new Error('incorrect client argument')); }
+          if (user.id !== 'u123') { return done(new Error('incorrect user argument')); }
+          
+          return done(null, 'xyz', { 'expires_in': 3600 });
+        }
+        
         chai.oauth2orize.grant(token(issue))
           .txn(function(txn) {
             txn.client = { id: 'c223', name: 'Example' };
@@ -391,6 +398,13 @@ describe('grant.token', function() {
       var response;
       
       before(function(done) {
+        function issue(client, user, done) {
+          if (client.id !== 'c323') { return done(new Error('incorrect client argument')); }
+          if (user.id !== 'u123') { return done(new Error('incorrect user argument')); }
+          
+          return done(null, 'xyz', { 'token_type': 'foo', 'expires_in': 3600 });
+        }
+        
         chai.oauth2orize.grant(token(issue))
           .txn(function(txn) {
             txn.client = { id: 'c323', name: 'Example' };
@@ -418,6 +432,13 @@ describe('grant.token', function() {
       var response;
       
       before(function(done) {
+        function issue(client, user, done) {
+          if (client.id !== 'c123') { return done(new Error('incorrect client argument')); }
+          if (user.id !== 'u123') { return done(new Error('incorrect user argument')); }
+          
+          return done(null, 'xyz');
+        }
+        
         chai.oauth2orize.grant(token(issue))
           .txn(function(txn) {
             txn.client = { id: 'c123', name: 'Example' };
@@ -445,6 +466,13 @@ describe('grant.token', function() {
       var response;
       
       before(function(done) {
+        function issue(client, user, done) {
+          if (client.id !== 'c123') { return done(new Error('incorrect client argument')); }
+          if (user.id !== 'u123') { return done(new Error('incorrect user argument')); }
+          
+          return done(null, 'xyz');
+        }
+        
         chai.oauth2orize.grant(token(issue))
           .txn(function(txn) {
             txn.client = { id: 'c123', name: 'Example' };
@@ -473,6 +501,10 @@ describe('grant.token', function() {
       var err;
       
       before(function(done) {
+        function issue(client, user, done) {
+          return done(null, false);
+        }
+        
         chai.oauth2orize.grant(token(issue))
           .txn(function(txn) {
             txn.client = { id: 'cUNAUTHZ', name: 'Example' };
@@ -503,6 +535,10 @@ describe('grant.token', function() {
       var err;
       
       before(function(done) {
+        function issue(client, user, done) {
+          return done(new Error('something is wrong'));
+        }
+        
         chai.oauth2orize.grant(token(issue))
           .txn(function(txn) {
             txn.client = { id: 'cERROR', name: 'Example' };
@@ -530,6 +566,10 @@ describe('grant.token', function() {
       var err;
       
       before(function(done) {
+        function issue(client, user, done) {
+          throw new Error('something was thrown');
+        }
+        
         chai.oauth2orize.grant(token(issue))
           .txn(function(txn) {
             txn.client = { id: 'cTHROW', name: 'Example' };
@@ -557,6 +597,10 @@ describe('grant.token', function() {
       var err;
       
       before(function(done) {
+        function issue(client, user, done) {
+          return done(null, 'xyz');
+        }
+        
         chai.oauth2orize.grant(token(issue))
           .txn(function(txn) {
             txn.client = { id: 'c123', name: 'Example' };
@@ -582,10 +626,11 @@ describe('grant.token', function() {
   
   describe('decision handling with user response', function() {
     function issue(client, user, ares, done) {
-      if (client.id == 'c123' && user.id == 'u123' && ares.scope == 'foo') {
-        return done(null, 'xyz');
-      }
-      return done(new Error('something is wrong'));
+      if (client.id !== 'c123') { return done(new Error('incorrect client argument')); }
+      if (user.id !== 'u123') { return done(new Error('incorrect user argument')); }
+      if (ares.scope !== 'foo') { return done(new Error('incorrect ares argument')); }
+      
+      return done(null, 'xyz');
     }
     
     describe('transaction with response scope', function() {
@@ -618,10 +663,12 @@ describe('grant.token', function() {
 
   describe('decision handling with user response and client request', function() {
     function issue(client, user, ares, areq, done) {
-      if (client.id == 'c123' && user.id == 'u123' && ares.scope == 'foo' && areq.state == 'f1o1o1') {
-        return done(null, 'xyz');
-      }
-      return done(new Error('something is wrong'));
+      if (client.id !== 'c123') { return done(new Error('incorrect client argument')); }
+      if (user.id !== 'u123') { return done(new Error('incorrect user argument')); }
+      if (ares.scope !== 'foo') { return done(new Error('incorrect ares argument')); }
+      if (areq.state !== 'f1o1o1') { return done(new Error('incorrect areq argument')); }
+      
+      return done(null, 'xyz');
     }
     
     describe('transaction with response scope', function() {
@@ -655,10 +702,7 @@ describe('grant.token', function() {
   
   describe('decision handling with response mode', function() {
     function issue(client, user, done) {
-      if (client.id == 'c123' && user.id == 'u123') {
-        return done(null, 'xyz');
-      }
-      return done(new Error('something is wrong'));
+      return done(null, 'xyz');
     }
     
     var fooResponseMode = function(txn, res, params) {

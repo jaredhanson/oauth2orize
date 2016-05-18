@@ -37,6 +37,13 @@ describe('exchange.refreshToken', function() {
     var response, err;
 
     before(function(done) {
+      function issue(client, refreshToken, done) {
+        if (client.id !== 'c123') { return done(new Error('incorrect client argument')); }
+        if (refreshToken !== 'refreshing') { return done(new Error('incorrect refreshToken argument')); }
+        
+        return done(null, 's3cr1t')
+      }
+      
       chai.connect.use(refreshToken(issue))
         .req(function(req) {
           req.user = { id: 'c123', name: 'Example' };
@@ -64,6 +71,13 @@ describe('exchange.refreshToken', function() {
     var response, err;
 
     before(function(done) {
+      function issue(client, refreshToken, done) {
+        if (client.id !== 'c223') { return done(new Error('incorrect client argument')); }
+        if (refreshToken !== 'refreshing') { return done(new Error('incorrect refreshToken argument')); }
+        
+        return done(null, 's3cr1t', 'getANotehr')
+      }
+      
       chai.connect.use(refreshToken(issue))
         .req(function(req) {
           req.user = { id: 'c223', name: 'Example' };
@@ -91,6 +105,13 @@ describe('exchange.refreshToken', function() {
     var response, err;
 
     before(function(done) {
+      function issue(client, refreshToken, done) {
+        if (client.id !== 'c523') { return done(new Error('incorrect client argument')); }
+        if (refreshToken !== 'refreshing') { return done(new Error('incorrect refreshToken argument')); }
+        
+        return done(null, 's3cr1t', { 'expires_in': 3600 })
+      }
+      
       chai.connect.use(refreshToken(issue))
         .req(function(req) {
           req.user = { id: 'c523', name: 'Example' };
@@ -118,6 +139,13 @@ describe('exchange.refreshToken', function() {
     var response, err;
 
     before(function(done) {
+      function issue(client, refreshToken, done) {
+        if (client.id !== 'c323') { return done(new Error('incorrect client argument')); }
+        if (refreshToken !== 'refreshing') { return done(new Error('incorrect refreshToken argument')); }
+        
+        return done(null, 's3cr1t', null, { 'expires_in': 3600 })
+      }
+      
       chai.connect.use(refreshToken(issue))
         .req(function(req) {
           req.user = { id: 'c323', name: 'Example' };
@@ -145,6 +173,13 @@ describe('exchange.refreshToken', function() {
     var response, err;
 
     before(function(done) {
+      function issue(client, refreshToken, done) {
+        if (client.id !== 'c423') { return done(new Error('incorrect client argument')); }
+        if (refreshToken !== 'refreshing') { return done(new Error('incorrect refreshToken argument')); }
+        
+        return done(null, 's3cr1t', 'blahblag', { 'token_type': 'foo', 'expires_in': 3600 })
+      }
+      
       chai.connect.use(refreshToken(issue))
         .req(function(req) {
           req.user = { id: 'c423', name: 'Example' };
@@ -170,11 +205,12 @@ describe('exchange.refreshToken', function() {
   
   describe('issuing an access token based on scope', function() {
     function issue(client, refreshToken, scope, done) {
-      if (client.id == 'c123' && refreshToken == 'refreshing'
-          && scope.length == 1 && scope[0] == 'read') {
-        return done(null, 's3cr1t')
-      }
-      return done(new Error('something is wrong'));
+      if (client.id !== 'c123') { return done(new Error('incorrect client argument')); }
+      if (refreshToken !== 'refreshing') { return done(new Error('incorrect refreshToken argument')); }
+      if (scope.length !== 1) { return done(new Error('incorrect scope argument')); }
+      if (scope[0] !== 'read') { return done(new Error('incorrect scope argument')); }
+      
+      return done(null, 's3cr1t')
     }
     
     var response, err;
@@ -205,11 +241,13 @@ describe('exchange.refreshToken', function() {
   
   describe('issuing an access token based on array of scopes', function() {
     function issue(client, refreshToken, scope, done) {
-      if (client.id == 'c123' && refreshToken == 'refreshing'
-          && scope.length == 2 && scope[0] == 'read' && scope[1] == 'write') {
-        return done(null, 's3cr1t')
-      }
-      return done(new Error('something is wrong'));
+      if (client.id !== 'c123') { return done(new Error('incorrect client argument')); }
+      if (refreshToken !== 'refreshing') { return done(new Error('incorrect refreshToken argument')); }
+      if (scope.length !== 2) { return done(new Error('incorrect scope argument')); }
+      if (scope[0] !== 'read') { return done(new Error('incorrect scope argument')); }
+      if (scope[1] !== 'write') { return done(new Error('incorrect scope argument')); }
+      
+      return done(null, 's3cr1t')
     }
     
     var response, err;
@@ -242,6 +280,10 @@ describe('exchange.refreshToken', function() {
     var response, err;
 
     before(function(done) {
+      function issue(client, refreshToken, done) {
+        return done(null, false)
+      }
+      
       chai.connect.use(refreshToken(issue))
         .req(function(req) {
           req.user = { id: 'cUN', name: 'Example' };
@@ -267,6 +309,10 @@ describe('exchange.refreshToken', function() {
     var response, err;
 
     before(function(done) {
+      function issue(client, refreshToken, done) {
+        return done(null, '.ignore')
+      }
+      
       chai.connect.use(refreshToken(issue))
         .req(function(req) {
           req.user = { id: 'c123', name: 'Example' };
@@ -292,6 +338,10 @@ describe('exchange.refreshToken', function() {
     var response, err;
 
     before(function(done) {
+      function issue(client, refreshToken, done) {
+        return done(new Error('something is wrong'));
+      }
+      
       chai.connect.use(refreshToken(issue))
         .req(function(req) {
           req.user = { id: 'cXXX', name: 'Example' };
@@ -314,6 +364,10 @@ describe('exchange.refreshToken', function() {
     var response, err;
 
     before(function(done) {
+      function issue(client, refreshToken, done) {
+        throw new Error('something was thrown')
+      }
+      
       chai.connect.use(refreshToken(issue))
         .req(function(req) {
           req.user = { id: 'cTHROW', name: 'Example' };
@@ -336,6 +390,10 @@ describe('exchange.refreshToken', function() {
     var response, err;
 
     before(function(done) {
+      function issue(client, refreshToken, done) {
+        return done(null, '.ignore')
+      }
+      
       chai.connect.use(refreshToken(issue))
         .req(function(req) {
           req.user = { id: 'c123', name: 'Example' };
@@ -356,11 +414,13 @@ describe('exchange.refreshToken', function() {
   describe('with scope separator option', function() {
     describe('issuing an access token based on array of scopes', function() {
       function issue(client, refreshToken, scope, done) {
-        if (client.id == 'c123' && refreshToken == 'refreshing'
-            && scope.length == 2 && scope[0] == 'read' && scope[1] == 'write') {
-          return done(null, 's3cr1t')
-        }
-        return done(new Error('something is wrong'));
+        if (client.id !== 'c123') { return done(new Error('incorrect client argument')); }
+        if (refreshToken !== 'refreshing') { return done(new Error('incorrect refreshToken argument')); }
+        if (scope.length !== 2) { return done(new Error('incorrect scope argument')); }
+        if (scope[0] !== 'read') { return done(new Error('incorrect scope argument')); }
+        if (scope[1] !== 'write') { return done(new Error('incorrect scope argument')); }
+      
+        return done(null, 's3cr1t')
       }
     
       var response, err;
@@ -392,11 +452,13 @@ describe('exchange.refreshToken', function() {
   
   describe('with multiple scope separator option', function() {
     function issue(client, refreshToken, scope, done) {
-      if (client.id == 'c123' && refreshToken == 'refreshing'
-          && scope.length == 2 && scope[0] == 'read' && scope[1] == 'write') {
-        return done(null, 's3cr1t')
-      }
-      return done(new Error('something is wrong'));
+      if (client.id !== 'c123') { return done(new Error('incorrect client argument')); }
+      if (refreshToken !== 'refreshing') { return done(new Error('incorrect refreshToken argument')); }
+      if (scope.length !== 2) { return done(new Error('incorrect scope argument')); }
+      if (scope[0] !== 'read') { return done(new Error('incorrect scope argument')); }
+      if (scope[1] !== 'write') { return done(new Error('incorrect scope argument')); }
+    
+      return done(null, 's3cr1t')
     }
     
     describe('issuing an access token based on scope separated by space', function() {
@@ -458,6 +520,13 @@ describe('exchange.refreshToken', function() {
     var response, err;
 
     before(function(done) {
+      function issue(client, refreshToken, done) {
+        if (client.id !== 'c123') { return done(new Error('incorrect client argument')); }
+        if (refreshToken !== 'refreshing') { return done(new Error('incorrect refreshToken argument')); }
+        
+        return done(null, 's3cr1t')
+      }
+      
       chai.connect.use(refreshToken({ userProperty: 'client' }, issue))
         .req(function(req) {
           req.client = { id: 'c123', name: 'Example' };
