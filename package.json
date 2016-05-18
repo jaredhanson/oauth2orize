@@ -25,10 +25,11 @@
   "bugs": {
     "url": "http://github.com/jaredhanson/oauth2orize/issues"
   },
+  "license": "MIT",
   "licenses": [
     {
       "type": "MIT",
-      "url": "http://www.opensource.org/licenses/MIT"
+      "url": "http://opensource.org/licenses/MIT"
     }
   ],
   "main": "./lib",
@@ -38,8 +39,9 @@
     "debug": "2.x.x"
   },
   "devDependencies": {
+    "make-node": "0.3.x",
     "mocha": "2.x.x",
-    "chai": "1.x.x",
+    "chai": "2.x.x",
     "chai-connect-middleware": "0.3.x",
     "chai-oauth2orize-grant": "0.2.x"
   },
