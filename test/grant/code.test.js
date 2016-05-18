@@ -638,6 +638,48 @@ describe('grant.code', function() {
     });
   });
   
+  describe('decision handling with user response, client request, and server locals', function() {
+    function issue(client, redirectURI, user, ares, areq, locals, done) {
+      if (client.id !== 'c123') { return done(new Error('incorrect client argument')); }
+      if (redirectURI !== 'http://example.com/auth/callback') { return done(new Error('incorrect redirectURI argument')); }
+      if (user.id !== 'u123') { return done(new Error('incorrect user argument')); }
+      if (ares.scope !== 'foo') { return done(new Error('incorrect ares argument')); }
+      if (areq.codeChallenge !== 'hashed-s3cr1t') { return done(new Error('incorrect areq argument')); }
+      if (locals.service.jwksURL !== 'http://www.example.com/.well-known/jwks') { return done(new Error('incorrect locals argument')); }
+      
+      return done(null, 'xyz');
+    }
+    
+    describe('transaction with response scope', function() {
+      var response;
+      
+      before(function(done) {
+        chai.oauth2orize.grant(code(issue))
+          .txn(function(txn) {
+            txn.client = { id: 'c123', name: 'Example' };
+            txn.redirectURI = 'http://www.example.com/auth/callback';
+            txn.req = {
+              redirectURI: 'http://example.com/auth/callback',
+              codeChallenge: 'hashed-s3cr1t'
+            };
+            txn.user = { id: 'u123', name: 'Bob' };
+            txn.res = { allow: true, scope: 'foo' };
+            txn.locals = { service: { jwksURL: 'http://www.example.com/.well-known/jwks' } };
+          })
+          .end(function(res) {
+            response = res;
+            done();
+          })
+          .decide();
+      });
+      
+      it('should respond', function() {
+        expect(response.statusCode).to.equal(302);
+        expect(response.getHeader('Location')).to.equal('http://www.example.com/auth/callback?code=xyz');
+      });
+    });
+  });
+  
   describe('decision handling with response mode', function() {
     function issue(client, redirectURI, user, done) {
       return done(null, 'xyz');
