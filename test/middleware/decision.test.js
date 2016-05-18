@@ -258,7 +258,7 @@ describe('decision', function() {
     
     it('should error', function() {
       expect(err).to.be.an.instanceOf(Error);
-      expect(err.message).to.equal('OAuth2orize requires session support. Did you forget app.use(express.session(...))?');
+      expect(err.message).to.equal('OAuth2orize requires session support. Did you forget session middleware ?');
     });
     
     it('should not set user on transaction', function() {
@@ -297,7 +297,7 @@ describe('decision', function() {
     
     it('should error', function() {
       expect(err).to.be.an.instanceOf(Error);
-      expect(err.message).to.equal('OAuth2orize requires body parsing. Did you forget app.use(express.bodyParser())?');
+      expect(err.message).to.equal('OAuth2orize requires body parsing. Did you forget body-parser middleware ?');
     });
     
     it('should not set user on transaction', function() {
