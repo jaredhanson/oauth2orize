@@ -26,25 +26,6 @@ describe('authorization', function() {
     throw new Error('something went wrong while parsing authorization request');
   });
   
-  function validate(clientID, redirectURI, done) {
-    if (clientID == '1234' && redirectURI == 'http://example.com/auth/callback') {
-      return done(null, { id: '1234', name: 'Example' }, 'http://example.com/auth/callback');
-    }
-    if (clientID == '1235' && redirectURI == 'http://example.com/auth/callback') {
-      return done(null, { id: '1235', name: 'Example' }, 'http://example.com/auth/callback');
-    }
-    if (clientID == '2234') {
-      return done(null, false);
-    }
-    if (clientID == '3234') {
-      return done(null, false, 'http://example.com/auth/callback');
-    }
-    if (clientID == '4234') {
-      throw new Error('something was thrown while validating client');
-    }
-    return done(new Error('something went wrong while validating client'));
-  }
-  
   
   it('should be named authorization', function() {
     expect(authorization(server, function(){}).name).to.equal('authorization');
@@ -66,6 +47,13 @@ describe('authorization', function() {
     var request, err;
 
     before(function(done) {
+      function validate(clientID, redirectURI, done) {
+        if (clientID !== '1234') { return done(new Error('incorrect client argument')); }
+        if (redirectURI !== 'http://example.com/auth/callback') { return done(new Error('incorrect redirectURI argument')); }
+        
+        return done(null, { id: '1234', name: 'Example' }, 'http://example.com/auth/callback');
+      };
+      
       chai.connect.use(authorization(server, validate))
         .req(function(req) {
           request = req;
@@ -83,7 +71,7 @@ describe('authorization', function() {
       expect(err).to.be.undefined;
     });
     
-    it('should add transaction', function() {
+    it('should start transaction', function() {
       expect(request.oauth2).to.be.an('object');
       expect(request.oauth2.transactionID).to.be.a('string');
       expect(request.oauth2.transactionID).to.have.length(8);
@@ -111,6 +99,8 @@ describe('authorization', function() {
     var request, err;
 
     before(function(done) {
+      function validate(clientID, redirectURI, done) {};
+      
       chai.connect.use(authorization(server, validate))
         .req(function(req) {
           request = req;
@@ -140,6 +130,8 @@ describe('authorization', function() {
     var request, err;
 
     before(function(done) {
+      function validate(clientID, redirectURI, done) {};
+      
       chai.connect.use(authorization(server, validate))
         .req(function(req) {
           request = req;
@@ -169,6 +161,10 @@ describe('authorization', function() {
     var request, err;
 
     before(function(done) {
+      function validate(clientID, redirectURI, done) {
+        return done(null, false);
+      };
+      
       chai.connect.use(authorization(server, validate))
         .req(function(req) {
           request = req;
@@ -200,6 +196,10 @@ describe('authorization', function() {
     var request, err;
 
     before(function(done) {
+      function validate(clientID, redirectURI, done) {
+        return done(null, false, 'http://example.com/auth/callback');
+      };
+      
       chai.connect.use(authorization(server, validate))
         .req(function(req) {
           request = req;
@@ -231,6 +231,8 @@ describe('authorization', function() {
     var request, err;
 
     before(function(done) {
+      function validate(clientID, redirectURI, done) {};
+      
       chai.connect.use(authorization(server, validate))
         .req(function(req) {
           request = req;
@@ -258,6 +260,10 @@ describe('authorization', function() {
     var request, err;
 
     before(function(done) {
+      function validate(clientID, redirectURI, done) {
+        return done(new Error('something went wrong while validating client'));
+      };
+      
       chai.connect.use(authorization(server, validate))
         .req(function(req) {
           request = req;
@@ -287,6 +293,10 @@ describe('authorization', function() {
     var request, err;
 
     before(function(done) {
+      function validate(clientID, redirectURI, done) {
+        throw new Error('something was thrown while validating client');
+      };
+      
       chai.connect.use(authorization(server, validate))
         .req(function(req) {
           request = req;
@@ -314,6 +324,10 @@ describe('authorization', function() {
     var request, err;
 
     before(function(done) {
+      function validate(clientID, redirectURI, done) {
+        return done(null, { id: clientID, name: 'Example' }, redirectURI);
+      };
+      
       chai.connect.use(authorization(server, validate))
         .req(function(req) {
           request = req;
@@ -348,6 +362,8 @@ describe('authorization', function() {
     var request, err;
 
     before(function(done) {
+      function validate(clientID, redirectURI, done) {};
+      
       chai.connect.use(authorization(server, validate))
         .req(function(req) {
           request = req;
@@ -372,10 +388,11 @@ describe('authorization', function() {
   
   describe('validate with scope', function() {
     function validate(clientID, redirectURI, scope, done) {
-      if (clientID == '1234' && redirectURI == 'http://example.com/auth/callback' && scope == 'write') {
-        return done(null, { id: '1234', name: 'Example' }, 'http://example.com/auth/callback');
-      }
-      return done(new Error('something went wrong while validating client'));
+      if (clientID !== '1234') { return done(new Error('incorrect client argument')); }
+      if (redirectURI !== 'http://example.com/auth/callback') { return done(new Error('incorrect redirectURI argument')); }
+      if (scope !== 'write') { return done(new Error('incorrect scope argument')); }
+      
+      return done(null, { id: '1234', name: 'Example' }, 'http://example.com/auth/callback');
     }
     
     describe('handling a request for authorization', function() {
@@ -428,10 +445,12 @@ describe('authorization', function() {
   
   describe('validate with scope and type', function() {
     function validate(clientID, redirectURI, scope, type, done) {
-      if (clientID == '1234' && redirectURI == 'http://example.com/auth/callback' && scope == 'write' && type == 'code') {
-        return done(null, { id: '1234', name: 'Example' }, 'http://example.com/auth/callback');
-      }
-      return done(new Error('something went wrong while validating client'));
+      if (clientID !== '1234') { return done(new Error('incorrect client argument')); }
+      if (redirectURI !== 'http://example.com/auth/callback') { return done(new Error('incorrect redirectURI argument')); }
+      if (scope !== 'write') { return done(new Error('incorrect scope argument')); }
+      if (type !== 'code') { return done(new Error('incorrect type argument')); }
+      
+      return done(null, { id: '1234', name: 'Example' }, 'http://example.com/auth/callback');
     }
     
     describe('handling a request for authorization', function() {
@@ -484,10 +503,10 @@ describe('authorization', function() {
   
   describe('validate with authorization request', function() {
     function validate(areq, done) {
-      if (areq.clientID == '1234' && areq.redirectURI == 'http://example.com/auth/callback') {
-        return done(null, { id: '1234', name: 'Example' }, 'http://example.com/auth/callback');
-      }
-      return done(new Error('something went wrong while validating client'));
+      if (areq.clientID !== '1234') { return done(new Error('incorrect client argument')); }
+      if (areq.redirectURI !== 'http://example.com/auth/callback') { return done(new Error('incorrect redirectURI argument')); }
+      
+      return done(null, { id: '1234', name: 'Example' }, 'http://example.com/auth/callback');
     }
     
     describe('handling a request for authorization', function() {
@@ -541,6 +560,10 @@ describe('authorization', function() {
       var request, err;
 
       before(function(done) {
+        function validate(clientID, redirectURI, done) {
+          return done(null, { id: '1234', name: 'Example' }, 'http://example.com/auth/callback');
+        };
+        
         chai.connect.use(authorization(server, { idLength: 12 }, validate))
           .req(function(req) {
             request = req;
@@ -588,6 +611,10 @@ describe('authorization', function() {
       var request, err;
 
       before(function(done) {
+        function validate(clientID, redirectURI, done) {
+          return done(null, { id: '1234', name: 'Example' }, 'http://example.com/auth/callback');
+        };
+        
         chai.connect.use(authorization(server, { sessionKey: 'oauth2z' }, validate))
           .req(function(req) {
             request = req;
@@ -647,6 +674,8 @@ describe('authorization', function() {
       var request, err;
 
       before(function(done) {
+        function validate(clientID, redirectURI, done) {};
+        
         chai.connect.use(authorization(server, validate))
           .req(function(req) {
             request = req;
