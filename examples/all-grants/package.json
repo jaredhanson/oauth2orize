@@ -10,6 +10,7 @@
     "passport-http": "0.2.x",
     "passport-http-bearer": "0.2.x",
     "passport-oauth2-client-password": "0.1.x",
-    "connect-ensure-login": "0.1.x"
+    "connect-ensure-login": "0.1.x",
+    "uid2": "0.0.x"
   }
 }
