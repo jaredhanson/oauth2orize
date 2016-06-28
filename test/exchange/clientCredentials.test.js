@@ -494,7 +494,7 @@ describe('exchange.clientCredentials', function() {
       });
     });
   });
-  
+
   describe('with user property option issuing an access token', function() {
     var response, err;
 
@@ -527,5 +527,40 @@ describe('exchange.clientCredentials', function() {
       expect(response.body).to.equal('{"access_token":"s3cr1t","token_type":"Bearer"}');
     });
   });
-  
+
+  describe('issuing an access token based on authInfo', function() {
+    var response, err;
+
+    before(function(done) {
+      function issue(client, scope, body, authInfo, done) {
+        if (client.id !== 'c123') { return done(new Error('incorrect client argument')); }
+        if (authInfo !== 'the auth info') { return done(new Error('incorrect authInfo argument')); }
+
+        return done(null, 's3cr1t')
+      }
+
+      chai.connect.use(clientCredentials({ userProperty: 'client' }, issue))
+        .req(function(req) {
+          req.client = { id: 'c123', name: 'Example' };
+          req.body = {};
+          req.authInfo = 'the auth info';
+        })
+        .end(function(res) {
+          response = res;
+          done();
+        })
+        .dispatch();
+    });
+
+    it('should respond with headers', function() {
+      expect(response.getHeader('Content-Type')).to.equal('application/json');
+      expect(response.getHeader('Cache-Control')).to.equal('no-store');
+      expect(response.getHeader('Pragma')).to.equal('no-cache');
+    });
+
+    it('should respond with body', function() {
+      expect(response.body).to.equal('{"access_token":"s3cr1t","token_type":"Bearer"}');
+    });
+  });
+
 });
