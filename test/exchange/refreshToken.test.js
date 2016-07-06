@@ -4,25 +4,6 @@ var chai = require('chai')
 
 describe('exchange.refreshToken', function() {
   
-  function issue(client, refreshToken, done) {
-    if (client.id == 'c123' && refreshToken == 'refreshing') {
-      return done(null, 's3cr1t')
-    } else if (client.id == 'c223' && refreshToken == 'refreshing') {
-      return done(null, 's3cr1t', 'getANotehr')
-    } else if (client.id == 'c323' && refreshToken == 'refreshing') {
-      return done(null, 's3cr1t', null, { 'expires_in': 3600 })
-    } else if (client.id == 'c423' && refreshToken == 'refreshing') {
-      return done(null, 's3cr1t', 'blahblag', { 'token_type': 'foo', 'expires_in': 3600 })
-    } else if (client.id == 'c523' && refreshToken == 'refreshing') {
-      return done(null, 's3cr1t', { 'expires_in': 3600 })
-    } else if (client.id == 'cUN' && refreshToken == 'refreshing') {
-      return done(null, false)
-    } else if (client.id == 'cTHROW') {
-      throw new Error('something was thrown')
-    }
-    return done(new Error('something is wrong'));
-  }
-  
   it('should be named refresh_token', function() {
     expect(refreshToken(function(){}).name).to.equal('refresh_token');
   });
