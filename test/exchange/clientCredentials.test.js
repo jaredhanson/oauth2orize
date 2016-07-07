@@ -214,6 +214,42 @@ describe('exchange.clientCredentials', function() {
     });
   });
   
+  describe('issuing an access token based on array of scopes', function() {
+    function issue(client, scope, done) {
+      if (client.id !== 'c123') { return done(new Error('incorrect client argument')); }
+      if (scope.length !== 2) { return done(new Error('incorrect scope argument')); }
+      if (scope[0] !== 'read') { return done(new Error('incorrect scope argument')); }
+      if (scope[1] !== 'write') { return done(new Error('incorrect scope argument')); }
+      
+      return done(null, 's3cr1t')
+    }
+    
+    var response, err;
+
+    before(function(done) {
+      chai.connect.use(clientCredentials(issue))
+        .req(function(req) {
+          req.user = { id: 'c123', name: 'Example' };
+          req.body = { scope: 'read write' };
+        })
+        .end(function(res) {
+          response = res;
+          done();
+        })
+        .dispatch();
+    });
+    
+    it('should respond with headers', function() {
+      expect(response.getHeader('Content-Type')).to.equal('application/json');
+      expect(response.getHeader('Cache-Control')).to.equal('no-store');
+      expect(response.getHeader('Pragma')).to.equal('no-cache');
+    });
+    
+    it('should respond with body', function() {
+      expect(response.body).to.equal('{"access_token":"s3cr1t","token_type":"Bearer"}');
+    });
+  });
+  
   describe('issuing an access token based on scope and body', function() {
     function issue(client, scope, body, done) {
       if (client.id !== 'c123') { return done(new Error('incorrect client argument')); }
@@ -250,23 +286,22 @@ describe('exchange.clientCredentials', function() {
     });
   });
   
-  describe('issuing an access token based on array of scopes', function() {
-    function issue(client, scope, done) {
-      if (client.id !== 'c123') { return done(new Error('incorrect client argument')); }
-      if (scope.length !== 2) { return done(new Error('incorrect scope argument')); }
-      if (scope[0] !== 'read') { return done(new Error('incorrect scope argument')); }
-      if (scope[1] !== 'write') { return done(new Error('incorrect scope argument')); }
-      
-      return done(null, 's3cr1t')
-    }
-    
+  describe('issuing an access token based on authInfo', function() {
     var response, err;
 
     before(function(done) {
-      chai.connect.use(clientCredentials(issue))
+      function issue(client, scope, body, authInfo, done) {
+        if (client.id !== 'c123') { return done(new Error('incorrect client argument')); }
+        if (authInfo.ip !== '127.0.0.1') { return done(new Error('incorrect authInfo argument')); }
+
+        return done(null, 's3cr1t')
+      }
+
+      chai.connect.use(clientCredentials({ userProperty: 'client' }, issue))
         .req(function(req) {
-          req.user = { id: 'c123', name: 'Example' };
-          req.body = { scope: 'read write' };
+          req.client = { id: 'c123', name: 'Example' };
+          req.body = {};
+          req.authInfo = { ip: '127.0.0.1' };
         })
         .end(function(res) {
           response = res;
@@ -274,13 +309,13 @@ describe('exchange.clientCredentials', function() {
         })
         .dispatch();
     });
-    
+
     it('should respond with headers', function() {
       expect(response.getHeader('Content-Type')).to.equal('application/json');
       expect(response.getHeader('Cache-Control')).to.equal('no-store');
       expect(response.getHeader('Pragma')).to.equal('no-cache');
     });
-    
+
     it('should respond with body', function() {
       expect(response.body).to.equal('{"access_token":"s3cr1t","token_type":"Bearer"}');
     });
@@ -523,41 +558,6 @@ describe('exchange.clientCredentials', function() {
       expect(response.getHeader('Pragma')).to.equal('no-cache');
     });
   
-    it('should respond with body', function() {
-      expect(response.body).to.equal('{"access_token":"s3cr1t","token_type":"Bearer"}');
-    });
-  });
-
-  describe('issuing an access token based on authInfo', function() {
-    var response, err;
-
-    before(function(done) {
-      function issue(client, scope, body, authInfo, done) {
-        if (client.id !== 'c123') { return done(new Error('incorrect client argument')); }
-        if (authInfo !== 'the auth info') { return done(new Error('incorrect authInfo argument')); }
-
-        return done(null, 's3cr1t')
-      }
-
-      chai.connect.use(clientCredentials({ userProperty: 'client' }, issue))
-        .req(function(req) {
-          req.client = { id: 'c123', name: 'Example' };
-          req.body = {};
-          req.authInfo = 'the auth info';
-        })
-        .end(function(res) {
-          response = res;
-          done();
-        })
-        .dispatch();
-    });
-
-    it('should respond with headers', function() {
-      expect(response.getHeader('Content-Type')).to.equal('application/json');
-      expect(response.getHeader('Cache-Control')).to.equal('no-store');
-      expect(response.getHeader('Pragma')).to.equal('no-cache');
-    });
-
     it('should respond with body', function() {
       expect(response.body).to.equal('{"access_token":"s3cr1t","token_type":"Bearer"}');
     });
