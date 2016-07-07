@@ -225,6 +225,44 @@ describe('exchange.authorizationCode', function() {
     });
   });
   
+  describe('issuing an access token based on authInfo', function() {
+    var response, err;
+    
+    function issue(client, code, redirectURI, body, authInfo, done) {
+      if (client.id !== 'c123') { return done(new Error('incorrect client argument')); }
+      if (code !== 'abc123') { return done(new Error('incorrect code argument')); }
+      if (redirectURI !== 'http://example.com/oa/callback') { return done(new Error('incorrect redirectURI argument')); }
+      if (body.code_verifier !== 's3cr1t') { return done(new Error('incorrect body argument')); }
+      if (authInfo.ip !== '127.0.0.1') { return done(new Error('incorrect authInfo argument')); }
+      
+      return done(null, 's3cr1t');
+    }
+
+    before(function(done) {
+      chai.connect.use(authorizationCode(issue))
+        .req(function(req) {
+          req.user = { id: 'c123', name: 'Example' };
+          req.body = { code: 'abc123', redirect_uri: 'http://example.com/oa/callback', code_verifier: 's3cr1t' };
+          req.authInfo = { ip: '127.0.0.1' };
+        })
+        .end(function(res) {
+          response = res;
+          done();
+        })
+        .dispatch();
+    });
+    
+    it('should respond with headers', function() {
+      expect(response.getHeader('Content-Type')).to.equal('application/json');
+      expect(response.getHeader('Cache-Control')).to.equal('no-store');
+      expect(response.getHeader('Pragma')).to.equal('no-cache');
+    });
+    
+    it('should respond with body', function() {
+      expect(response.body).to.equal('{"access_token":"s3cr1t","token_type":"Bearer"}');
+    });
+  });
+  
   describe('not issuing an access token', function() {
     var response, err;
 
