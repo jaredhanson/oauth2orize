@@ -189,80 +189,6 @@ describe('decision', function() {
       });
     });
     
-    describe('handling a request without a body', function() {
-      var request, err;
-
-      before(function(done) {
-        chai.connect.use(decision(server))
-          .req(function(req) {
-            request = req;
-            req.query = {};
-            req.session = {};
-            req.session['authorize'] = {};
-            req.session['authorize']['abc123'] = { protocol: 'oauth2' };
-            req.user = { id: 'u1234', username: 'bob' };
-            req.oauth2 = {};
-            req.oauth2.transactionID = 'abc123';
-            req.oauth2.client = { id: 'c5678', name: 'Example' };
-            req.oauth2.redirectURI = 'http://example.com/auth/callback';
-            req.oauth2.req = { type: 'code', scope: 'email' };
-          })
-          .next(function(e) {
-            err = e;
-            done();
-          })
-          .dispatch();
-      });
-    
-      it('should error', function() {
-        expect(err).to.be.an.instanceOf(Error);
-        expect(err.message).to.equal('OAuth2orize requires body parsing. Did you forget app.use(express.bodyParser())?');
-      });
-    
-      it('should not set user on transaction', function() {
-        expect(request.oauth2.user).to.be.undefined;
-      });
-    
-      it('should not set response on transaction', function() {
-        expect(request.oauth2.res).to.be.undefined;
-      });
-    
-      it('should leave transaction in session', function() {
-        expect(request.session['authorize']['abc123']).to.be.an('object');
-      });
-    });
-    
-    describe('handling a request without a transaction', function() {
-      var request, err;
-
-      before(function(done) {
-        chai.connect.use(decision(server))
-          .req(function(req) {
-            request = req;
-            req.query = {};
-            req.body = {};
-            req.session = {};
-            req.session['authorize'] = {};
-            req.session['authorize']['abc123'] = { protocol: 'oauth2' };
-            req.user = { id: 'u1234', username: 'bob' };
-          })
-          .next(function(e) {
-            err = e;
-            done();
-          })
-          .dispatch();
-      });
-    
-      it('should error', function() {
-        expect(err).to.be.an.instanceOf(Error);
-        expect(err.message).to.equal('OAuth2orize requires transaction support. Did you forget oauth2orize.transactionLoader(...)?');
-      });
-    
-      it('should leave transaction in session', function() {
-        expect(request.session['authorize']['abc123']).to.be.an('object');
-      });
-    });
-    
     describe('handling authorization request with unsupported response type', function() {
       var request, response, err;
 
@@ -881,6 +807,88 @@ describe('decision', function() {
       });
     });
     
+  });
+  
+  describe('prerequisite middleware checks', function() {
+    var server;
+    
+    before(function() {
+      server = new Server();
+    });
+    
+    describe('handling a request without a body', function() {
+      var request, err;
+
+      before(function(done) {
+        chai.connect.use(decision(server))
+          .req(function(req) {
+            request = req;
+            req.query = {};
+            req.session = {};
+            req.session['authorize'] = {};
+            req.session['authorize']['abc123'] = { protocol: 'oauth2' };
+            req.user = { id: 'u1234', username: 'bob' };
+            req.oauth2 = {};
+            req.oauth2.transactionID = 'abc123';
+            req.oauth2.client = { id: 'c5678', name: 'Example' };
+            req.oauth2.redirectURI = 'http://example.com/auth/callback';
+            req.oauth2.req = { type: 'code', scope: 'email' };
+          })
+          .next(function(e) {
+            err = e;
+            done();
+          })
+          .dispatch();
+      });
+    
+      it('should error', function() {
+        expect(err).to.be.an.instanceOf(Error);
+        expect(err.message).to.equal('OAuth2orize requires body parsing. Did you forget app.use(express.bodyParser())?');
+      });
+    
+      it('should not set user on transaction', function() {
+        expect(request.oauth2.user).to.be.undefined;
+      });
+    
+      it('should not set response on transaction', function() {
+        expect(request.oauth2.res).to.be.undefined;
+      });
+    
+      it('should leave transaction in session', function() {
+        expect(request.session['authorize']['abc123']).to.be.an('object');
+      });
+    });
+    
+    describe('handling a request without a transaction', function() {
+      var request, err;
+
+      before(function(done) {
+        chai.connect.use(decision(server))
+          .req(function(req) {
+            request = req;
+            req.query = {};
+            req.body = {};
+            req.session = {};
+            req.session['authorize'] = {};
+            req.session['authorize']['abc123'] = { protocol: 'oauth2' };
+            req.user = { id: 'u1234', username: 'bob' };
+          })
+          .next(function(e) {
+            err = e;
+            done();
+          })
+          .dispatch();
+      });
+    
+      it('should error', function() {
+        expect(err).to.be.an.instanceOf(Error);
+        expect(err.message).to.equal('OAuth2orize requires transaction support. Did you forget oauth2orize.transactionLoader(...)?');
+      });
+    
+      it('should leave transaction in session', function() {
+        expect(request.session['authorize']['abc123']).to.be.an('object');
+      });
+    });
   });
   
 });
