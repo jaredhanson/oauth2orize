@@ -257,6 +257,82 @@ describe('exchange.refreshToken', function() {
     });
   });
   
+  describe('issuing an access token based on scope and body', function() {
+    function issue(client, refreshToken, scope, body, done) {
+      if (client.id !== 'c123') { return done(new Error('incorrect client argument')); }
+      if (refreshToken !== 'refreshing') { return done(new Error('incorrect refreshToken argument')); }
+      if (scope.length !== 1) { return done(new Error('incorrect scope argument')); }
+      if (scope[0] !== 'read') { return done(new Error('incorrect scope argument')); }
+      if (body.audience !== 'https://www.example.com/') { return done(new Error('incorrect body argument')); }
+      
+      return done(null, 's3cr1t')
+    }
+    
+    var response, err;
+
+    before(function(done) {
+      chai.connect.use(refreshToken(issue))
+        .req(function(req) {
+          req.user = { id: 'c123', name: 'Example' };
+          req.body = { refresh_token: 'refreshing', scope: 'read', audience: 'https://www.example.com/' };
+        })
+        .end(function(res) {
+          response = res;
+          done();
+        })
+        .dispatch();
+    });
+    
+    it('should respond with headers', function() {
+      expect(response.getHeader('Content-Type')).to.equal('application/json');
+      expect(response.getHeader('Cache-Control')).to.equal('no-store');
+      expect(response.getHeader('Pragma')).to.equal('no-cache');
+    });
+    
+    it('should respond with body', function() {
+      expect(response.body).to.equal('{"access_token":"s3cr1t","token_type":"Bearer"}');
+    });
+  });
+  
+  describe('issuing an access token based on authInfo', function() {
+    function issue(client, refreshToken, scope, body, authInfo, done) {
+      if (client.id !== 'c123') { return done(new Error('incorrect client argument')); }
+      if (refreshToken !== 'refreshing') { return done(new Error('incorrect refreshToken argument')); }
+      if (scope.length !== 1) { return done(new Error('incorrect scope argument')); }
+      if (scope[0] !== 'read') { return done(new Error('incorrect scope argument')); }
+      if (body.audience !== 'https://www.example.com/') { return done(new Error('incorrect body argument')); }
+      if (authInfo.ip !== '127.0.0.1') { return done(new Error('incorrect authInfo argument')); }
+      
+      return done(null, 's3cr1t')
+    }
+    
+    var response, err;
+
+    before(function(done) {
+      chai.connect.use(refreshToken(issue))
+        .req(function(req) {
+          req.user = { id: 'c123', name: 'Example' };
+          req.body = { refresh_token: 'refreshing', scope: 'read', audience: 'https://www.example.com/' };
+          req.authInfo = { ip: '127.0.0.1' };
+        })
+        .end(function(res) {
+          response = res;
+          done();
+        })
+        .dispatch();
+    });
+    
+    it('should respond with headers', function() {
+      expect(response.getHeader('Content-Type')).to.equal('application/json');
+      expect(response.getHeader('Cache-Control')).to.equal('no-store');
+      expect(response.getHeader('Pragma')).to.equal('no-cache');
+    });
+    
+    it('should respond with body', function() {
+      expect(response.body).to.equal('{"access_token":"s3cr1t","token_type":"Bearer"}');
+    });
+  });
+  
   describe('not issuing an access token', function() {
     var response, err;
 
