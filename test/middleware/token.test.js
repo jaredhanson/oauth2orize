@@ -10,13 +10,11 @@ describe('token', function() {
   
   var server = new Server();
   server.exchange('authorization_code', function(req, res, next) {
-    if (req.body.code == 'abc123') {
-      var json = JSON.stringify({ token_type: 'bearer', access_token: 'aaa-111-ccc' });
-      return res.end(json);
-    }
-    return next(new Error('something went wrong while exchanging grant'));
+    if (req.body.code !== 'abc123') { return done(new Error('incorrect req.body argument')); }
+    var json = JSON.stringify({ token_type: 'bearer', access_token: 'aaa-111-ccc' });
+    return res.end(json);
   });
-  server.exchange('next-error', function(req, res, next) {
+  server.exchange('error', function(req, res, next) {
     next(new Error('something went wrong'));
   });
   
@@ -79,7 +77,7 @@ describe('token', function() {
     before(function(done) {
       chai.connect.use(token(server))
         .req(function(req) {
-          req.body = { grant_type: 'next-error', code: 'abc123' };
+          req.body = { grant_type: 'error', code: 'abc123' };
         })
         .next(function(e) {
           err = e;
