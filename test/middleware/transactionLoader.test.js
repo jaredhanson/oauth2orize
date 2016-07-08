@@ -19,7 +19,6 @@ describe('transactionLoader', function() {
     }).to.throw(TypeError, 'oauth2orize.transactionLoader middleware requires a server argument');
   });
   
-  
   describe('using legacy transaction store', function() {
     var server;
   
