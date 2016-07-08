@@ -41,6 +41,15 @@ describe('authorization', function() {
         };
       });
       
+      server.grant('*', function(req) {
+        if (req.query['audience']) {
+          return {
+            audience: req.query['audience']
+          };
+        }
+        return {};
+      });
+      
       server.grant('exception', function(req) {
         throw new Error('something went wrong while parsing authorization request');
       });
@@ -88,6 +97,35 @@ describe('authorization', function() {
           .req(function(req) {
             request = req;
             req.query = { response_type: 'foo', client_id: '1234', redirect_uri: 'http://example.com/auth/callback' };
+            req.session = {};
+          })
+          .next(function(e) {
+            err = e;
+            done();
+          })
+          .dispatch();
+      });
+  
+      it('should error', function() {
+        expect(err).to.be.an.instanceOf(Error);
+        expect(err.constructor.name).to.equal('AuthorizationError');
+        expect(err.message).to.equal('Unsupported response type: foo');
+        expect(err.code).to.equal('unsupported_response_type');
+      });
+  
+      it('should not start transaction', function() {
+        expect(request.oauth2).to.be.undefined;
+      });
+    });
+    
+    describe('handling a request for authorization with unsupported response type with extension parameters', function() {
+      var request, err;
+
+      before(function(done) {
+        chai.connect.use(authorization(server, validate))
+          .req(function(req) {
+            request = req;
+            req.query = { response_type: 'foo', client_id: '1234', redirect_uri: 'http://example.com/auth/callback', audience: 'https://api.example.com/' };
             req.session = {};
           })
           .next(function(e) {
