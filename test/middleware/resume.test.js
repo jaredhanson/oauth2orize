@@ -371,6 +371,120 @@ describe('authorization', function() {
         expect(request.session['authorize']['abc123']).to.be.undefined;
       });
     });
+    
+    // WIP: Sending locals
+    
+    describe('encountering an error', function() {
+      var immediate, request, response, err;
+
+      before(function() {
+        immediate = function(client, user, done) {
+          return done(new Error('something went wrong while checking immediate status'));
+        };
+      });
+
+      before(function(done) {
+        chai.connect.use('express', resume(server, immediate))
+          .req(function(req) {
+            request = req;
+            req.body = { code: '832076', _xsrf: '3ndukf8s'};
+            req.session = {};
+            req.session['authorize'] = {};
+            req.session['authorize']['abc123'] = { protocol: 'oauth2' };
+            req.user = { id: 'u123', username: 'bob' };
+            req.oauth2 = {};
+            req.oauth2.transactionID = 'abc123';
+            req.oauth2.client = { id: '1234', name: 'Example' };
+            req.oauth2.redirectURI = 'http://example.com/auth/callback';
+            req.oauth2.req = { type: 'code', scope: 'email', audience: 'https://api.example.com/' };
+          })
+          .next(function(e) {
+            err = e;
+            done();
+          })
+          .dispatch();
+      });
+    
+      it('should error', function() {
+        expect(err).to.be.an.instanceOf(Error);
+        expect(err.message).to.equal('something went wrong while checking immediate status');
+      });
+      
+      it('should set user on transaction', function() {
+        expect(request.oauth2.user).to.be.an('object');
+        expect(request.oauth2.user.id).to.equal('u123');
+        expect(request.oauth2.user.username).to.equal('bob');
+      });
+      
+      it('should not set response on transaction', function() {
+        expect(request.oauth2).to.be.an('object');
+        expect(request.oauth2.res).to.be.undefined;
+        expect(request.oauth2.info).to.be.undefined;
+        expect(request.oauth2.locals).to.be.undefined;
+      });
+      
+      it('should not remove transaction from session', function() {
+        expect(request.session['authorize']['abc123']).to.be.an('object');
+        expect(Object.keys(request.session['authorize']['abc123'])).to.have.length(1);
+        expect(request.session['authorize']['abc123'].protocol).to.equal('oauth2');
+      });
+    });
+    
+    describe('encountering an exception', function() {
+      var immediate, request, response, err;
+
+      before(function() {
+        immediate = function(client, user, done) {
+          throw new Error('something was thrown while checking immediate status');
+        };
+      });
+
+      before(function(done) {
+        chai.connect.use('express', resume(server, immediate))
+          .req(function(req) {
+            request = req;
+            req.body = { code: '832076', _xsrf: '3ndukf8s'};
+            req.session = {};
+            req.session['authorize'] = {};
+            req.session['authorize']['abc123'] = { protocol: 'oauth2' };
+            req.user = { id: 'u123', username: 'bob' };
+            req.oauth2 = {};
+            req.oauth2.transactionID = 'abc123';
+            req.oauth2.client = { id: '1234', name: 'Example' };
+            req.oauth2.redirectURI = 'http://example.com/auth/callback';
+            req.oauth2.req = { type: 'code', scope: 'email', audience: 'https://api.example.com/' };
+          })
+          .next(function(e) {
+            err = e;
+            done();
+          })
+          .dispatch();
+      });
+    
+      it('should error', function() {
+        expect(err).to.be.an.instanceOf(Error);
+        expect(err.message).to.equal('something was thrown while checking immediate status');
+      });
+      
+      it('should set user on transaction', function() {
+        expect(request.oauth2.user).to.be.an('object');
+        expect(request.oauth2.user.id).to.equal('u123');
+        expect(request.oauth2.user.username).to.equal('bob');
+      });
+      
+      it('should not set response on transaction', function() {
+        expect(request.oauth2).to.be.an('object');
+        expect(request.oauth2.res).to.be.undefined;
+        expect(request.oauth2.info).to.be.undefined;
+        expect(request.oauth2.locals).to.be.undefined;
+      });
+      
+      it('should not remove transaction from session', function() {
+        expect(request.session['authorize']['abc123']).to.be.an('object');
+        expect(Object.keys(request.session['authorize']['abc123'])).to.have.length(1);
+        expect(request.session['authorize']['abc123'].protocol).to.equal('oauth2');
+      });
+    });
   });
   
   describe('prerequisite middleware checks', function() {
