@@ -485,6 +485,132 @@ describe('authorization', function() {
         expect(request.session['authorize']['abc123'].protocol).to.equal('oauth2');
       });
     });
+    
+    describe('encountering an error while responding to request', function() {
+      var server, request, response, err;
+
+      before(function() {
+        server = new Server();
+        
+        server.grant('code', 'response', function(txn, res, next) {
+          return next(new Error('something went wrong while sending response'));
+        });
+      });
+
+      before(function(done) {
+        chai.connect.use('express', resume(server, immediate))
+          .req(function(req) {
+            request = req;
+            req.body = { code: '832076', _xsrf: '3ndukf8s'};
+            req.session = {};
+            req.session['authorize'] = {};
+            req.session['authorize']['abc123'] = { protocol: 'oauth2' };
+            req.user = { id: 'u123', username: 'bob' };
+            req.oauth2 = {};
+            req.oauth2.transactionID = 'abc123';
+            req.oauth2.client = { id: '1234', name: 'Example' };
+            req.oauth2.redirectURI = 'http://example.com/auth/callback';
+            req.oauth2.req = { type: 'code', scope: 'email', audience: 'https://api.example.com/' };
+          })
+          .res(function(res) {
+            response = res;
+          })
+          .next(function(e) {
+            err = e;
+            done();
+          })
+          .end(function(){})
+          .dispatch();
+      });
+    
+      it('should error', function() {
+        expect(err).to.be.an.instanceOf(Error);
+        expect(err.message).to.equal('something went wrong while sending response');
+      });
+      
+      it('should set user on transaction', function() {
+        expect(request.oauth2.user).to.be.an('object');
+        expect(request.oauth2.user.id).to.equal('u123');
+        expect(request.oauth2.user.username).to.equal('bob');
+      });
+      
+      it('should set response on transaction', function() {
+        expect(request.oauth2.res).to.be.an('object');
+        expect(request.oauth2.res.allow).to.be.true;
+        expect(request.oauth2.res.scope).to.equal('profile email');
+        expect(request.oauth2.info).to.be.undefined;
+        expect(request.oauth2.locals).to.be.undefined;
+      });
+      
+      it('should leave transaction in session', function() {
+        expect(request.session['authorize']['abc123']).to.be.an('object');
+      });
+      
+      it('should remove transaction from session after calling end', function() {
+        response.end();
+        expect(request.session['authorize']['abc123']).to.be.undefined;
+      });
+    });
+    
+    describe('handling authorization request with unsupported response type', function() {
+      var request, response, err;
+
+      before(function(done) {
+        chai.connect.use('express', resume(server, immediate))
+          .req(function(req) {
+            request = req;
+            req.body = { code: '832076', _xsrf: '3ndukf8s'};
+            req.session = {};
+            req.session['authorize'] = {};
+            req.session['authorize']['abc123'] = { protocol: 'oauth2' };
+            req.user = { id: 'u123', username: 'bob' };
+            req.oauth2 = {};
+            req.oauth2.transactionID = 'abc123';
+            req.oauth2.client = { id: '1234', name: 'Example' };
+            req.oauth2.redirectURI = 'http://example.com/auth/callback';
+            req.oauth2.req = { type: 'foo', scope: 'email', audience: 'https://api.example.com/' };
+          })
+          .res(function(res) {
+            response = res;
+          })
+          .next(function(e) {
+            err = e;
+            done();
+          })
+          .end(function(){})
+          .dispatch();
+      });
+    
+      it('should error', function() {
+        expect(err).to.be.an.instanceOf(Error);
+        expect(err.constructor.name).to.equal('AuthorizationError');
+        expect(err.message).to.equal('Unsupported response type: foo');
+        expect(err.code).to.equal('unsupported_response_type');
+      });
+      
+      it('should set user on transaction', function() {
+        expect(request.oauth2.user).to.be.an('object');
+        expect(request.oauth2.user.id).to.equal('u123');
+        expect(request.oauth2.user.username).to.equal('bob');
+      });
+      
+      it('should set response on transaction', function() {
+        expect(request.oauth2.res).to.be.an('object');
+        expect(request.oauth2.res.allow).to.be.true;
+        expect(request.oauth2.res.scope).to.equal('profile email');
+        expect(request.oauth2.info).to.be.undefined;
+        expect(request.oauth2.locals).to.be.undefined;
+      });
+      
+      it('should leave transaction in session', function() {
+        expect(request.session['authorize']['abc123']).to.be.an('object');
+      });
+      
+      it('should remove transaction from session after calling end', function() {
+        response.end();
+        expect(request.session['authorize']['abc123']).to.be.undefined;
+      });
+    });
   });
   
   describe('prerequisite middleware checks', function() {
