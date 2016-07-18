@@ -1147,6 +1147,63 @@ describe('resume', function() {
       });
     });
     
+    describe('encountering an error while serializing client', function() {
+      var server, immediate, request, err;
+
+      before(function() {
+        server = new Server();
+        server.serializeClient(function(client, done) {
+          return done(new Error('something went wrong while serializing client'));
+        });
+      });
+
+      before(function() {
+        immediate = function(client, user, done) {
+          if (client.id !== '1234') { return done(new Error('incorrect client argument')); }
+          if (user.id !== 'u123') { return done(new Error('incorrect user argument')); }
+        
+          return done(null, false);
+        };
+      });
+
+      before(function(done) {
+        chai.connect.use('express', resume(server, immediate))
+          .req(function(req) {
+            request = req;
+            req.body = { code: '832076', _xsrf: '3ndukf8s'};
+            req.session = {};
+            req.session['authorize'] = {};
+            req.session['authorize']['abc123'] = { protocol: 'oauth2' };
+            req.user = { id: 'u123', username: 'bob' };
+            req.oauth2 = {};
+            req.oauth2.transactionID = 'abc123';
+            req.oauth2.client = { id: '1234', name: 'Example' };
+            req.oauth2.redirectURI = 'http://example.com/auth/callback';
+            req.oauth2.req = { type: 'code', scope: 'email' };
+          })
+          .next(function(e) {
+            err = e;
+            done();
+          })
+          .dispatch();
+      });
+  
+      it('should error', function() {
+        expect(err).to.be.an.instanceOf(Error);
+        expect(err.message).to.equal('something went wrong while serializing client');
+      });
+      
+      it('should leave transaction', function() {
+        expect(request.oauth2).to.be.an('object');
+      });
+  
+      it('should leave transaction in session', function() {
+        expect(request.oauth2.transactionID).to.equal('abc123');
+        var tid = request.oauth2.transactionID;
+        expect(request.session['authorize'][tid]).to.be.an('object');
+      });
+    });
+    
   });
   
   
