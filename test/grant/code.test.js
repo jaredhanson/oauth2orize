@@ -822,4 +822,10 @@ describe('grant.code', function() {
     });
   });
   
+  /*
+  describe('error handling', function() {
+    
+  });
+  */
+  
 });
