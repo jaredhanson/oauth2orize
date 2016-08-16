@@ -1,6 +1,6 @@
 {
   "name": "oauth2orize",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "OAuth 2.0 authorization server toolkit for Node.js.",
   "keywords": [
     "oauth",
