@@ -969,6 +969,36 @@ describe('grant.code', function() {
         expect(response.body).to.be.undefined;
       });
     });
+    
+    describe('error on transaction without redirectURI', function() {
+      var response, err;
+      
+      before(function(done) {
+        function issue(client, redirectURI, user, done) {
+        }
+        
+        chai.oauth2orize.grant(code(issue))
+          .txn(function(txn) {
+            txn.client = { id: 'c123', name: 'Example' };
+            txn.req = {
+              redirectURI: 'http://example.com/auth/callback',
+              state: '1234'
+            };
+            txn.user = { id: 'u123', name: 'Bob' };
+            txn.res = { allow: true };
+          })
+          .next(function(e) {
+            err = e;
+            done();
+          })
+          .error(new Error('something went wrong'));
+      });
+      
+      it('should error', function() {
+        expect(err).to.be.an.instanceOf(Error);
+        expect(err.message).to.equal('something went wrong');
+      });
+    });
   });
   
   describe('error handling with response mode', function() {
@@ -1052,6 +1082,39 @@ describe('grant.code', function() {
       
       it('should not set response body', function() {
         expect(response.body).to.be.undefined;
+      });
+    });
+    
+    describe('transaction using unsupported response mode', function() {
+      var response, err;
+      
+      before(function(done) {
+        chai.oauth2orize.grant(code({ modes: { foo: fooResponseMode } }, issue))
+          .txn(function(txn) {
+            txn.client = { id: 'c123', name: 'Example' };
+            txn.redirectURI = 'http://example.com/auth/callback';
+            txn.req = {
+              redirectURI: 'http://example.com/auth/callback',
+              state: '1234',
+              responseMode: 'fubar'
+            };
+            txn.user = { id: 'u123', name: 'Bob' };
+            txn.res = { allow: true };
+          })
+          .next(function(e) {
+            err = e;
+            done();
+          })
+          .error(new AuthorizationError('not authorized', 'unauthorized_client', 'http://example.com/errors/2'));
+      });
+      
+      it('should error', function() {
+        expect(err).to.be.an.instanceOf(Error);
+        expect(err.constructor.name).to.equal('AuthorizationError');
+        expect(err.message).to.equal('not authorized');
+        expect(err.code).to.equal('unauthorized_client');
+        expect(err.uri).to.equal('http://example.com/errors/2');
+        expect(err.status).to.equal(403);
       });
     });
   });
