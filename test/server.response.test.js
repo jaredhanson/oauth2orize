@@ -63,7 +63,7 @@ describe('Server', function() {
       res.end('abc');
     });
     
-    describe('response to a type', function() {
+    describe('response to any type', function() {
       var result, err;
     
       before(function(done) {
@@ -100,7 +100,7 @@ describe('Server', function() {
       res.end('abc');
     });
     
-    describe('response to a type', function() {
+    describe('response to supported type', function() {
       var response, result, err;
     
       before(function(done) {
@@ -133,7 +133,7 @@ describe('Server', function() {
       next(new Error('something went wrong'))
     });
     
-    describe('response to a type', function() {
+    describe('response to supported type', function() {
       var result, err;
     
       before(function(done) {
@@ -162,7 +162,7 @@ describe('Server', function() {
       throw new Error('something was thrown');
     });
     
-    describe('response to a type', function() {
+    describe('response to supported type', function() {
       var result, err;
     
       before(function(done) {
@@ -188,7 +188,7 @@ describe('Server', function() {
   describe('handling authorization response with no supported types', function() {
     var server = new Server();
     
-    describe('response', function() {
+    describe('response to unsupported type', function() {
       var err;
     
       before(function(done) {
