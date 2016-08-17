@@ -969,7 +969,91 @@ describe('grant.code', function() {
         expect(response.body).to.be.undefined;
       });
     });
+  });
+  
+  describe('error handling with response mode', function() {
+    function issue(client, redirectURI, user, done) {
+    }
     
+    var fooResponseMode = function(txn, res, params) {
+      expect(txn.req.redirectURI).to.equal('http://example.com/auth/callback');
+      expect(params.error).to.equal('unauthorized_client');
+      expect(params.error_description).to.equal('not authorized');
+      expect(params.error_uri).to.equal('http://example.com/errors/2');
+      expect(params.state).to.equal('1234');
+      
+      res.redirect('/foo');
+    }
+    
+    
+    describe('transaction using default response mode', function() {
+      var response;
+      
+      before(function(done) {
+        chai.oauth2orize.grant(code({ modes: { foo: fooResponseMode } }, issue))
+          .txn(function(txn) {
+            txn.client = { id: 'c123', name: 'Example' };
+            txn.redirectURI = 'http://example.com/auth/callback';
+            txn.req = {
+              redirectURI: 'http://example.com/auth/callback',
+              state: '1234'
+            };
+            txn.user = { id: 'u123', name: 'Bob' };
+            txn.res = { allow: true };
+          })
+          .end(function(res) {
+            response = res;
+            done();
+          })
+          .error(new AuthorizationError('not authorized', 'unauthorized_client', 'http://example.com/errors/2'));
+      });
+      
+      it('should respond', function() {
+        expect(response.statusCode).to.equal(302);
+        expect(response.getHeader('Location')).to.equal('http://example.com/auth/callback?error=unauthorized_client&error_description=not%20authorized&error_uri=http%3A%2F%2Fexample.com%2Ferrors%2F2&state=1234');
+        expect(response.getHeader('Content-Type')).to.be.undefined;
+        expect(response.getHeader('WWW-Authenticate')).to.be.undefined;
+      });
+      
+      it('should not set response body', function() {
+        expect(response.body).to.be.undefined;
+      });
+    });
+    
+    describe('transaction using foo response mode', function() {
+      var response;
+      
+      before(function(done) {
+        chai.oauth2orize.grant(code({ modes: { foo: fooResponseMode } }, issue))
+          .txn(function(txn) {
+            txn.client = { id: 'c123', name: 'Example' };
+            txn.redirectURI = 'http://example.com/auth/callback';
+            txn.req = {
+              redirectURI: 'http://example.com/auth/callback',
+              state: '1234',
+              responseMode: 'foo'
+            };
+            txn.user = { id: 'u123', name: 'Bob' };
+            txn.res = { allow: true };
+          })
+          .end(function(res) {
+            response = res;
+            done();
+          })
+          .error(new AuthorizationError('not authorized', 'unauthorized_client', 'http://example.com/errors/2'));
+      });
+      
+      it('should respond', function() {
+        expect(response.statusCode).to.equal(302);
+        expect(response.getHeader('Location')).to.equal('/foo');
+        expect(response.getHeader('Content-Type')).to.be.undefined;
+        expect(response.getHeader('WWW-Authenticate')).to.be.undefined;
+      });
+      
+      it('should not set response body', function() {
+        expect(response.body).to.be.undefined;
+      });
+    });
   });
   
 });
