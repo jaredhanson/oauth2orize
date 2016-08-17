@@ -12,9 +12,21 @@ describe('Server', function() {
       expect(server.authorize).to.equal(server.authorization);
     });
     
+    it('should wrap resume middleware', function() {
+      expect(server.resume).to.be.a('function');
+      expect(server.resume).to.have.length(2);
+    });
+    
     it('should wrap decision middleware', function() {
       expect(server.decision).to.be.a('function');
       expect(server.decision).to.have.length(2);
+    });
+    
+    it('should wrap authorizationErrorHandler middleware', function() {
+      expect(server.authorizationErrorHandler).to.be.a('function');
+      expect(server.authorizationErrorHandler).to.have.length(1);
+      expect(server.authorizeError).to.equal(server.authorizationErrorHandler);
+      expect(server.authorizationError).to.equal(server.authorizationErrorHandler);
     });
     
     it('should wrap token middleware', function() {
@@ -33,6 +45,10 @@ describe('Server', function() {
     
     it('should have no response handlers', function() {
       expect(server._resHandlers).to.have.length(0);
+    });
+    
+    it('should have no error handlers', function() {
+      expect(server._errHandlers).to.have.length(0);
     });
     
     it('should have no exchanges', function() {
@@ -55,6 +71,26 @@ describe('Server', function() {
     });
   });
   
+  describe('#resume', function() {
+    var server = new Server();
+    
+    it('should create handler stack with two functions', function() {
+      var handler = server.resume(function(){});
+      expect(handler).to.be.an('array');
+      expect(handler).to.have.length(2);
+      expect(handler[0]).to.be.a('function');
+      expect(handler[0]).to.have.length(3);
+      expect(handler[1]).to.be.a('function');
+      expect(handler[1]).to.have.length(3);
+    });
+    
+    it('should create function handler when transaction loader is disabled', function() {
+      var handler = server.resume({ loadTransaction: false }, function(){});
+      expect(handler).to.be.an('function');
+      expect(handler).to.have.length(3);
+    });
+  });
+  
   describe('#decision', function() {
     var server = new Server();
     
@@ -72,6 +108,16 @@ describe('Server', function() {
       var handler = server.decision({ loadTransaction: false });
       expect(handler).to.be.an('function');
       expect(handler).to.have.length(3);
+    });
+  });
+  
+  describe('#authorizationErrorHandler', function() {
+    var server = new Server();
+    
+    it('should create function error handler', function() {
+      var handler = server.authorizationErrorHandler();
+      expect(handler).to.be.an('function');
+      expect(handler).to.have.length(4);
     });
   });
   
