@@ -217,7 +217,7 @@ describe('Server', function() {
     });
   });
   
-  describe('with multiple exchanges', function() {
+  describe('with one wildcard exchange and one named exchange', function() {
     var server = new Server();
     server.exchange('*', function(req, res, next) {
       if (req.code != '123') { return next(new Error('something is wrong')); }
@@ -255,7 +255,7 @@ describe('Server', function() {
     });
   });
   
-  describe('with one exchange that encounters an error', function() {
+  describe('with an exchange that encounters an error', function() {
     var server = new Server();
     server.exchange('code', function(req, res, next) {
       next(new Error('something went wrong'));

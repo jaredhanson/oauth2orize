@@ -116,6 +116,42 @@ describe('transactionLoader', function() {
       });
     });
     
+    describe('handling a request with transaction already loaded', function() {
+      var request, err;
+
+      before(function(done) {
+        chai.connect.use(transactionLoader(server))
+          .req(function(req) {
+            request = req;
+            req.query = { 'transaction_id': '1234' };
+            req.session = {};
+            req.oauth2 = {}
+            req.oauth2.transactionID = '1234';
+            req.oauth2.client = { id: '1', name: 'Test' };
+            req.oauth2.redirectURI = 'http://www.example.com/auth/callback';
+            req.oauth2.req = { redirectURI: 'http://www.example.com/auth/callback' };
+          })
+          .next(function(e) {
+            err = e;
+            done();
+          })
+          .dispatch();
+      });
+    
+      it('should not error', function() {
+        expect(err).to.be.undefined;
+      });
+    
+      it('should maintain transaction', function() {
+        expect(request.oauth2).to.be.an('object');
+        expect(request.oauth2.transactionID).to.equal('1234');
+        expect(request.oauth2.client.id).to.equal('1');
+        expect(request.oauth2.client.name).to.equal('Test');
+        expect(request.oauth2.redirectURI).to.equal('http://www.example.com/auth/callback');
+        expect(request.oauth2.req.redirectURI).to.equal('http://www.example.com/auth/callback');
+      });
+    });
+    
     describe('handling a request without transaction id', function() {
       var request, err;
 

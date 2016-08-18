@@ -13,6 +13,7 @@ describe('errorHandler', function() {
   });
   
   describe('direct mode', function() {
+    
     describe('handling an error', function() {
       var res;
   
@@ -81,9 +82,11 @@ describe('errorHandler', function() {
         expect(res.body).to.equal('{"error":"invalid_request","error_description":"something went wrong","error_uri":"http://example.com/errors/1"}');
       });
     });
-  });
+    
+  }); // direct mode
   
   describe('indirect mode', function() {
+    
     describe('handling an error', function() {
       var res;
   
@@ -439,9 +442,11 @@ describe('errorHandler', function() {
         expect(err.message).to.equal('something went wrong');
       });
     });
-  });
+    
+  }); // indirect mode
   
   describe('unknown mode', function() {
+    
     describe('handling an error', function() {
       var err;
   
@@ -459,7 +464,8 @@ describe('errorHandler', function() {
         expect(err.message).to.equal('something went wrong');
       });
     });
-  });
+    
+  }); // unknown mode
   
 });
 

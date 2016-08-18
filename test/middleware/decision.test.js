@@ -77,6 +77,10 @@ describe('decision', function() {
       it('should remove transaction from session', function() {
         expect(request.session['authorize']['abc123']).to.be.undefined;
       });
+      
+      it('should flag req.end as proxied', function() {
+        expect(request.oauth2._endProxied).to.be.true;
+      });
     });
     
     describe('handling a user decision to deny access', function() {

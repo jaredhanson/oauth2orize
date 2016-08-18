@@ -82,6 +82,36 @@ describe('Server', function() {
     });
   });
   
+  describe('parsing authorization requests with one supported type that throws an exception', function() {
+    var server = new Server();
+    server.grant('foo', function(req) {
+      throw new Error('something went horribly wrong');
+    });
+    
+    describe('request for supported type', function() {
+      var areq, err;
+    
+      before(function(done) {
+        var req = { query: { foo: '1' } };
+        
+        server._parse('foo', req, function(e, ar) {
+          areq = ar;
+          err = e;
+          done();
+        });
+      });
+    
+      it('should error', function() {
+        expect(err).to.be.an.instanceOf(Error);
+        expect(err.message).to.equal('something went horribly wrong');
+      });
+    
+      it('should not parse object', function() {
+        expect(areq).to.be.undefined;
+      });
+    });
+  });
+  
   describe('parsing authorization requests with one wildcard parser', function() {
     var server = new Server();
     server.grant('*', function(req) {
@@ -201,6 +231,39 @@ describe('Server', function() {
     });
   });
   
+  describe('parsing requests with a sync wildcard parser that throws an exception preceeding one supported type', function() {
+    var server = new Server();
+    server.grant('*', function(req) {
+      throw new Error('something went horribly wrong');
+    });
+    server.grant('bar', function(req) {
+      return { bar: req.query.bar }
+    })
+    
+    describe('request for supported type', function() {
+      var areq, err;
+    
+      before(function(done) {
+        var req = { query: { bar: '10', star: 'orion' } };
+        
+        server._parse('bar', req, function(e, ar) {
+          areq = ar;
+          err = e;
+          done();
+        });
+      });
+    
+      it('should error', function() {
+        expect(err).to.be.an.instanceOf(Error);
+        expect(err.message).to.equal('something went horribly wrong');
+      });
+    
+      it('should not parse object', function() {
+        expect(areq).to.be.undefined;
+      });
+    });
+  });
+  
   describe('parsing authorization requests with an async wildcard parser preceeding one supported type', function() {
     var server = new Server();
     server.grant('*', function(req, done) {
@@ -244,7 +307,7 @@ describe('Server', function() {
     });
     server.grant('bar', function(req) {
       return { bar: req.query.bar }
-    })
+    });
     
     describe('request for supported type', function() {
       var areq, err;
