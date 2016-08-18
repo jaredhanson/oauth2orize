@@ -21,9 +21,14 @@ describe('authorizationErrorHandler', function() {
     
     before(function() {
       server = new Server();
+      
       server.grant('code', 'error', function(err, txn, res, next) {
         if (txn.req.scope != 'email') { return next(new Error('incorrect transaction argument')); }
         return res.redirect(txn.redirectURI + '?error_description=' + err.message);
+      });
+      
+      server.grant('fubar', 'error', function(err, txn, res, next) {
+        return next(new Error('something else went wrong'));
       });
     });
     
@@ -61,6 +66,107 @@ describe('authorizationErrorHandler', function() {
     
       it('should remove transaction from session', function() {
         expect(request.session['authorize']['abc123']).to.be.undefined;
+      });
+    });
+    
+    describe('handling an error where res.end has already been proxied', function() {
+      var request, response;
+
+      before(function(done) {
+        chai.connect.use('express', authorizationErrorHandler(server))
+          .req(function(req) {
+            request = req;
+            req.query = {};
+            req.body = {};
+            req.session = {};
+            req.session['authorize'] = {};
+            req.session['authorize']['abc123'] = { protocol: 'oauth2' };
+            req.user = { id: 'u1234', username: 'bob' };
+            req.oauth2 = {};
+            req.oauth2.transactionID = 'abc123';
+            req.oauth2.client = { id: 'c5678', name: 'Example' };
+            req.oauth2.redirectURI = 'http://example.com/auth/callback';
+            req.oauth2.req = { type: 'code', scope: 'email' };
+            req.oauth2._endProxied = true;
+          })
+          .end(function(res) {
+            response = res;
+            done();
+          })
+          .dispatch(new Error('something went wrong'));
+      });
+      
+      it('should respond', function() {
+        expect(response.statusCode).to.equal(302);
+        expect(response.getHeader('Location')).to.equal('http://example.com/auth/callback?error_description=something went wrong');
+      });
+    
+      it('should not remove transaction from session', function() {
+        expect(request.session['authorize']['abc123']).to.be.an('object');
+      });
+    });
+    
+    describe('encountering an unsupported response type while handling an error', function() {
+      var request, response, err;
+
+      before(function(done) {
+        chai.connect.use('express', authorizationErrorHandler(server))
+          .req(function(req) {
+            request = req;
+            req.query = {};
+            req.body = {};
+            req.session = {};
+            req.session['authorize'] = {};
+            req.session['authorize']['abc123'] = { protocol: 'oauth2' };
+            req.user = { id: 'u1234', username: 'bob' };
+            req.oauth2 = {};
+            req.oauth2.transactionID = 'abc123';
+            req.oauth2.client = { id: 'c5678', name: 'Example' };
+            req.oauth2.redirectURI = 'http://example.com/auth/callback';
+            req.oauth2.req = { type: 'unsupported', scope: 'email' };
+          })
+          .next(function(e) {
+            err = e;
+            done();
+          })
+          .dispatch(new Error('something went wrong'));
+      });
+      
+      it('should preserve error', function() {
+        expect(err).to.be.an.instanceOf(Error);
+        expect(err.message).to.equal('something went wrong');
+      });
+    });
+    
+    describe('encountering an error while handling an error', function() {
+      var request, response, err;
+
+      before(function(done) {
+        chai.connect.use('express', authorizationErrorHandler(server))
+          .req(function(req) {
+            request = req;
+            req.query = {};
+            req.body = {};
+            req.session = {};
+            req.session['authorize'] = {};
+            req.session['authorize']['abc123'] = { protocol: 'oauth2' };
+            req.user = { id: 'u1234', username: 'bob' };
+            req.oauth2 = {};
+            req.oauth2.transactionID = 'abc123';
+            req.oauth2.client = { id: 'c5678', name: 'Example' };
+            req.oauth2.redirectURI = 'http://example.com/auth/callback';
+            req.oauth2.req = { type: 'fubar', scope: 'email' };
+          })
+          .next(function(e) {
+            err = e;
+            done();
+          })
+          .dispatch(new Error('something went wrong'));
+      });
+      
+      it('should error', function() {
+        expect(err).to.be.an.instanceOf(Error);
+        expect(err.message).to.equal('something else went wrong');
       });
     });
   });
