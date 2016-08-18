@@ -116,8 +116,12 @@ describe('Server', function() {
     
     it('should create function error handler', function() {
       var handler = server.authorizationErrorHandler();
-      expect(handler).to.be.an('function');
-      expect(handler).to.have.length(4);
+      expect(handler).to.be.an('array');
+      expect(handler).to.have.length(2);
+      expect(handler[0]).to.be.a('function');
+      expect(handler[0]).to.have.length(4);
+      expect(handler[1]).to.be.a('function');
+      expect(handler[1]).to.have.length(4);
     });
   });
   
