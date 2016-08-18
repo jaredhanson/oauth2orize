@@ -169,6 +169,37 @@ describe('authorizationErrorHandler', function() {
         expect(err.message).to.equal('something else went wrong');
       });
     });
+    
+    describe('handling a request that is not associated with a transaction', function() {
+      var request, response, err;
+
+      before(function(done) {
+        chai.connect.use('express', authorizationErrorHandler(server))
+          .req(function(req) {
+            request = req;
+            req.query = {};
+            req.body = {};
+            req.session = {};
+            req.session['authorize'] = {};
+            req.session['authorize']['abc123'] = { protocol: 'oauth2' };
+            req.user = { id: 'u1234', username: 'bob' };
+          })
+          .next(function(e) {
+            err = e;
+            done();
+          })
+          .dispatch(new Error('something went wrong'));
+      });
+      
+      it('should preserve error', function() {
+        expect(err).to.be.an.instanceOf(Error);
+        expect(err.message).to.equal('something went wrong');
+      });
+      
+      it('should not remove data from session', function() {
+        expect(request.session['authorize']['abc123']).to.be.an('object');
+      });
+    });
   });
   
 });
