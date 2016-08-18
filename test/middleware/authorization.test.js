@@ -236,6 +236,7 @@ describe('authorization', function() {
             request = req;
             req.query = { response_type: 'code', client_id: '2234', redirect_uri: 'http://example.com/auth/callback' };
             req.session = {};
+            req.user = { id: '1', username: 'root' }
           })
           .next(function(e) {
             err = e;
@@ -255,6 +256,10 @@ describe('authorization', function() {
         expect(request.oauth2).to.be.an('object');
         expect(request.oauth2.client).to.be.undefined;
         expect(request.oauth2.redirectURI).to.be.undefined;
+        expect(request.oauth2.req).to.be.an('object');
+        expect(request.oauth2.req.type).to.equal('code');
+        expect(request.oauth2.user).to.be.an('object');
+        expect(request.oauth2.user.id).to.equal('1');
       });
     });
     
