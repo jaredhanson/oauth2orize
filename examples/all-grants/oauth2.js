@@ -179,6 +179,18 @@ exports.authorization = [
       //          been warned.
       return done(null, client, redirectURI);
     });
+  }, function (client, user, done) {
+    // Check if grant request qualifies for immediate approval
+    if (user.has_token(client)) {
+      // Auto-approve
+      return done(null, true);
+    }
+    if (client.isTrusted()) {
+      // Auto-approve
+      return done(null, true);
+    }
+    // Otherwise ask user
+    done(null, false);
   }),
   function(req, res){
     res.render('dialog', { transactionID: req.oauth2.transactionID, user: req.user, client: req.oauth2.client });
