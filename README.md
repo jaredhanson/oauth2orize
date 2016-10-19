@@ -176,7 +176,7 @@ an HTTP Bearer authentication header (as provided by [passport-http-bearer](http
 
 ## Examples
 
-This [example](https://github.com/jaredhanson/oauth2orize/tree/master/examples/express2) demonstrates
+This [example](https://github.com/gerges-beshay/oauth2orize-examples) demonstrates
 how to implement an OAuth service provider, complete with protected API access.
 
 ## Related Modules
