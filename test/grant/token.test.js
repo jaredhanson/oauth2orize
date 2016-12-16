@@ -646,7 +646,8 @@ describe('grant.token', function() {
       });
       
       it('should error', function() {
-        expect(err).to.be.an.instanceOf(Error);
+        expect(err).to.be.an.instanceOf(AuthorizationError);
+        expect(err.code).to.equal('invalid_request');
         expect(err.message).to.equal('Unable to issue redirect for OAuth 2.0 transaction');
       });
     });
