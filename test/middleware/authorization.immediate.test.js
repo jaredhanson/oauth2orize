@@ -362,6 +362,61 @@ describe('authorization', function() {
         expect(request.session['authorize']).to.be.undefined;
       });
     });
+
+    describe('based on client, user, scope, type, authorization request, request locals, and transaction locals', function() {
+      var immediate, request, response, err;
+
+      before(function() {
+        immediate = function(client, user, scope, type, areq, locals, done) {
+          if (client.id !== '1234') { return done(new Error('incorrect client argument')); }
+          if (user.id !== 'u123') { return done(new Error('incorrect user argument')); }
+          if (scope !== 'profile') { return done(new Error('incorrect scope argument')); }
+          if (type !== 'code') { return done(new Error('incorrect type argument')); }
+          if (areq.audience !== 'https://api.example.com/') { return done(new Error('incorrect areq argument')); }
+          if (locals.ip !== '123.45.67.890') { return done(new Error('incorrect locals argument')); }
+
+          return done(null, true, { scope: 'read' });
+        };
+      });
+
+      before(function(done) {
+        chai.connect.use('express', authorization(server, validate, immediate))
+          .req(function(req) {
+            request = req;
+            req.query = { response_type: 'code', client_id: '1234', redirect_uri: 'http://example.com/auth/callback', scope: 'profile', audience: 'https://api.example.com/' };
+            req.session = {};
+            req.user = { id: 'u123' };
+            req.locals = { ip: '123.45.67.890' };
+          })
+          .end(function(res) {
+            response = res;
+            done();
+          })
+          .dispatch();
+      });
+  
+      it('should not error', function() {
+        expect(err).to.be.undefined;
+      });
+  
+      it('should respond', function() {
+        expect(response.getHeader('Location')).to.equal('http://example.com/auth/callback');
+      });
+  
+      it('should add transaction', function() {
+        expect(request.oauth2).to.be.an('object');
+        expect(request.oauth2.res).to.be.an('object');
+        expect(request.oauth2.res.allow).to.equal(true);
+        expect(request.oauth2.res.scope).to.equal('read');
+        expect(request.oauth2.info).to.be.undefined;
+        expect(request.oauth2.locals).to.be.undefined;
+      });
+  
+      it('should not store transaction in session', function() {
+        expect(Object.keys(request.session).length).to.equal(0);
+        expect(request.session['authorize']).to.be.undefined;
+      });
+    });
   
     describe('encountering an error', function() {
       var immediate, request, err;
