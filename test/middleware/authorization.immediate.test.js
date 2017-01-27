@@ -477,6 +477,65 @@ describe('authorization', function() {
         expect(request.session['authorize']).to.be.undefined;
       });
     });
+
+    describe('with postAllow function', function() {
+      var immediate, request, postAllow, response, err;
+
+      before(function() {
+        immediate = function(client, user, done) {
+          if (client.id !== '1234') { return done(new Error('incorrect client argument')); }
+          if (user.id !== 'u123') { return done(new Error('incorrect user argument')); }
+
+          return done(null, true, { scope: 'read' });
+        };
+      });
+
+      before(function() {
+        postAllow = function(req, res, txn, done) {
+          txn['foo'] = 'bar';
+
+          return done(null);
+        };
+      });
+
+      before(function(done) {
+        chai.connect.use('express', authorization(server, { postAllow: postAllow }, validate, immediate))
+          .req(function(req) {
+            request = req;
+            req.query = { response_type: 'code', client_id: '1234', redirect_uri: 'http://example.com/auth/callback' };
+            req.session = {};
+            req.user = { id: 'u123' };
+          })
+          .end(function(res) {
+            response = res;
+            done();
+          })
+          .dispatch();
+      });
+    
+      it('should not error', function() {
+        expect(err).to.be.undefined;
+      });
+    
+      it('should respond', function() {
+        expect(response.getHeader('Location')).to.equal('http://example.com/auth/callback');
+      });
+    
+      it('should add transaction', function() {
+        expect(request.oauth2).to.be.an('object');
+        expect(request.oauth2.res).to.be.an('object');
+        expect(request.oauth2.res.allow).to.equal(true);
+        expect(request.oauth2.res.scope).to.equal('read');
+        expect(request.oauth2.info).to.be.undefined;
+        expect(request.oauth2.locals).to.be.undefined;
+        expect(request.oauth2.foo).to.equal('bar');
+      });
+    
+      it('should not store transaction in session', function() {
+        expect(Object.keys(request.session).length).to.equal(0);
+        expect(request.session['authorize']).to.be.undefined;
+      });
+    });
   
     describe('encountering an error', function() {
       var immediate, request, err;
@@ -647,6 +706,59 @@ describe('authorization', function() {
     
       it('should add transaction', function() {
         expect(request.oauth2).to.be.an('object');
+      });
+    
+      it('should not store transaction in session', function() {
+        expect(Object.keys(request.session).length).to.equal(0);
+        expect(request.session['authorize']).to.be.undefined;
+      });
+    });
+
+    describe('encountering an error from a postAllow function', function() {
+      var immediate, request, postAllow, err;
+
+      before(function() {
+        immediate = function(client, user, done) {
+          if (client.id !== '1234') { return done(new Error('incorrect client argument')); }
+          if (user.id !== 'u123') { return done(new Error('incorrect user argument')); }
+
+          return done(null, true, { scope: 'read' });
+        };
+      });
+
+      before(function() {
+        postAllow = function(req, res, txn, done) {
+          return done(new Error('something went wrong in postAllow hook'));
+        };
+      });
+
+      before(function(done) {
+        chai.connect.use(authorization(server, { postAllow: postAllow }, validate, immediate))
+          .req(function(req) {
+            request = req;
+            req.query = { response_type: 'code', client_id: '1234', redirect_uri: 'http://example.com/auth/callback' };
+            req.session = {};
+            req.user = { id: 'u123' };
+          })
+          .next(function(e) {
+            err = e;
+            done();
+          })
+          .dispatch();
+      });
+    
+      it('should error', function() {
+        expect(err).to.be.an.instanceOf(Error);
+        expect(err.message).to.equal('something went wrong in postAllow hook');
+      });
+    
+      it('should add transaction', function() {
+        expect(request.oauth2).to.be.an('object');
+        expect(request.oauth2.res).to.be.an('object');
+        expect(request.oauth2.res.allow).to.equal(true);
+        expect(request.oauth2.res.scope).to.equal('read');
+        expect(request.oauth2.info).to.be.undefined;
+        expect(request.oauth2.locals).to.be.undefined;
       });
     
       it('should not store transaction in session', function() {
