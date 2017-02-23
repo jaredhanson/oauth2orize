@@ -831,7 +831,6 @@ describe('authorization', function() {
             request = req;
             req.user = { id: '1', username: 'root' }
             req.query = { response_type: 'code', client_id: '1234', redirect_uri: 'http://example.com/auth/callback' };
-            req.session = {};
           })
           .next(function(e) {
             err = e;
@@ -871,19 +870,6 @@ describe('authorization', function() {
         expect(request.__mock_store__.txn.user.username).to.equal('root');
         expect(request.__mock_store__.txn.info).to.be.undefined;
       });
-    
-      /*
-      it('should not store transaction in session', function() {
-        var tid = request.oauth2.transactionID;
-        expect(request.session['authorize'][tid]).to.be.an('object');
-        expect(request.session['authorize'][tid].protocol).to.equal('oauth2');
-        expect(request.session['authorize'][tid].client).to.equal('1234');
-        expect(request.session['authorize'][tid].redirectURI).to.equal('http://example.com/auth/callback');
-        expect(request.session['authorize'][tid].req.type).to.equal('code');
-        expect(request.session['authorize'][tid].req.clientID).to.equal('1234');
-        expect(request.session['authorize'][tid].req.redirectURI).to.equal('http://example.com/auth/callback');
-      });
-      */
     });
   });
   
