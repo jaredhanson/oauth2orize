@@ -724,7 +724,84 @@ describe('resume', function() {
         expect(request.session['authorize']['abc123']).to.be.undefined;
       });
     });
+
+    describe('with postAllow function', function() {
+      var immediate, request, postAllow, response, err;
+
+      before(function() {
+        immediate = function(client, user, done) {
+          if (client.id !== '1234') { return done(new Error('incorrect client argument')); }
+          if (user.id !== 'u123') { return done(new Error('incorrect user argument')); }
+          
+          return done(null, true, { scope: 'profile email' });
+        };
+      });
+
+      before(function() {
+        postAllow = function(req, res, txn, done) {
+          txn['foo'] = 'bar';
+          txn.user['plug1'] = 'plug2';
+
+          return done(null);
+        };
+      });
+
+      before(function(done) {
+        chai.connect.use('express', resume(server, { postAllow: postAllow }, immediate))
+          .req(function(req) {
+            request = req;
+            req.body = { code: '832076', _xsrf: '3ndukf8s'};
+            req.session = {};
+            req.session['authorize'] = {};
+            req.session['authorize']['abc123'] = { protocol: 'oauth2' };
+            req.user = { id: 'u123', username: 'bob' };
+            req.oauth2 = {};
+            req.oauth2.transactionID = 'abc123';
+            req.oauth2.client = { id: '1234', name: 'Example' };
+            req.oauth2.redirectURI = 'http://example.com/auth/callback';
+            req.oauth2.req = { type: 'code', scope: 'email' };
+          })
+          .end(function(res) {
+            response = res;
+            done();
+          })
+          .dispatch();
+      });
     
+      it('should not error', function() {
+        expect(err).to.be.undefined;
+      });
+      
+      it('should set user on transaction', function() {
+        expect(request.oauth2.user).to.be.an('object');
+        expect(request.oauth2.user.id).to.equal('u123');
+        expect(request.oauth2.user.username).to.equal('bob');
+        expect(request.oauth2.user.plug1).to.equal('plug2');
+      });
+    
+      it('should set response on transaction', function() {
+        expect(request.oauth2.res).to.be.an('object');
+        expect(request.oauth2.res.allow).to.be.true;
+        expect(request.oauth2.res.scope).to.equal('profile email');
+        expect(request.oauth2.info).to.be.undefined;
+        expect(request.oauth2.locals).to.be.undefined;
+        expect(request.oauth2.foo).to.equal('bar');
+      });
+    
+      it('should respond', function() {
+        expect(response.statusCode).to.equal(302);
+        expect(response.getHeader('Location')).to.equal('http://example.com/auth/callback');
+      });
+      
+      it('should remove transaction from session', function() {
+        expect(request.session['authorize']['abc123']).to.be.undefined;
+      });
+      
+      it('should flag req.end as proxied', function() {
+        expect(request.oauth2._endProxied).to.be.true;
+      });
+    });
+
     describe('encountering an error', function() {
       var immediate, request, response, err;
 
@@ -962,8 +1039,74 @@ describe('resume', function() {
         expect(request.session['authorize']['abc123']).to.be.undefined;
       });
     });
-  });
   
+    describe('encountering an error from a postAllow function', function() {
+      var immediate, request, postAllow, response, err;
+
+      before(function() {
+        immediate = function(client, user, done) {
+          if (client.id !== '1234') { return done(new Error('incorrect client argument')); }
+          if (user.id !== 'u123') { return done(new Error('incorrect user argument')); }
+
+          return done(null, true, { scope: 'profile email' });
+        };
+      });
+
+      before(function() {
+        postAllow = function(req, res, txn, done) {
+          return done(new Error('something went wrong in postAllow hook'));
+        };
+      });
+
+      before(function(done) {
+        chai.connect.use('express', resume(server, { postAllow: postAllow }, immediate))
+          .req(function(req) {
+            request = req;
+            req.body = { code: '832076', _xsrf: '3ndukf8s'};
+            req.session = {};
+            req.session['authorize'] = {};
+            req.session['authorize']['abc123'] = { protocol: 'oauth2' };
+            req.user = { id: 'u123', username: 'bob' };
+            req.oauth2 = {};
+            req.oauth2.transactionID = 'abc123';
+            req.oauth2.client = { id: '1234', name: 'Example' };
+            req.oauth2.redirectURI = 'http://example.com/auth/callback';
+            req.oauth2.req = { type: 'code', scope: 'email', audience: 'https://api.example.com/' };
+          })
+          .next(function(e) {
+            err = e;
+            done();
+          })
+          .dispatch();
+      });
+    
+      it('should error', function() {
+        expect(err).to.be.an.instanceOf(Error);
+        expect(err.message).to.equal('something went wrong in postAllow hook');
+      });
+      
+      it('should set user on transaction', function() {
+        expect(request.oauth2.user).to.be.an('object');
+        expect(request.oauth2.user.id).to.equal('u123');
+        expect(request.oauth2.user.username).to.equal('bob');
+      });
+      
+      it('should set response on transaction', function() {
+        expect(request.oauth2.res).to.be.an('object');
+        expect(request.oauth2.res.allow).to.be.true;
+        expect(request.oauth2.res.scope).to.equal('profile email');
+        expect(request.oauth2.info).to.be.undefined;
+        expect(request.oauth2.locals).to.be.undefined;
+      });
+      
+      it('should not remove transaction from session', function() {
+        expect(request.session['authorize']['abc123']).to.be.an('object');
+        expect(Object.keys(request.session['authorize']['abc123'])).to.have.length(1);
+        expect(request.session['authorize']['abc123'].protocol).to.equal('oauth2');
+      });
+    });
+
+  });
   
   describe('non-immediate response', function() {
     
