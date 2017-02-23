@@ -631,9 +631,16 @@ describe('authorization', function() {
         expect(err.message).to.equal('OAuth2orize requires session support. Did you forget app.use(express.session(...))?');
       });
   
-      // it('should not start transaction', function() {
-      //   expect(request.oauth2).to.be.undefined;
-      // });
+      it('should start transaction', function() {
+        expect(request.oauth2).to.be.an('object');
+        expect(request.oauth2.client.id).to.equal('1234');
+        expect(request.oauth2.client.name).to.equal('Example');
+        expect(request.oauth2.redirectURI).to.equal('http://example.com/auth/callback');
+        expect(request.oauth2.req).to.be.an('object');
+        expect(request.oauth2.req.type).to.equal('code');
+        expect(request.oauth2.req.clientID).to.equal('1234');
+        expect(request.oauth2.req.redirectURI).to.equal('http://example.com/auth/callback');
+      });
     });
     
     describe('encountering an error while serializing client', function() {
