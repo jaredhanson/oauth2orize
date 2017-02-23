@@ -789,4 +789,95 @@ describe('authorization', function() {
   
   });
   
+  describe('using non-legacy transaction store', function() {
+    var server, validate;
+    
+    before(function() {
+      var MockStore = require('../mock/store');
+      server = new Server({ store: new MockStore() });
+  
+      server.grant('code', function(req) {
+        return {
+          clientID: req.query['client_id'],
+          redirectURI: req.query['redirect_uri'],
+          scope: req.query['scope']
+        };
+      });
+    });
+    
+    before(function() {
+      validate = function(clientID, redirectURI, done) {
+        if (clientID !== '1234') { return done(new Error('incorrect client argument')); }
+        if (redirectURI !== 'http://example.com/auth/callback') { return done(new Error('incorrect redirectURI argument')); }
+
+        return done(null, { id: clientID, name: 'Example' }, 'http://example.com/auth/callback');
+      };
+    });
+  
+  
+    describe('handling a request for authorization', function() {
+      var request, err;
+
+      before(function(done) {
+        chai.connect.use(authorization(server, validate))
+          .req(function(req) {
+            request = req;
+            req.user = { id: '1', username: 'root' }
+            req.query = { response_type: 'code', client_id: '1234', redirect_uri: 'http://example.com/auth/callback' };
+            req.session = {};
+          })
+          .next(function(e) {
+            err = e;
+            done();
+          })
+          .dispatch();
+      });
+    
+      it('should not error', function() {
+        expect(err).to.be.undefined;
+      });
+    
+      it('should start transaction', function() {
+        expect(request.oauth2).to.be.an('object');
+        expect(request.oauth2.transactionID).to.equal('mocktxn-1');
+        expect(request.oauth2.client.id).to.equal('1234');
+        expect(request.oauth2.client.name).to.equal('Example');
+        expect(request.oauth2.redirectURI).to.equal('http://example.com/auth/callback');
+        expect(request.oauth2.req.type).to.equal('code');
+        expect(request.oauth2.req.clientID).to.equal('1234');
+        expect(request.oauth2.req.redirectURI).to.equal('http://example.com/auth/callback');
+        expect(request.oauth2.user.id).to.equal('1');
+        expect(request.oauth2.user.username).to.equal('root');
+      });
+      
+      it('should serialize transaction', function() {
+        expect(request.__mock_store__.txn).to.be.an('object');
+        expect(Object.keys(request.__mock_store__.txn)).to.have.length(6);
+        expect(request.__mock_store__.txn.transactionID).to.equal('mocktxn-1');
+        expect(request.__mock_store__.txn.client.id).to.equal('1234');
+        expect(request.__mock_store__.txn.client.name).to.equal('Example');
+        expect(request.__mock_store__.txn.redirectURI).to.equal('http://example.com/auth/callback');
+        expect(request.__mock_store__.txn.req.type).to.equal('code');
+        expect(request.__mock_store__.txn.req.clientID).to.equal('1234');
+        expect(request.__mock_store__.txn.req.redirectURI).to.equal('http://example.com/auth/callback');
+        expect(request.__mock_store__.txn.user.id).to.equal('1');
+        expect(request.__mock_store__.txn.user.username).to.equal('root');
+        expect(request.__mock_store__.txn.info).to.be.undefined;
+      });
+    
+      /*
+      it('should not store transaction in session', function() {
+        var tid = request.oauth2.transactionID;
+        expect(request.session['authorize'][tid]).to.be.an('object');
+        expect(request.session['authorize'][tid].protocol).to.equal('oauth2');
+        expect(request.session['authorize'][tid].client).to.equal('1234');
+        expect(request.session['authorize'][tid].redirectURI).to.equal('http://example.com/auth/callback');
+        expect(request.session['authorize'][tid].req.type).to.equal('code');
+        expect(request.session['authorize'][tid].req.clientID).to.equal('1234');
+        expect(request.session['authorize'][tid].req.redirectURI).to.equal('http://example.com/auth/callback');
+      });
+      */
+    });
+  });
+  
 });
