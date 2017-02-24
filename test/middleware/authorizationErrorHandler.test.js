@@ -237,4 +237,51 @@ describe('authorizationErrorHandler', function() {
     });
   });
   
+  describe('using non-legacy transaction store', function() {
+    var server;
+    
+    before(function() {
+      var MockStore = require('../mock/store');
+      server = new Server({ store: new MockStore() });
+      
+      server.grant('code', 'error', function(err, txn, res, next) {
+        if (txn.req.scope != 'email') { return next(new Error('incorrect transaction argument')); }
+        return res.redirect(txn.redirectURI + '?error_description=' + err.message);
+      });
+    });
+    
+    describe('handling an error', function() {
+      var request, response;
+
+      before(function(done) {
+        chai.connect.use('express', authorizationErrorHandler(server))
+          .req(function(req) {
+            request = req;
+            req.query = {};
+            req.body = {};
+            req.user = { id: 'u1234', username: 'bob' };
+            req.oauth2 = {};
+            req.oauth2.transactionID = 'abc123';
+            req.oauth2.client = { id: 'c5678', name: 'Example' };
+            req.oauth2.redirectURI = 'http://example.com/auth/callback';
+            req.oauth2.req = { type: 'code', scope: 'email' };
+          })
+          .end(function(res) {
+            response = res;
+            done();
+          })
+          .dispatch(new Error('something went wrong'));
+      });
+      
+      it('should respond', function() {
+        expect(response.statusCode).to.equal(302);
+        expect(response.getHeader('Location')).to.equal('http://example.com/auth/callback?error_description=something went wrong');
+      });
+    
+      it('should remove transaction', function() {
+        expect(request.__mock_store__.removed).to.equal('abc123');
+      });
+    });
+  });
+  
 });

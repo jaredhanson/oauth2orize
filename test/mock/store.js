@@ -14,6 +14,11 @@ MockStore.prototype.store = function(req, txn, cb) {
 }
 
 MockStore.prototype.remove = function(req, h, cb) {
+  req.__mock_store__ = {};
+  req.__mock_store__.removed = h;
+  process.nextTick(function() {
+    cb(null)
+  });
 }
 
 
