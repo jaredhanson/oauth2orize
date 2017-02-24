@@ -505,5 +505,41 @@ describe('transactionLoader', function() {
   
   });
   
+  describe('using non-legacy transaction store', function() {
+    var server;
+  
+    before(function() {
+      var MockStore = require('../mock/store');
+      server = new Server({ store: new MockStore() });
+    });
+  
+    describe('handling a request with state', function() {
+      var request, err;
+
+      before(function(done) {
+        chai.connect.use(transactionLoader(server))
+          .req(function(req) {
+            request = req;
+            req.body = { 'state': '1234' };
+          })
+          .next(function(e) {
+            err = e;
+            done();
+          })
+          .dispatch();
+      });
+    
+      it('should not error', function() {
+        expect(err).to.be.undefined;
+      });
+    
+      it('should restore transaction', function() {
+        expect(request.oauth2).to.be.an('object');
+        expect(request.oauth2.transactionID).to.equal('1234');
+        expect(request.oauth2.redirectURI).to.equal('http://www.example.com/auth/callback');
+      });
+    });
+  });
+  
 });
 

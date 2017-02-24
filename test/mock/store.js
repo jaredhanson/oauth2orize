@@ -3,6 +3,9 @@ function MockStore(store) {
 }
 
 MockStore.prototype.load = function(req, cb) {
+  process.nextTick(function() {
+    cb(null, { transactionID: req.body.state, redirectURI: 'http://www.example.com/auth/callback' })
+  });
 }
 
 MockStore.prototype.store = function(req, txn, cb) {
