@@ -600,7 +600,7 @@ describe('grant.code', function() {
       });
     });
     
-    describe('encountering an error while calling complete callback', function() {
+    describe('encountering an error while completing transaction', function() {
       var err;
       
       before(function(done) {
