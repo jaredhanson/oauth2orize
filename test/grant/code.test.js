@@ -390,6 +390,49 @@ describe('grant.code', function() {
       });
     });
     
+    describe('transaction with request state and complete callback', function() {
+      var response, completed;
+      
+      before(function(done) {
+        function issue(client, redirectURI, user, done) {
+          if (client.id !== 'c123') { return done(new Error('incorrect client argument')); }
+          if (redirectURI !== 'http://example.com/auth/callback') { return done(new Error('incorrect redirectURI argument')); }
+          if (user.id !== 'u123') { return done(new Error('incorrect user argument')); }
+          
+          return done(null, 'xyz');
+        }
+        
+        chai.oauth2orize.grant(code(issue))
+          .txn(function(txn) {
+            txn.client = { id: 'c123', name: 'Example' };
+            txn.redirectURI = 'http://www.example.com/auth/callback';
+            txn.req = {
+              redirectURI: 'http://example.com/auth/callback',
+              state: 'f1o1o1'
+            };
+            txn.user = { id: 'u123', name: 'Bob' };
+            txn.res = { allow: true };
+          })
+          .end(function(res) {
+            response = res;
+            done();
+          })
+          .decide(function(cb) {
+            completed = true;
+            process.nextTick(function() { cb() });
+          });
+      });
+      
+      it('should call complete callback', function() {
+        expect(completed).to.be.true;
+      });
+      
+      it('should respond', function() {
+        expect(response.statusCode).to.equal(302);
+        expect(response.getHeader('Location')).to.equal('http://www.example.com/auth/callback?code=xyz&state=f1o1o1');
+      });
+    });
+    
     describe('disallowed transaction', function() {
       var response;
       
@@ -554,6 +597,39 @@ describe('grant.code', function() {
       it('should error', function() {
         expect(err).to.be.an.instanceOf(Error);
         expect(err.message).to.equal('something was thrown');
+      });
+    });
+    
+    describe('encountering an error while calling complete callback', function() {
+      var err;
+      
+      before(function(done) {
+        function issue(client, redirectURI, user, done) {
+          return done(null, 'xyz');
+        }
+        
+        chai.oauth2orize.grant(code(issue))
+          .txn(function(txn) {
+            txn.client = { id: 'cERROR', name: 'Example' };
+            txn.redirectURI = 'http://www.example.com/auth/callback';
+            txn.req = {
+              redirectURI: 'http://example.com/auth/callback'
+            };
+            txn.user = { id: 'u123', name: 'Bob' };
+            txn.res = { allow: true };
+          })
+          .next(function(e) {
+            err = e;
+            done();
+          })
+          .decide(function(cb) {
+            process.nextTick(function() { cb(new Error('failed to complete transaction')) });
+          });
+      });
+      
+      it('should error', function() {
+        expect(err).to.be.an.instanceOf(Error);
+        expect(err.message).to.equal('failed to complete transaction');
       });
     });
     
