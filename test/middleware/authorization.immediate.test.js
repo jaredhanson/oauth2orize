@@ -910,6 +910,290 @@ describe('authorization', function() {
       
     });
     
+    describe('using non-legacy transaction store', function() {
+      var server, validate, immediate;
+    
+      before(function() {
+        var MockStore = require('../mock/store');
+        server = new Server({ store: new MockStore() });
+  
+        server.grant('code', function(req) {
+          return {
+            clientID: req.query['client_id'],
+            redirectURI: req.query['redirect_uri'],
+            scope: req.query['scope']
+          };
+        });
+      });
+    
+      before(function() {
+        validate = function(clientID, redirectURI, done) {
+          return done(null, { id: clientID }, 'http://example.com/auth/callback');
+        };
+      });
+      
+      describe('based on client, user, and scope, with result that supplies info and locals', function() {
+        var immediate, request, err;
+
+        before(function() {
+          immediate = function(client, user, scope, done) {
+            if (client.id !== '1234') { return done(new Error('incorrect client argument')); }
+            if (user.id !== 'u123') { return done(new Error('incorrect user argument')); }
+            if (scope !== 'profile') { return done(new Error('incorrect scope argument')); }
+          
+            return done(null, false, { scope: 'read', confidential: true }, { beep: 'boop' });
+          };
+        });
+
+        before(function(done) {
+          chai.connect.use('express', authorization(server, validate, immediate))
+            .req(function(req) {
+              request = req;
+              req.query = { response_type: 'code', client_id: '1234', redirect_uri: 'http://example.com/auth/callback', scope: 'profile' };
+              req.user = { id: 'u123' };
+            })
+            .next(function(e) {
+              err = e;
+              done();
+            })
+            .dispatch();
+        });
+  
+        it('should not error', function() {
+          expect(err).to.be.undefined;
+        });
+  
+        it('should add transaction', function() {
+          expect(request.oauth2).to.be.an('object');
+          expect(request.oauth2.res).to.be.undefined;
+          expect(request.oauth2.info).to.be.an('object');
+          expect(request.oauth2.info.confidential).to.equal(true);
+          expect(request.oauth2.info.scope).to.equal('read');
+          expect(request.oauth2.locals).to.be.an('object');
+          expect(request.oauth2.locals.beep).to.equal('boop');
+        });
+        
+        it('should serialize transaction', function() {
+          expect(request.__mock_store__.txn).to.be.an('object');
+          expect(Object.keys(request.__mock_store__.txn)).to.have.length(7);
+          expect(request.__mock_store__.txn.transactionID).to.equal('mocktxn-1');
+          expect(request.__mock_store__.txn.client.id).to.equal('1234');
+          expect(request.__mock_store__.txn.redirectURI).to.equal('http://example.com/auth/callback');
+          expect(request.__mock_store__.txn.req.type).to.equal('code');
+          expect(request.__mock_store__.txn.req.clientID).to.equal('1234');
+          expect(request.__mock_store__.txn.req.redirectURI).to.equal('http://example.com/auth/callback');
+          expect(request.__mock_store__.txn.user.id).to.equal('u123');
+          expect(request.__mock_store__.txn.info.confidential).to.equal(true);
+          expect(request.__mock_store__.txn.info.scope).to.equal('read');
+          expect(request.__mock_store__.txn.locals.beep).to.equal('boop');
+        });
+      });
+    });
+    
+  });
+  
+  
+  describe('immediate response with complete callback', function() {
+    var server, validate;
+    
+    before(function() {
+      server = new Server();
+      server.grant('code', function(req) {
+        return {
+          clientID: req.query['client_id'],
+          redirectURI: req.query['redirect_uri'],
+          scope: req.query['scope']
+        };
+      });
+      server.grant('code', 'response', function(txn, res, complete, next) {
+        if (txn.client.id !== '1234') { return done(new Error('incorrect client argument')); }
+        if (txn.user.id !== 'u123') { return done(new Error('incorrect user argument')); }
+        if (txn.res.allow !== true) { return done(new Error('incorrect ares argument')); }
+        if (txn.res.scope !== 'read') { return done(new Error('incorrect ares argument')); }
+        
+        complete(function(err) {
+          if (err) { return next(err); }
+          return res.redirect(txn.redirectURI);
+        });
+      });
+    });
+    
+    before(function() {
+      validate = function(clientID, redirectURI, done) {
+        return done(null, { id: clientID }, 'http://example.com/auth/callback');
+      };
+    });
+  
+    describe('based on transaction', function() {
+      var immediate, complete, request, response, err;
+
+      before(function() {
+        immediate = function(client, user, done) {
+          if (client.id !== '1234') { return done(new Error('incorrect client argument')); }
+          if (user.id !== 'u123') { return done(new Error('incorrect user argument')); }
+          
+          return done(null, true, { scope: 'read' });
+        };
+      });
+      
+      before(function() {
+        complete = function(req, txn, done) {
+          if (txn.client.id !== '1234') { return done(new Error('incorrect client argument')); }
+          if (txn.user.id !== 'u123') { return done(new Error('incorrect user argument')); }
+        
+          req.__federated_to__ = {};
+          req.__federated_to__.client = txn.client;
+          return done(null);
+        };
+      });
+
+      before(function(done) {
+        chai.connect.use('express', authorization(server, validate, immediate, complete))
+          .req(function(req) {
+            request = req;
+            req.query = { response_type: 'code', client_id: '1234', redirect_uri: 'http://example.com/auth/callback' };
+            req.session = {};
+            req.user = { id: 'u123' };
+          })
+          .end(function(res) {
+            response = res;
+            done();
+          })
+          .dispatch();
+      });
+    
+      it('should not error', function() {
+        expect(err).to.be.undefined;
+      });
+      
+      it('should complete transaction', function() {
+        expect(request.__federated_to__).to.be.an('object');
+        expect(request.__federated_to__.client).to.deep.equal(request.oauth2.client);
+        expect(request.__federated_to__.client.id).to.equal('1234');
+      });
+    
+      it('should respond', function() {
+        expect(response.getHeader('Location')).to.equal('http://example.com/auth/callback');
+      });
+    
+      it('should add transaction', function() {
+        expect(request.oauth2).to.be.an('object');
+        expect(request.oauth2.res).to.be.an('object');
+        expect(request.oauth2.res.allow).to.equal(true);
+        expect(request.oauth2.res.scope).to.equal('read');
+        expect(request.oauth2.info).to.be.undefined;
+        expect(request.oauth2.locals).to.be.undefined;
+      });
+    
+      it('should not store transaction in session', function() {
+        expect(Object.keys(request.session).length).to.equal(0);
+        expect(request.session['authorize']).to.be.undefined;
+      });
+    });
+    
+    describe('without complete callback', function() {
+      var immediate, complete, request, response, err;
+
+      before(function() {
+        immediate = function(client, user, done) {
+          if (client.id !== '1234') { return done(new Error('incorrect client argument')); }
+          if (user.id !== 'u123') { return done(new Error('incorrect user argument')); }
+          
+          return done(null, true, { scope: 'read' });
+        };
+      });
+
+      before(function(done) {
+        chai.connect.use('express', authorization(server, validate, immediate))
+          .req(function(req) {
+            request = req;
+            req.query = { response_type: 'code', client_id: '1234', redirect_uri: 'http://example.com/auth/callback' };
+            req.session = {};
+            req.user = { id: 'u123' };
+          })
+          .end(function(res) {
+            response = res;
+            done();
+          })
+          .dispatch();
+      });
+    
+      it('should not error', function() {
+        expect(err).to.be.undefined;
+      });
+    
+      it('should respond', function() {
+        expect(response.getHeader('Location')).to.equal('http://example.com/auth/callback');
+      });
+    
+      it('should add transaction', function() {
+        expect(request.oauth2).to.be.an('object');
+        expect(request.oauth2.res).to.be.an('object');
+        expect(request.oauth2.res.allow).to.equal(true);
+        expect(request.oauth2.res.scope).to.equal('read');
+        expect(request.oauth2.info).to.be.undefined;
+        expect(request.oauth2.locals).to.be.undefined;
+      });
+    
+      it('should not store transaction in session', function() {
+        expect(Object.keys(request.session).length).to.equal(0);
+        expect(request.session['authorize']).to.be.undefined;
+      });
+    });
+    
+    describe('encountering an error completing transaction', function() {
+      var immediate, complete, request, response, err;
+
+      before(function() {
+        immediate = function(client, user, done) {
+          if (client.id !== '1234') { return done(new Error('incorrect client argument')); }
+          if (user.id !== 'u123') { return done(new Error('incorrect user argument')); }
+          
+          return done(null, true, { scope: 'read' });
+        };
+      });
+      
+      before(function() {
+        complete = function(req, txn, done) {
+          return done(new Error('failed to complete transaction'));
+        };
+      });
+
+      before(function(done) {
+        chai.connect.use('express', authorization(server, validate, immediate, complete))
+          .req(function(req) {
+            request = req;
+            req.query = { response_type: 'code', client_id: '1234', redirect_uri: 'http://example.com/auth/callback' };
+            req.session = {};
+            req.user = { id: 'u123' };
+          })
+          .next(function(e) {
+            err = e;
+            done();
+          })
+          .end(function(){})
+          .dispatch();
+      });
+    
+      it('should error', function() {
+        expect(err).to.be.an.instanceOf(Error);
+        expect(err.message).to.equal('failed to complete transaction');
+      });
+    
+      it('should add transaction', function() {
+        expect(request.oauth2).to.be.an('object');
+        expect(request.oauth2.res).to.be.an('object');
+        expect(request.oauth2.res.allow).to.equal(true);
+        expect(request.oauth2.res.scope).to.equal('read');
+        expect(request.oauth2.info).to.be.undefined;
+        expect(request.oauth2.locals).to.be.undefined;
+      });
+    
+      it('should not store transaction in session', function() {
+        expect(Object.keys(request.session).length).to.equal(0);
+        expect(request.session['authorize']).to.be.undefined;
+      });
+    });
   });
   
 });
