@@ -1,11 +1,9 @@
 # OAuth2orize
 
-[![Build](https://travis-ci.org/jaredhanson/oauth2orize.svg?branch=master)](https://travis-ci.org/jaredhanson/oauth2orize)
-[![Coverage](https://coveralls.io/repos/jaredhanson/oauth2orize/badge.svg?branch=master)](https://coveralls.io/r/jaredhanson/oauth2orize)
-[![Quality](https://codeclimate.com/github/jaredhanson/oauth2orize/badges/gpa.svg)](https://codeclimate.com/github/jaredhanson/oauth2orize)
-[![Dependencies](https://david-dm.org/jaredhanson/oauth2orize.svg)](https://david-dm.org/jaredhanson/oauth2orize)
-[![Tips](https://img.shields.io/gratipay/jaredhanson.svg)](https://gratipay.com/jaredhanson/)
-
+[![Build](https://img.shields.io/travis/jaredhanson/oauth2orize.svg)](https://travis-ci.org/jaredhanson/oauth2orize)
+[![Coverage](https://img.shields.io/coveralls/jaredhanson/oauth2orize.svg)](https://coveralls.io/r/jaredhanson/oauth2orize)
+[![Quality](https://img.shields.io/codeclimate/github/jaredhanson/oauth2orize.svg?label=quality)](https://codeclimate.com/github/jaredhanson/oauth2orize)
+[![Dependencies](https://img.shields.io/david/jaredhanson/oauth2orize.svg)](https://david-dm.org/jaredhanson/oauth2orize)
 
 OAuth2orize is an authorization server toolkit for Node.js.  It provides a suite
 of middleware that, combined with [Passport](http://passportjs.org/)
