@@ -394,7 +394,7 @@ describe('exchange.password', function() {
     it('should error', function() {
       expect(err).to.be.an.instanceOf(Error);
       expect(err.constructor.name).to.equal('TokenError');
-      expect(err.message).to.equal('Missing required parameter: username');
+      expect(err.message).to.equal('Missing required parameter: username/email');
       expect(err.code).to.equal('invalid_request');
       expect(err.status).to.equal(400);
     });
