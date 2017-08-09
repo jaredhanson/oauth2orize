@@ -467,6 +467,35 @@ describe('exchange.refreshToken', function() {
       expect(err.message).to.equal('OAuth2orize requires body parsing. Did you forget app.use(express.bodyParser())?');
     });
   });
+
+  describe('handling a request where scope format is not string', function () {
+    var response, err;
+
+    before(function (done) {
+      function issue(client, refreshToken, done) {
+        return done(null, '.ignore')
+      }
+
+      chai.connect.use(refreshToken(issue))
+        .req(function (req) {
+          req.user = { id: 'c123', name: 'Example' };
+          req.body = { refresh_token: 'refreshing', scope: ['read', 'write'] };
+        })
+        .next(function (e) {
+          err = e;
+          done();
+        })
+        .dispatch();
+    });
+
+    it('should error', function () {
+      expect(err).to.be.an.instanceOf(Error);
+      expect(err.name).to.equal('TokenError');
+      expect(err.message).to.equal('Invalid parameter: scope must be a string');
+      expect(err.code).to.equal('invalid_scope');
+      expect(err.status).to.equal(400);
+    });
+  });  
   
   describe('with scope separator option', function() {
     describe('issuing an access token based on array of scopes', function() {
