@@ -312,7 +312,7 @@ describe('grant.code', function() {
         expect(err).to.be.an.instanceOf(Error);
         expect(err.constructor.name).to.equal('AuthorizationError');
         expect(err.message).to.equal('Invalid parameter: scope must be a string');
-        expect(err.code).to.equal('invalid_scope');
+        expect(err.code).to.equal('invalid_request');
       });
     });
   });
