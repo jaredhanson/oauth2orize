@@ -610,6 +610,62 @@ describe('authorization', function() {
       });
     });
     
+    describe('handling a request for authorization allowing web origin response', function() {
+      var request, err;
+
+      before(function() {
+        validate = function(clientID, redirectURI, done) {
+          if (clientID !== '1234') { return done(new Error('incorrect client argument')); }
+          if (redirectURI !== 'http://example.com/auth/callback') { return done(new Error('incorrect redirectURI argument')); }
+
+          return done(null, { id: clientID, name: 'Example' }, 'http://example.com/auth/callback', 'http://example.com');
+        };
+      });
+
+      before(function(done) {
+        chai.connect.use(authorization(server, validate))
+          .req(function(req) {
+            request = req;
+            req.query = { response_type: 'code', client_id: '1234', redirect_uri: 'http://example.com/auth/callback' };
+            req.session = {};
+          })
+          .next(function(e) {
+            err = e;
+            done();
+          })
+          .dispatch();
+      });
+  
+      it('should not error', function() {
+        expect(err).to.be.undefined;
+      });
+  
+      it('should start transaction', function() {
+        expect(request.oauth2).to.be.an('object');
+        expect(request.oauth2.transactionID).to.be.a('string');
+        expect(request.oauth2.transactionID).to.have.length(8);
+        expect(request.oauth2.client.id).to.equal('1234');
+        expect(request.oauth2.client.name).to.equal('Example');
+        expect(request.oauth2.redirectURI).to.equal('http://example.com/auth/callback');
+        expect(request.oauth2.webOrigin).to.equal('http://example.com');
+        expect(request.oauth2.req.type).to.equal('code');
+        expect(request.oauth2.req.clientID).to.equal('1234');
+        expect(request.oauth2.req.redirectURI).to.equal('http://example.com/auth/callback');
+      });
+  
+      it('should store transaction in session', function() {
+        var tid = request.oauth2.transactionID;
+        expect(request.session['authorize'][tid]).to.be.an('object');
+        expect(request.session['authorize'][tid].protocol).to.equal('oauth2');
+        expect(request.session['authorize'][tid].client).to.equal('1234');
+        expect(request.session['authorize'][tid].redirectURI).to.equal('http://example.com/auth/callback');
+        expect(request.session['authorize'][tid].webOrigin).to.equal('http://example.com');
+        expect(request.session['authorize'][tid].req.type).to.equal('code');
+        expect(request.session['authorize'][tid].req.clientID).to.equal('1234');
+        expect(request.session['authorize'][tid].req.redirectURI).to.equal('http://example.com/auth/callback');
+      });
+    });
+    
     describe('attempting to store transaction without a session', function() {
       var request, err;
 
