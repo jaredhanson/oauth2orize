@@ -8,18 +8,18 @@ describe('Server', function() {
     
     it('should wrap authorization middleware', function() {
       expect(server.authorization).to.be.a('function');
-      expect(server.authorization).to.have.length(3);
+      expect(server.authorization).to.have.length(4);
       expect(server.authorize).to.equal(server.authorization);
     });
     
     it('should wrap resume middleware', function() {
       expect(server.resume).to.be.a('function');
-      expect(server.resume).to.have.length(2);
+      expect(server.resume).to.have.length(3);
     });
     
     it('should wrap decision middleware', function() {
       expect(server.decision).to.be.a('function');
-      expect(server.decision).to.have.length(2);
+      expect(server.decision).to.have.length(3);
     });
     
     it('should wrap authorizationErrorHandler middleware', function() {
