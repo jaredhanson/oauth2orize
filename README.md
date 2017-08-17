@@ -90,7 +90,7 @@ app.get('/dialog/authorize',
       if (err) { return done(err); }
       if (!client) { return done(null, false); }
       if (client.redirectUri != redirectURI) { return done(null, false); }
-      return done(null, client, client.redirectURI);
+      return done(null, client, client.redirectUri);
     });
   }),
   function(req, res) {
