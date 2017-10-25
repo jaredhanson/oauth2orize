@@ -89,6 +89,18 @@ describe('Server', function() {
       expect(handler).to.be.an('function');
       expect(handler).to.have.length(3);
     });
+    
+    it('should employ custom transaction loader', function() {
+      function customLoader(server, options) { return function customTransaction(req, res, next) {}; };
+      var handler = server.resume({ loadTransaction: customLoader }, function(){});
+      expect(handler).to.be.an('array');
+      expect(handler).to.have.length(2);
+      expect(handler[0]).to.be.a('function');
+      expect(handler[0].name).to.equal('customTransaction');
+      expect(handler[0]).to.have.length(3);
+      expect(handler[1]).to.be.a('function');
+      expect(handler[1]).to.have.length(3);
+    });
   });
   
   describe('#decision', function() {
