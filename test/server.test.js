@@ -91,8 +91,8 @@ describe('Server', function() {
     });
     
     it('should employ custom transaction loader', function() {
-      function customLoader(server, options) { return function customTransaction(req, res, next) {}; };
-      var handler = server.resume({ loadTransaction: customLoader }, function(){});
+      function customTransaction(req, res, next) {};
+      var handler = server.resume({ loadTransaction: customTransaction }, function(){});
       expect(handler).to.be.an('array');
       expect(handler).to.have.length(2);
       expect(handler[0]).to.be.a('function');
