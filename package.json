@@ -18,6 +18,12 @@
     "email": "jaredhanson@gmail.com",
     "url": "http://www.jaredhanson.net/"
   },
+  "contributors": [
+    {
+      "name": "Samuel Judson",
+      "url": "https://www.sjudson.com/"
+    }
+  ],
   "repository": {
     "type": "git",
     "url": "git://github.com/jaredhanson/oauth2orize.git"
