@@ -1,15 +1,15 @@
 # OAuth2orize
 
-[![Build](https://img.shields.io/travis/jaredhanson/oauth2orize.svg)](https://travis-ci.org/jaredhanson/oauth2orize)
-[![Coverage](https://img.shields.io/coveralls/jaredhanson/oauth2orize.svg)](https://coveralls.io/r/jaredhanson/oauth2orize)
-[![Quality](https://img.shields.io/codeclimate/github/jaredhanson/oauth2orize.svg?label=quality)](https://codeclimate.com/github/jaredhanson/oauth2orize)
-[![Dependencies](https://img.shields.io/david/jaredhanson/oauth2orize.svg)](https://david-dm.org/jaredhanson/oauth2orize)
-
 OAuth2orize is an authorization server toolkit for Node.js.  It provides a suite
 of middleware that, combined with [Passport](http://passportjs.org/)
 authentication strategies and application-specific route handlers, can be used
 to assemble a server that implements the [OAuth 2.0](http://tools.ietf.org/html/rfc6749)
 protocol.
+
+Status:
+[![Build](https://img.shields.io/travis/jaredhanson/oauth2orize.svg)](https://travis-ci.org/jaredhanson/oauth2orize)
+[![Coverage](https://img.shields.io/coveralls/jaredhanson/oauth2orize.svg)](https://coveralls.io/r/jaredhanson/oauth2orize)
+[![Dependencies](https://img.shields.io/david/jaredhanson/oauth2orize.svg)](https://david-dm.org/jaredhanson/oauth2orize)
 
 ## Install
 
