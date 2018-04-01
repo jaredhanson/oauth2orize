@@ -37,10 +37,10 @@ A client must obtain permission from a user before it is issued an access token.
 This permission is known as a grant, the most common type of which is an
 authorization code.
 ```javascript
-server.grant(oauth2orize.grant.code(function(client, redirectURI, user, ares, done) {
+server.grant(oauth2orize.grant.code(function(client, redirectURI, user, ares, areq, done) {
   var code = utils.uid(16);
 
-  var ac = new AuthorizationCode(code, client.id, redirectURI, user.id, ares.scope);
+  var ac = new AuthorizationCode(code, client.id, redirectURI, user.id, areq.scope);
   ac.save(function(err) {
     if (err) { return done(err); }
     return done(null, code);
