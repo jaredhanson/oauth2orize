@@ -11,6 +11,14 @@ Status:
 [![Coverage](https://img.shields.io/coveralls/jaredhanson/oauth2orize.svg)](https://coveralls.io/r/jaredhanson/oauth2orize)
 [![Dependencies](https://img.shields.io/david/jaredhanson/oauth2orize.svg)](https://david-dm.org/jaredhanson/oauth2orize)
 
+
+## Sponsorship
+
+OAuth2orize is open source software.  Ongoing development is made possible by
+generous contributions from [individuals and corporations](https://github.com/jaredhanson/oauth2orize/blob/master/SPONSORS.md).
+To learn more about how you can help keep this project financially sustainable,
+please visit Jared Hanson's page on [Patreon](https://www.patreon.com/jaredhanson).
+
 ## Install
 
     $ npm install oauth2orize
@@ -187,46 +195,8 @@ how to implement an OAuth service provider, complete with protected API access.
 
 oauth2orize uses the [debug module](https://www.npmjs.org/package/debug).  You can enable debugging messages on the console by doing ```export DEBUG=oauth2orize``` before running your application.
 
-## Contributing
-
-#### Tests
-
-The test suite is located in the `test/` directory.  All new features are
-expected to have corresponding test cases.  Ensure that the complete test suite
-passes by executing:
-
-```bash
-$ make test
-```
-
-#### Coverage
-
-All new feature development is expected to have test coverage.  Patches that
-increse test coverage are happily accepted.  Coverage reports can be viewed by
-executing:
-
-```bash
-$ make test-cov
-$ make view-cov
-```
-
-## Support
-
-#### Funding
-
-This software is provided to you as open source, free of charge.  The time and
-effort to develop and maintain this project is dedicated by [@jaredhanson](https://github.com/jaredhanson).
-If you (or your employer) benefit from this project, please consider a financial
-contribution.  Your contribution helps continue the efforts that produce this
-and other open source software.
-
-Funds are accepted via [PayPal](https://paypal.me/jaredhanson), [Venmo](https://venmo.com/jaredhanson),
-and [other](http://jaredhanson.net/pay) methods.  Any amount is appreciated.
-
 ## License
 
 [The MIT License](http://opensource.org/licenses/MIT)
 
-Copyright (c) 2012-2017 Jared Hanson <[http://jaredhanson.net/](http://jaredhanson.net/)>
-
-<a target='_blank' rel='nofollow' href='https://app.codesponsor.io/link/vK9dyjRnnWsMzzJTQ57fRJpH/jaredhanson/oauth2orize'>  <img alt='Sponsor' width='888' height='68' src='https://app.codesponsor.io/embed/vK9dyjRnnWsMzzJTQ57fRJpH/jaredhanson/oauth2orize.svg' /></a>
+Copyright (c) 2012-2018 Jared Hanson <[http://jaredhanson.net/](http://jaredhanson.net/)>
