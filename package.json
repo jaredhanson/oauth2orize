@@ -49,7 +49,7 @@
     "chai-connect-middleware": "0.3.x",
     "chai-oauth2orize-grant": "0.3.x",
     "make-node": "^0.4.6",
-    "mocha": "^6.1.4"
+    "mocha": "^6.2.2"
   },
   "engines": {
     "node": ">= 0.4.0"
