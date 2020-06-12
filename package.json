@@ -40,9 +40,9 @@
   ],
   "main": "./lib",
   "dependencies": {
-    "uid2": "0.0.x",
-    "utils-merge": "1.x.x",
-    "debug": "2.x.x"
+    "uid2": "~0.0.3",
+    "utils-merge": "~1.0.1",
+    "debug": "~4.1.1"
   },
   "devDependencies": {
     "make-node": "0.3.x",
