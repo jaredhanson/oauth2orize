@@ -6,6 +6,16 @@ authentication strategies and application-specific route handlers, can be used
 to assemble a server that implements the [OAuth 2.0](http://tools.ietf.org/html/rfc6749)
 protocol.
 
+---
+
+<p align="center">
+  <sup>Advertisement</sup>
+  <br>
+  <a href="https://click.linksynergy.com/link?id=D*o7yui4/NM&offerid=507388.2609434&type=2&murl=https%3A%2F%2Fwww.udemy.com%2Fcourse%2Fnodejs-api-masterclass%2F&u1=1dw6XBtZ1Bjyy0RnxCUfjjzEScDBrpTKcXAa9">Node.js API Masterclass With Express & MongoDB</a><br>Create a real world backend for a bootcamp directory app
+</p>
+
+---
+
 Status:
 [![Build](https://img.shields.io/travis/jaredhanson/oauth2orize.svg)](https://travis-ci.org/jaredhanson/oauth2orize)
 [![Coverage](https://img.shields.io/coveralls/jaredhanson/oauth2orize.svg)](https://coveralls.io/r/jaredhanson/oauth2orize)
