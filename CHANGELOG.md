@@ -16,6 +16,7 @@ is being called from outside this package without the argument.
 
 ## [1.10.0] - 2017-08-14
 
-[Unreleased]: https://github.com/jaredhanson/oauth2orize/compare/v1.11.0...HEAD
+[Unreleased]: https://github.com/jaredhanson/oauth2orize/compare/v1.11.1...HEAD
+[1.11.1]: https://github.com/jaredhanson/oauth2orize/compare/v1.11.0...v1.11.1
 [1.11.0]: https://github.com/jaredhanson/oauth2orize/compare/v1.10.0...v1.11.0
 [1.10.0]: https://github.com/jaredhanson/oauth2orize/compare/v1.9.0...v1.10.0
