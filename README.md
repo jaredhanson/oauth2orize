@@ -202,4 +202,4 @@ oauth2orize uses the [debug module](https://www.npmjs.org/package/debug).  You c
 
 [The MIT License](http://opensource.org/licenses/MIT)
 
-Copyright (c) 2012-2018 Jared Hanson <[http://jaredhanson.net/](http://jaredhanson.net/)>
+Copyright (c) 2012-2021 Jared Hanson <[https://www.jaredhanson.me/](https://www.jaredhanson.me/)>
