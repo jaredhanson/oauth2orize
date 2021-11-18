@@ -19,7 +19,7 @@ protocol.
 Status:
 [![Build](https://img.shields.io/travis/jaredhanson/oauth2orize.svg)](https://travis-ci.org/jaredhanson/oauth2orize)
 [![Coverage](https://img.shields.io/coveralls/jaredhanson/oauth2orize.svg)](https://coveralls.io/r/jaredhanson/oauth2orize)
-[![Dependencies](https://img.shields.io/david/jaredhanson/oauth2orize.svg)](https://david-dm.org/jaredhanson/oauth2orize)
+[![Dependencies](https://david-dm.org/ravihara/oauth2orize.svg)](https://david-dm.org/ravihara/oauth2orize)
 
 
 ## Install
