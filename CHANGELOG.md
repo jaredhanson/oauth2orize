@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Optional `extend` callback to `grant.code` setup function, used to extend the
+authorization response.  Needed to support extensions such as [OpenID Connect
+Session Management 1.0](https://openid.net/specs/openid-connect-session-1_0.html).
 
 ## [1.11.1] - 2021-11-17
 ### Fixed
