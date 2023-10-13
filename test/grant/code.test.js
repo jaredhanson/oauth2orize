@@ -390,6 +390,48 @@ describe('grant.code', function() {
       });
     });
     
+    describe('transaction with response extensions', function() {
+      var response;
+      
+      before(function(done) {
+        function issue(client, redirectURI, user, done) {
+          if (client.id !== 'c123') { return done(new Error('incorrect client argument')); }
+          if (redirectURI !== 'http://example.com/auth/callback') { return done(new Error('incorrect redirectURI argument')); }
+          if (user.id !== 'u123') { return done(new Error('incorrect user argument')); }
+          
+          return done(null, 'xyz');
+        }
+        
+        function extend(txn, done) {
+          console.log('EXTEND!');
+          console.log(txn);
+          if (txn.client.id !== 'c123') { return done(new Error('incorrect txn argument')); }
+          return done(null, { session_state: 'c1a43afe' });
+        }
+        
+        chai.oauth2orize.grant(code(issue, extend))
+          .txn(function(txn) {
+            txn.client = { id: 'c123', name: 'Example' };
+            txn.redirectURI = 'http://www.example.com/auth/callback';
+            txn.req = {
+              redirectURI: 'http://example.com/auth/callback'
+            };
+            txn.user = { id: 'u123', name: 'Bob' };
+            txn.res = { allow: true };
+          })
+          .end(function(res) {
+            response = res;
+            done();
+          })
+          .decide();
+      });
+      
+      it('should respond', function() {
+        expect(response.statusCode).to.equal(302);
+        expect(response.getHeader('Location')).to.equal('http://www.example.com/auth/callback?code=xyz&session_state=c1a43afe');
+      });
+    });
+    
     describe('transaction with request state and complete callback', function() {
       var response, completed;
       
