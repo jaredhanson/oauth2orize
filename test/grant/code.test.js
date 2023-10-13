@@ -403,8 +403,6 @@ describe('grant.code', function() {
         }
         
         function extend(txn, done) {
-          console.log('EXTEND!');
-          console.log(txn);
           if (txn.client.id !== 'c123') { return done(new Error('incorrect txn argument')); }
           return done(null, { session_state: 'c1a43afe' });
         }
@@ -639,6 +637,41 @@ describe('grant.code', function() {
       it('should error', function() {
         expect(err).to.be.an.instanceOf(Error);
         expect(err.message).to.equal('something was thrown');
+      });
+    });
+    
+    describe('encountering an error while extending response', function() {
+      var err;
+      
+      before(function(done) {
+        function issue(client, redirectURI, user, done) {
+          return done(null, 'xyz');
+        }
+        
+        function extend(txn, done) {
+          return done(new Error('something went wrong'));
+        }
+        
+        chai.oauth2orize.grant(code(issue, extend))
+          .txn(function(txn) {
+            txn.client = { id: 'cERROR', name: 'Example' };
+            txn.redirectURI = 'http://www.example.com/auth/callback';
+            txn.req = {
+              redirectURI: 'http://example.com/auth/callback'
+            };
+            txn.user = { id: 'u123', name: 'Bob' };
+            txn.res = { allow: true };
+          })
+          .next(function(e) {
+            err = e;
+            done();
+          })
+          .decide();
+      });
+      
+      it('should error', function() {
+        expect(err).to.be.an.instanceOf(Error);
+        expect(err.message).to.equal('something went wrong');
       });
     });
     
