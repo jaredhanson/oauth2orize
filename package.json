@@ -49,11 +49,11 @@
     "debug": "2.x.x"
   },
   "devDependencies": {
-    "make-node": "0.3.x",
-    "mocha": "2.x.x",
     "chai": "2.x.x",
     "chai-connect-middleware": "0.3.x",
-    "chai-oauth2orize-grant": "0.3.x"
+    "chai-oauth2orize-grant": "0.3.x",
+    "make-node": "0.3.x",
+    "mocha": "6.x.x"
   },
   "engines": {
     "node": ">= 0.4.0"
