@@ -56,7 +56,7 @@
     "chai-oauth2orize-grant": "0.3.x"
   },
   "engines": {
-    "node": ">= 0.4.0"
+    "node": ">= 8.0.0"
   },
   "scripts": {
     "test": "node_modules/.bin/mocha --reporter spec --require test/bootstrap/node test/*.test.js test/**/*.test.js"
